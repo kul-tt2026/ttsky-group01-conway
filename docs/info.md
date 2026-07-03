@@ -9,12 +9,12 @@ You can also include images in this folder and reference them in the markdown. E
 
 ## How it works
 
-Explain how your project works
+This project simulates [Conway's Game of Life](https://en.wikipedia.org/wiki/Conway%27s_Game_of_Life).
 
 ## How to test
 
-Explain how to use your project
+Plug in the VGA Pmod connector and let Conway's Game of Life come to life!
 
 ## External hardware
 
-List external hardware used in your project (e.g. PMOD, LED display, etc), if any
+[Tiny Tapeout VGA Pmod connector](https://tinytapeout.com/specs/pinouts/#vga-output).
