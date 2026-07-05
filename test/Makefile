@@ -7,7 +7,7 @@ FST             ?= -fst # Use more efficient FST format
 TOPLEVEL_LANG   ?= verilog
 SRC_DIR          = $(PWD)/../src
 VERILOG_INCLUDE_DIRS += $(SRC_DIR)
-PROJECT_SOURCES  = project.v, vga.v, input.v, logica.v, vga_hvsync_generator.v
+PROJECT_SOURCES  = project.v vga.v input.v logica.v vga_hvsync_generator.v
 
 ifneq ($(GATES),yes)
 
@@ -38,7 +38,7 @@ VERILOG_SOURCES += $(PWD)/tb.v
 TOPLEVEL         = tb
 
 # List test modules to run, separated by commas and without the .py suffix:
-COCOTB_TEST_MODULES = test_vga
+COCOTB_TEST_MODULES = test, test_vga
 
 # Include cocotb's make rules to take care of the simulator setup
 include $(shell cocotb-config --makefiles)/Makefile.sim
