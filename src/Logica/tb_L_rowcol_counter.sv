@@ -13,7 +13,7 @@ module tb_L_rowcol_counter ();
     localparam int COLS       = 3;
     localparam int CLK_PERIOD = 10;   // ns
 
-    logic clk, reset_n, reset_address, advance;
+    logic clk, reset_n, reset_address, advance_grid ;
     logic [$clog2(ROWS)-1:0] row;
     logic [$clog2(COLS)-1:0] col;
     logic row_0, col_0, row_max, col_max, address_max;
@@ -28,7 +28,7 @@ module tb_L_rowcol_counter ();
         .clk(clk),
         .reset_n(reset_n),
         .reset_address(reset_address),
-        .advance(advance),
+        .advance_grid(advance_grid),
         .row(row),
         .col(col),
         .row_0(row_0),
@@ -80,7 +80,7 @@ module tb_L_rowcol_counter ();
         // Alle inputs een bekende waarde geven voor de eerste klokflank.
         reset_n       = 1'b1;
         reset_address = 1'b0;
-        advance       = 1'b0;
+        advance_grid  = 1'b0;
 
         step(2);
         reset_n = 1'b0;
@@ -89,13 +89,13 @@ module tb_L_rowcol_counter ();
         check(row_0 && col_0, "row_0/col_0 kloppen niet tijdens reset_n");
         check(!row_max && !col_max && !address_max, "row_max/col_max/address_max zijn hoog wanneer ze laag moeten zijn");
 
-        reset_n = 1'b1;
-        advance = 1'b1;
+        reset_n       = 1'b1;
+        advance_grid  = 1'b1;
         step(1);
-        check_rc(0, 1, "advance werkt niet (1)");
+        check_rc(0, 1, "advance_grid  werkt niet (1)");
 
         step(4);
-        check_rc(1, 2, "advance werkt niet (2)");
+        check_rc(1, 2, "advance_grid  werkt niet (2)");
         check(col_max, "col_max werkt niet");
         check(!row_0 && !col_0, "row_0/col_0 zijn hoog wanneer ze laag moeten zijn");
 
@@ -105,11 +105,11 @@ module tb_L_rowcol_counter ();
        
         reset_address = 1'b0;
         step(9);
-        check_rc(3, 0, "advance werkt niet (3)");
+        check_rc(3, 0, "advance_grid  werkt niet (3)");
         check(row_max && !col_max && !address_max, "row_max/col_max/address_max werken niet (1)");
 
         step(2);
-        check_rc(3, 2, "advance werkt niet (3)");
+        check_rc(3, 2, "advance_grid  werkt niet (4)");
         check(row_max && col_max && address_max, "row_max/col_max/address_max werken niet (2)");
 
         // Einde

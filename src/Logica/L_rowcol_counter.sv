@@ -9,15 +9,12 @@ Verder output die enkele nuttige utilities over row en col
 
 module L_rowcol_counter #(
     parameter int row_count = 8,   // aantal pixels
-    parameter int col_count = 8,   // Werkt niet voor row_count of col_count = 1
-
-    localparam int row_bits = $clog2(row_count),
-    localparam int col_bits = $clog2(col_count)
+    parameter int col_count = 8   // Werkt niet voor row_count of col_count = 1
 ) (
     input logic clk,
     input logic reset_n,        // active low:  reset bij 0
     input logic reset_address,  // active high: reset bij 1
-    input logic advance,
+    input logic advance_grid,
 
     output logic [row_bits-1:0] row,
     output logic [col_bits-1:0] col,
@@ -27,6 +24,9 @@ module L_rowcol_counter #(
     output logic col_max,
     output logic address_max
 );
+    
+    localparam int row_bits = $clog2(row_count);
+    localparam int col_bits = $clog2(col_count);
 
     always_ff @(posedge clk or negedge reset_n) begin
         if (!reset_n) begin
@@ -37,7 +37,7 @@ module L_rowcol_counter #(
             row <= '0;
             col <= '0;
         end
-        else if (advance) begin
+        else if (advance_grid) begin
             // col wordt eerst afgegaan, dan row. Dus eerst naar rechts, dan volgende rij
             if (address_max) begin
                 row <= '0;
