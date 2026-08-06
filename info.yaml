@@ -17,11 +17,18 @@ project:
   # Source files must be in ./src and you must list each source file separately, one per line.
   # Don't forget to also update `PROJECT_SOURCES` in test/Makefile.
   source_files:
-    - "project.v"
+    - "project.sv"
     - "input.v"
-    - "logica.v"
     - "vga.v"
     - "vga_hvsync_generator.v"
+    - "logica/L_controller.sv"
+    - "logica/L_datapath.sv"
+    - "logica/L_decider.sv"
+    - "logica/L_main.sv"
+    - "logica/L_rowcol_counter.sv"
+    - "logica/L_sweep_counter.sv"
+    - "logica/L_sweeper.sv"
+    - "register_board/register_board.sv"
 
 # The pinout of your project. Leave unused pins blank. DO NOT delete or add any pins.
 # This section is for the datasheet/website. Use descriptive names (e.g., RX, TX, MOSI, SCL, SEG_A, etc.).

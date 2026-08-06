@@ -75,13 +75,16 @@ module tt_um_conwaysgameoflife (
         data_in = L_new_cel;
       end
       else begin
+        active_board_write = 0; // Don't care
         active_board_read = 1;
         write_enable = 0;
+        data_in = 0; // Don't care
       end    
-
-      if (active_board_read == 1) cel_out_pg = data_out;
-
     end
+
+    if (active_board_read == 1) cel_out_pg = data_out;
+      else cel_out_pg = 0; // Don't care
+    
   end
 
   register_board #(
