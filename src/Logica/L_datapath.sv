@@ -71,7 +71,8 @@ module L_datapath #(
         .L_address(L_address)
     );
 
-    logic [3:0] decider_sweep_number = sweep_number - 1'b1; // Zodat deze in sync is met de cel van het geheugen
+    logic [3:0] decider_sweep_number; // Zodat deze in sync is met de cel van het geheugen
+    assign decider_sweep_number = sweep_number - 1'b1; 
 
     L_decider u_L_decider (
         .clk(clk),

@@ -74,8 +74,9 @@ module L_sweeper #(
         if(sweep_row >= (row_bits+1)'(row_count)) sweep_row = '0;
         if(sweep_col >= (col_bits+1)'(col_count)) sweep_col = '0;
 
-        L_address = {sweep_row[row_bits-1:0], sweep_col[col_bits-1:0]};
     end
+
+    assign L_address = {sweep_row[row_bits-1:0], sweep_col[col_bits-1:0]};
 
 endmodule
 

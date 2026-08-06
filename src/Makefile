@@ -1,0 +1,14 @@
+IVERILOG = iverilog
+FLAGS    = -g2012
+SRCS = project.sv \
+       logica/L_controller.sv logica/L_datapath.sv \
+       logica/L_decider.sv logica/L_rowcol_counter.sv \
+       logica/L_sweep_counter.sv logica/L_sweeper.sv \
+	   logica/L_main.sv register_board/register_board.sv
+
+simulate_project:
+	$(IVERILOG) $(FLAGS) -o sim.out $(SRCS) tb_project.sv
+	./sim.out
+
+clean:
+	rm -f sim.out tb_project.vcd
