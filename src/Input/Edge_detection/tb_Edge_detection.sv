@@ -10,7 +10,7 @@ module tb_Edge_detection ();
             .button_rise(button_rise)
         );
     always begin
-        #1 clk = ~clk;
+        #12.5 clk = ~clk;
     end
     initial begin
         $dumpfile("Edge_detector.vcd");
