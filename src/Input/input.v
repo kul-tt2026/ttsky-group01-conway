@@ -12,6 +12,7 @@ module invoer #(parameter BOARD_SIZE = 8) (
 );
 
 
+
 always @(posedge clk or negedge reset_n) begin
     if (!reset_n) begin
         write_address_x <= 0;
@@ -19,7 +20,7 @@ always @(posedge clk or negedge reset_n) begin
         write_value <= 0;
     end
     else begin
-        
+
     end
 end
 
