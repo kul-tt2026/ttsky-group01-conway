@@ -1,3 +1,4 @@
+`include "vga_hvsync_generator.sv"
 
 module vga(
   input  wire [7:0] ui_in,    // Dedicated inputs
@@ -7,7 +8,7 @@ module vga(
   output wire [7:0] uio_oe,   // IOs: Enable path (active high: 0=input, 1=output)
   input  wire       ena,      // always 1 when the design is powered, so you can ignore it
   input  wire       clk,      // clock
-  input  wire       rst_n     // reset_n - low to reset
+  input  wire       reset_n     // reset_n - low to reset
 );
 
 // VGA signals
@@ -19,14 +20,6 @@ wire [1:0] B;
 wire video_active;
 wire [9:0] pix_x;
 wire [9:0] pix_y;
-
-// stops/starts simulation
-wire running;
-assign running = ~ui_in[0];
-
-// randomizes board state
-wire randomize;
-assign randomize = ui_in[1];
 
 // TinyVGA PMOD
 assign uo_out = {hsync, B[0], G[0], R[0], vsync, B[1], G[1], R[1]};
@@ -40,7 +33,7 @@ wire _unused_ok = &{ena, ui_in, uio_in};
 
 hvsync_generator hvsync_gen(
   .clk(clk),
-  .reset(~rst_n),
+  .reset(~reset_n),
   .hsync(hsync),
   .vsync(vsync),
   .display_on(video_active),

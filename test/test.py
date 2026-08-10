@@ -19,9 +19,9 @@ async def test_project(dut):
     dut.ena.value = 1
     dut.ui_in.value = 0
     dut.uio_in.value = 0
-    dut.rst_n.value = 0
+    dut.reset_n.value = 0
     await ClockCycles(dut.clk, 10)
-    dut.rst_n.value = 1
+    dut.reset_n.value = 1
 
     dut._log.info("Test project behavior")
 
