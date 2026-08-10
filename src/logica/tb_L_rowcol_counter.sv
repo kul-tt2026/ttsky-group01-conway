@@ -52,7 +52,7 @@ module tb_L_rowcol_counter ();
     initial begin
         #(CLK_PERIOD * 500);
         $error("TIMEOUT: testbench is niet klaargeraakt");
-        $finish;
+        $fatal(1, "TIMEOUT: testbench is niet klaargeraakt");
     end
 
     // Drie hulpfuncties van Claude Opus 5

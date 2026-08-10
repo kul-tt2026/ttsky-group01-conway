@@ -43,7 +43,7 @@ module tb_project ();
     initial begin
         #(CLK_PERIOD * 6170);
         $error("TIMEOUT: testbench is niet klaargeraakt");
-        $finish;
+        $fatal(1, "TIMEOUT: testbench is niet klaargeraakt");
     end
 
     // Hulpfuncties

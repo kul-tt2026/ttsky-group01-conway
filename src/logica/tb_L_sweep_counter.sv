@@ -41,7 +41,7 @@ module tb_L_sweep_counter ();
     initial begin
         #(CLK_PERIOD * 500);
         $error("TIMEOUT: testbench is niet klaargeraakt");
-        $finish;
+        $fatal(1, "TIMEOUT: testbench is niet klaargeraakt");
     end
 
     // Hulpfuncties

@@ -142,21 +142,8 @@ module tb_L_sweeper ();
             $fatal(1, "=== FAIL: %0d fout(en) ===", errors);
         end
     end
-
-
-
-
     
 endmodule
-
-
-
-
-
-
-
-
-
 
 
 `default_nettype wire
