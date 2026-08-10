@@ -35,6 +35,8 @@ VERILOG_SOURCES += $(PWD)/gate_level_netlist.v
 
 endif
 
+COMPILE_ARGS += -I$(PWD)/../src/vga # trying to fix errors with files not found
+
 # Include the testbench sources:
 VERILOG_SOURCES += $(PWD)/tb.v
 TOPLEVEL         = tb
