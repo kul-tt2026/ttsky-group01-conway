@@ -8,7 +8,7 @@ Hier is geen testbench voor
 */
 
 module L_datapath #(
-    parameter int row_count = 8,  // aantal pixels
+    parameter int row_count = 8,  // aantal cellen
     parameter int col_count = 8   // Werkt niet voor row_count of col_count = 1
 ) (
     input logic clk,

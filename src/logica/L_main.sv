@@ -11,7 +11,7 @@ Indien nodig kan ik nog proberen om daar 25% af te doen, maar dat lijkt me helem
 */
 
 module L_main #(
-    parameter int row_count = 8,  // aantal pixels
+    parameter int row_count = 8,  // aantal cellen
     parameter int col_count = 8   // Werkt niet voor row_count of col_count = 1    
 ) (
     input logic clk,
