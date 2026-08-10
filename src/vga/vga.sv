@@ -41,4 +41,9 @@ hvsync_generator hvsync_gen(
   .vpos(pix_y)
 );
 
+// change RGB to something to test
+assign R = 2'b11;
+assign G = 2'b11;
+assign B = 2'b11;
+
 endmodule
