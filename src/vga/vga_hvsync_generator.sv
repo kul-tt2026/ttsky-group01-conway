@@ -11,10 +11,10 @@ To use:
 Source: https://vga-playground.com/
 */
 
-module hvsync_generator(clk, reset, hsync, vsync, display_on, hpos, vpos);
+module hvsync_generator(clk, reset_n, hsync, vsync, display_on, hpos, vpos);
 
   input clk;
-  input reset;
+  input reset_n;
   output reg hsync, vsync;
   output display_on;
   output reg [9:0] hpos;
@@ -39,8 +39,8 @@ module hvsync_generator(clk, reset, hsync, vsync, display_on, hpos, vpos);
   parameter V_SYNC_END      = V_DISPLAY + V_BOTTOM + V_SYNC - 1;
   parameter V_MAX           = V_DISPLAY + V_TOP + V_BOTTOM + V_SYNC - 1;
 
-  wire hmaxxed = (hpos == H_MAX) || reset;	// set when hpos is maximum
-  wire vmaxxed = (vpos == V_MAX) || reset;	// set when vpos is maximum
+  wire hmaxxed = (hpos == H_MAX) || ~reset_n;	// set when hpos is maximum
+  wire vmaxxed = (vpos == V_MAX) || ~reset_n;	// set when vpos is maximum
   
   // horizontal position counter
   always @(posedge clk)

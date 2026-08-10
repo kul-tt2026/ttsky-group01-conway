@@ -22,7 +22,7 @@ async def reset_dut(dut):
     dut.ena.value = 1
     dut.ui_in.value = 0
     dut.uio_in.value = 0
-    dut.reet_n.value = 0
+    dut.reset_n.value = 0
     await ClockCycles(dut.clk, 2)
     dut.reset_n.value = 1
     await ClockCycles(dut.clk, 1)

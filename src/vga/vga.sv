@@ -1,4 +1,4 @@
-`include "vga_hvsync_generator.sv"
+`include "vga/vga_hvsync_generator.sv"
 
 module vga(
   input  wire [7:0] ui_in,    // Dedicated inputs
@@ -33,7 +33,7 @@ wire _unused_ok = &{ena, ui_in, uio_in};
 
 hvsync_generator hvsync_gen(
   .clk(clk),
-  .reset(~reset_n),
+  .reset_n(reset_n),
   .hsync(hsync),
   .vsync(vsync),
   .display_on(video_active),
