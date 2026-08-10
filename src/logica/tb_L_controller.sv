@@ -161,7 +161,7 @@ module tb_L_controller ();
         check(dut.state === dut.MOVE_T, "check_controlesignalen MOVE_T gebeurt op andere state");     
         check(L_idle === 1'b0 && L_LD_cel_pg === 1'b0 && L_LD_cel_g === 1'b0 && 
               advance_grid === 1'b0 && reset_address=== 1'b0 && advance_sweep === 1'b1 && 
-              reset_sweep === 1'b0 && reset_decider === 1'b1, "controlesignalen MOVE_T zijn fout");
+              reset_sweep === 1'b0 && reset_decider === 1'b0, "controlesignalen MOVE_T zijn fout");
 
 
 

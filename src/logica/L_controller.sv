@@ -66,7 +66,7 @@ always_comb begin : control_signals
         WRITE_T: {L_idle, L_LD_cel_pg, L_LD_cel_g, advance_grid, reset_address, advance_sweep, reset_sweep, reset_decider} = 
                  {1'b0,   1'b0,        1'b1,       1'b1,         1'b0,          1'b0,          1'b1,        1'b1};
         MOVE_T:  {L_idle, L_LD_cel_pg, L_LD_cel_g, advance_grid, reset_address, advance_sweep, reset_sweep, reset_decider} = 
-                 {1'b0,   1'b0,        1'b0,       1'b0,         1'b0,          1'b1,          1'b0,        1'b1};
+                 {1'b0,   1'b0,        1'b0,       1'b0,         1'b0,          1'b1,          1'b0,        1'b0};
     endcase
 end
     

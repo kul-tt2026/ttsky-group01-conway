@@ -1,27 +1,25 @@
 # Deel Sieben, logica
+# Elegentere syntax van Claude Opus 5
+# simuleer iets door bv. "make simulate L_sweeper" (in src/logica)
+# verwijder temp output via "make clean" (in src/logica)
 
 IVERILOG = iverilog
 FLAGS    = -g2012
 
-simulate_L_rowcol_counter:
-	$(IVERILOG) $(FLAGS) -o sim.out L_rowcol_counter.sv tb_L_rowcol_counter.sv
-	./sim.out
+MODULES = L_rowcol_counter L_sweep_counter L_sweeper L_decider L_controller
 
-simulate_L_sweep_counter:
-	$(IVERILOG) $(FLAGS) -o sim.out L_sweep_counter.sv tb_L_sweep_counter.sv
-	./sim.out
+simulate_%:
+	$(IVERILOG) $(FLAGS) -o sim_$*.out $*.sv tb_$*.sv
+	./sim_$*.out
 
-simulate_L_sweeper:
-	$(IVERILOG) $(FLAGS) -o sim.out L_sweeper.sv tb_L_sweeper.sv
-	./sim.out
+.PHONY: simulate_all
+simulate_all: $(addprefix simulate_,$(MODULES))
 
-simulate_L_decider:
-	$(IVERILOG) $(FLAGS) -o sim.out L_decider.sv tb_L_decider.sv
-	./sim.out
+.PHONY: simulate_L_main
+simulate_L_main:
+	$(MAKE) -f Makefile.cocotb
 
-simulate_L_controller:
-	$(IVERILOG) $(FLAGS) -o sim.out L_controller.sv tb_L_controller.sv
-	./sim.out
-
+.PHONY: clean
 clean:
-	rm -f sim.out tb_L_rowcol_counter.vcd tb_L_sweep_counter.vcd tb_L_sweeper.vcd tb_L_decider.vcd tb_L_controller.vcd
+	rm -f sim*.out tb_L_*.vcd
+	$(MAKE) -f Makefile.cocotb clean

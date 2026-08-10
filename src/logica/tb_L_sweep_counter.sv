@@ -81,8 +81,8 @@ module tb_L_sweep_counter ();
         check(sweep_number == '0, "reset_n werkt niet");
         
         reset_n = 1'b1;
-        step(9);
-        check(sweep_number == 4'd9, "sweep_number advanced verkeerd (2)");
+        step(8);
+        check(sweep_number == 4'd8, "sweep_number advanced verkeerd (2)");
         check(read_ready == 1'b1, "read ready is 0 terwijl die 1 moet zijn");
 
         reset_sweep = 1'b1;

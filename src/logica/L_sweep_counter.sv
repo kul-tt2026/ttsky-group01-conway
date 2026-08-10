@@ -37,7 +37,7 @@ module L_sweep_counter (
 
     end
 
-    assign read_ready = (sweep_number > 4'd8);
+    assign read_ready = (sweep_number >= 4'd8);
  
 endmodule
 
