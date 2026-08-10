@@ -1,4 +1,4 @@
-`include "vga/vga_hvsync_generator.sv"
+`include "vga_hvsync_generator.sv"
 
 module vga(
   input  wire [7:0] ui_in,    // Dedicated inputs
