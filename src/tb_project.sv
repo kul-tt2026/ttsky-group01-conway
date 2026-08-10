@@ -19,7 +19,7 @@ module tb_project ();
 
     tt_um_conwaysgameoflife u_conway (
         .ui_in(ui_in),  // adres in {row, col}
-        .uio_in(uio_in), /* 7:6 irrelevant; 5 L_forward, 4 data_in, 3 active_board_read,
+        .uio_in(uio_in), /* 7:6 irrelevant; 5 L_next_iter, 4 data_in, 3 active_board_read,
                              2 active_board_write, 1 write_enable, 0 logica_enable */
         .clk(clk),
         .ena(ena),
@@ -63,7 +63,7 @@ module tb_project ();
 
         ena = 1'b1;
         ui_in = '0; // adres {row, col}
-        uio_in = '0; /* 7:6 irrelevant; 5 L_forward, 4 data_in, 3 active_board_read,
+        uio_in = '0; /* 7:6 irrelevant; 5 L_next_iter, 4 data_in, 3 active_board_read,
                             2 active_board_write, 1 write_enable, 0 logica_enable */
 
         // reset
@@ -90,7 +90,7 @@ module tb_project ();
 
         // Simulatie één iteratie laten doen
         uio_in[0] = 1'b1; // logica_enable
-        uio_in[5] = 1'b1; // L_forward
+        uio_in[5] = 1'b1; // L_next_iter
         step(1);
         uio_in[5] = 1'b0;
 
@@ -122,7 +122,7 @@ module tb_project ();
         // Nog een iteratie verdergaan
 
         uio_in[0] = 1'b1; // logica_enable
-        uio_in[5] = 1'b1; // L_forward
+        uio_in[5] = 1'b1; // L_next_iter
         step(1);
         uio_in[5] = 1'b0;
 

@@ -11,7 +11,7 @@ module L_controller (
     input logic clk,
     input logic reset_n,
     input logic reset_controller,
-    input logic L_forward,
+    input logic L_next_iter,
     input logic address_max,
     input logic read_ready,
 
@@ -42,7 +42,7 @@ always_ff @( posedge clk or negedge reset_n ) begin : next_state_logic
         state <= IDLE;
     end
     else case (state)
-        IDLE: if(L_forward) state <= COPY;
+        IDLE: if(L_next_iter) state <= COPY;
         COPY: if(address_max) state <= READ_T;
         READ_T: if(read_ready) state <= WRITE_T;
         WRITE_T: begin
@@ -66,7 +66,7 @@ always_comb begin : control_signals
         WRITE_T: {L_idle, L_LD_cel_pg, L_LD_cel_g, advance_grid, reset_address, advance_sweep, reset_sweep, reset_decider} = 
                  {1'b0,   1'b0,        1'b1,       1'b1,         1'b0,          1'b0,          1'b1,        1'b1};
         MOVE_T:  {L_idle, L_LD_cel_pg, L_LD_cel_g, advance_grid, reset_address, advance_sweep, reset_sweep, reset_decider} = 
-                 {1'b0,   1'b0,        1'b0,       1'b0,         1'b0,          1'b1,          1'b0,        1'b1};
+                 {1'b0,   1'b0,        1'b0,       1'b0,         1'b0,          1'b1,          1'b0,        1'b0};
     endcase
 end
     

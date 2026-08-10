@@ -46,4 +46,47 @@ jobs:
           path: |
             test/tb.fst
             test/results.xml
-            test/output/*
+            test/output/*        
+            
+  test_logica: # Deel Sieben; Github test structuur geschreven door Claude Opus 5
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v6
+        with:
+          submodules: recursive
+
+      - name: Install iverilog
+        run: sudo apt-get update && sudo apt-get install -y iverilog
+
+      - name: Setup python
+        uses: actions/setup-python@v6
+        with:
+          python-version: '3.12'
+
+      - name: Install Python packages
+        run: pip install -r test/requirements.txt
+
+      - name: Run standalone testbenches
+        run: make -C src/logica simulate_all
+
+      - name: Run L_main cocotb test
+        if: success() || failure()
+        run: |
+          make -C src/logica simulate_L_main
+          ! grep '<failure' src/logica/results.xml
+
+      - name: Test Summary
+        uses: test-summary/action@v2
+        with:
+          paths: "src/logica/results.xml"
+        if: always()
+
+      - name: Upload waveforms and results
+        if: success() || failure()
+        uses: actions/upload-artifact@v7
+        with:
+          name: logica-test-results
+          path: |
+            src/logica/results.xml
+            src/logica/*.vcd

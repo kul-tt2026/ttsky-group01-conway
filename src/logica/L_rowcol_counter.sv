@@ -8,7 +8,7 @@ Verder output die enkele nuttige utilities over row en col
 */
 
 module L_rowcol_counter #(
-    parameter int row_count = 8,   // aantal pixels
+    parameter int row_count = 8,   // aantal cellen
     parameter int col_count = 8   // Werkt niet voor row_count of col_count = 1
 ) (
     input logic clk,

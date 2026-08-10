@@ -1,0 +1,28 @@
+# Geschreven door Claude Opus 5
+# "make -f Makefile.cocotb" (in /src/logica) om test_L_main.py te runnen
+# "make -f Makefile.cocotb clean" (in /src/logica) om de temporary output op te ruimen
+# Deze file lijkt niet of die iets zo mogen doen maar doet het wel, via die include cocotb
+# Je kan de test & clean ook runnen via simpelere commando's in de andere makefile (src/logica/Makefile)
+
+SIM             = icarus
+TOPLEVEL_LANG   = verilog
+TOPLEVEL        = tb_L_main
+COCOTB_TEST_MODULES = test_L_main
+SIM_BUILD       = sim_build/L_main
+
+HERE := $(patsubst %/,%,$(dir $(abspath $(lastword $(MAKEFILE_LIST)))))
+
+
+VERILOG_SOURCES = $(HERE)/L_main.sv $(HERE)/L_controller.sv $(HERE)/L_datapath.sv \
+                  $(HERE)/L_decider.sv $(HERE)/L_rowcol_counter.sv \
+                  $(HERE)/L_sweep_counter.sv $(HERE)/L_sweeper.sv \
+                  $(HERE)/../register_board/register_board.sv \
+                  $(HERE)/tb_L_main.sv
+
+include $(shell cocotb-config --makefiles)/Makefile.sim
+
+export PYTHONPATH := $(HERE)/../../test:$(PYTHONPATH)
+
+.PHONY: clean
+clean::
+	rm -rf sim_build/ __pycache__/ results.xml tb_L_main.vcd

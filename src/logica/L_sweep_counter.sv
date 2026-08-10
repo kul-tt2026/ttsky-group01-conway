@@ -3,15 +3,15 @@
 
 /*
 Deel Logica, Sieben
-Deze module houd een sweepcounter bij. We gaan per pixel alle acht 
-omringende pixels moeten opvragen, deze counter houd bij waar we 
+Deze module houd een sweepcounter bij. We gaan per cel alle acht 
+omringende cellen moeten opvragen, deze counter houd bij waar we 
 zitten in die 'sweep'. 
 De conventie is: (wordt eigenlijk pas gebruikt in L_sweeper)
     8 1 2
     7 0 3
     6 5 4
 De output read_ready wordt 1 als de sweep_counter hoger is dan acht.
-Dit betekent dat alle omliggende pixels uitgelezen zijn.
+Dit betekent dat alle omliggende cellen uitgelezen zijn.
 */
 
 module L_sweep_counter (
@@ -37,7 +37,7 @@ module L_sweep_counter (
 
     end
 
-    assign read_ready = (sweep_number > 4'd8);
+    assign read_ready = (sweep_number >= 4'd8);
  
 endmodule
 

@@ -11,13 +11,13 @@ Indien nodig kan ik nog proberen om daar 25% af te doen, maar dat lijkt me helem
 */
 
 module L_main #(
-    parameter int row_count = 8,  // aantal pixels
+    parameter int row_count = 8,  // aantal cellen
     parameter int col_count = 8   // Werkt niet voor row_count of col_count = 1    
 ) (
     input logic clk,
     input logic reset_n,
-    input logic L_reset, // gebruik ik enkel om reset_controller aan te drijven, want die reset dan ook het datapath
-    input logic L_forward,
+    input logic L_reset, // doet hetzelfde als reset_n. Wel twee cyclussen hoog laten staan: eerst reset je de controller, dan reset de controller het datapad
+    input logic L_next_iter, // start de berekening van de volgende iteratie van de simulatie. Is klaar wanneer L_idle weer hoog is
     input logic cel_out_pg,
 
     output logic L_idle,
@@ -38,7 +38,7 @@ module L_main #(
         .clk(clk),
         .reset_n(reset_n),
         .reset_controller(L_reset),
-        .L_forward(L_forward),
+        .L_next_iter(L_next_iter),
         .address_max(address_max),
         .read_ready(read_ready),
         .L_idle(L_idle),

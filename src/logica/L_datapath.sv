@@ -8,7 +8,7 @@ Hier is geen testbench voor
 */
 
 module L_datapath #(
-    parameter int row_count = 8,  // aantal pixels
+    parameter int row_count = 8,  // aantal cellen
     parameter int col_count = 8   // Werkt niet voor row_count of col_count = 1
 ) (
     input logic clk,
@@ -71,15 +71,12 @@ module L_datapath #(
         .L_address(L_address)
     );
 
-    logic [3:0] decider_sweep_number; // Zodat deze in sync is met de cel van het geheugen
-    assign decider_sweep_number = sweep_number - 1'b1; 
-
     L_decider u_L_decider (
         .clk(clk),
         .reset_n(reset_n),
         .reset_decider(reset_decider),
         .cel(cel_out_pg),
-        .sweep_number(decider_sweep_number),
+        .sweep_number(sweep_number),
         .L_new_cel(L_new_cel)
     );
 

@@ -13,13 +13,13 @@ De conventie voor de sweep is:
     6 5 4
 
 Als het sweep_number hoger is dan acht, returnen we het adres van
-de middelste pixel (0 in de conventie).
+de middelste cel (0 in de conventie).
 
 De rij boven de bovenste rij is de onderste, etc.
 */
 
 module L_sweeper #(
-    parameter int row_count = 8,  // aantal pixels
+    parameter int row_count = 8,  // aantal cellen
     parameter int col_count = 8   // Werkt niet voor row_count of col_count = 1
 ) (
     input logic [row_bits-1:0] row,

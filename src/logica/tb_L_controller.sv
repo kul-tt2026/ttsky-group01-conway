@@ -11,7 +11,7 @@ module tb_L_controller ();
     
     localparam int CLK_PERIOD = 10;   // ns
     
-    logic clk, reset_n, reset_controller, L_forward, address_max, read_ready;
+    logic clk, reset_n, reset_controller, L_next_iter, address_max, read_ready;
     logic L_idle, L_LD_cel_pg, L_LD_cel_g, advance_grid, reset_address, advance_sweep, reset_sweep, reset_decider;
 
     int errors = 0;
@@ -20,7 +20,7 @@ module tb_L_controller ();
         .clk(clk),
         .reset_n(reset_n),
         .reset_controller(reset_controller),
-        .L_forward(L_forward),
+        .L_next_iter(L_next_iter),
         .address_max(address_max),
         .read_ready(read_ready),
         .L_idle(L_idle),
@@ -67,7 +67,7 @@ module tb_L_controller ();
 
         reset_n = '0;
         reset_controller = '0;
-        L_forward = '0;
+        L_next_iter = '0;
         address_max = '0;
         read_ready = '0;
 
@@ -80,9 +80,9 @@ module tb_L_controller ();
         step(2);
         check(dut.state === dut.IDLE, "state advanced terwijl dat niet mag (1)");
 
-        L_forward = 1'b1;
+        L_next_iter = 1'b1;
         step(3);
-        L_forward = 1'b0;
+        L_next_iter = 1'b0;
 
         check(dut.state === dut.COPY, "advanced niet naar COPY");
 
@@ -95,7 +95,7 @@ module tb_L_controller ();
         step(1);
         check(dut.state === dut.IDLE, "reset_controller werkt niet");
         reset_controller = '0;
-        L_forward = 1'b1;
+        L_next_iter = 1'b1;
 
         step(2);
         check(dut.state === dut.READ_T, "advanced niet naar READ_T (2)");
@@ -161,7 +161,7 @@ module tb_L_controller ();
         check(dut.state === dut.MOVE_T, "check_controlesignalen MOVE_T gebeurt op andere state");     
         check(L_idle === 1'b0 && L_LD_cel_pg === 1'b0 && L_LD_cel_g === 1'b0 && 
               advance_grid === 1'b0 && reset_address=== 1'b0 && advance_sweep === 1'b1 && 
-              reset_sweep === 1'b0 && reset_decider === 1'b1, "controlesignalen MOVE_T zijn fout");
+              reset_sweep === 1'b0 && reset_decider === 1'b0, "controlesignalen MOVE_T zijn fout");
 
 
 
