@@ -1,4 +1,3 @@
-`include "vga_hvsync_generator.v"
 
 module vga(
   input  wire [7:0] ui_in,    // Dedicated inputs
