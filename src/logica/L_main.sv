@@ -16,8 +16,8 @@ module L_main #(
 ) (
     input logic clk,
     input logic reset_n,
-    input logic L_reset, // gebruik ik enkel om reset_controller aan te drijven, want die reset dan ook het datapath
-    input logic L_forward,
+    input logic L_reset, // doet hetzelfde als reset_n. Wel twee cyclussen hoog laten staan: eerst reset je de controller, dan reset de controller het datapad
+    input logic L_next_iter, // start de berekening van de volgende iteratie van de simulatie. Is klaar wanneer L_idle weer hoog is
     input logic cel_out_pg,
 
     output logic L_idle,
@@ -38,7 +38,7 @@ module L_main #(
         .clk(clk),
         .reset_n(reset_n),
         .reset_controller(L_reset),
-        .L_forward(L_forward),
+        .L_next_iter(L_next_iter),
         .address_max(address_max),
         .read_ready(read_ready),
         .L_idle(L_idle),

@@ -18,7 +18,7 @@ async def test_project(dut):
     # Reset
     dut._log.info("Reset")
     dut.L_reset.value = 0
-    dut.L_forward.value = 0
+    dut.L_next_iter.value = 0
     dut.reset_n.value = 0
     await ClockCycles(dut.clk, 10)
     dut.reset_n.value = 1
@@ -59,9 +59,9 @@ async def test_project(dut):
                 assert py == int(sv), f"ERROR: iteratie {i}, rij {row}, kolom {col}, python had {py}, verilog {sv}"
 
     for i in range(10):
-        dut.L_forward.value = 1
+        dut.L_next_iter.value = 1
         await ClockCycles(dut.clk, 5)
-        dut.L_forward.value = 0
+        dut.L_next_iter.value = 0
 
         await dut.L_idle.rising_edge
         pySim.advance()

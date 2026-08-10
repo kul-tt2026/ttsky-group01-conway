@@ -26,10 +26,10 @@ module tt_um_conwaysgameoflife (
   logic data_in, data_out, active_board_read, active_board_write, write_enable;
   logic [row_bits-1:0] address_row;  
   logic [col_bits-1:0] address_col;
-  logic L_idle, L_reset, L_forward, cel_out_pg, L_new_cel, L_LD_cel_g, L_LD_cel_pg;
+  logic L_idle, L_reset, L_next_iter, cel_out_pg, L_new_cel, L_LD_cel_g, L_LD_cel_pg;
   logic [row_bits + col_bits - 1:0] L_address;
   
-  assign L_forward = uio_in[5];
+  assign L_next_iter = uio_in[5];
   assign uo_out[0] = data_out;
   assign uo_out[1] = L_idle;
 
@@ -111,7 +111,7 @@ module tt_um_conwaysgameoflife (
     .clk(clk),
     .reset_n(rst_n),
     .L_reset(L_reset),
-    .L_forward(L_forward),
+    .L_next_iter(L_next_iter),
     .cel_out_pg(cel_out_pg),
     .L_idle(L_idle),
     .L_address(L_address),

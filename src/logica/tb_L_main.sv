@@ -17,7 +17,7 @@ module tb_L_main ();
     localparam int col_bits = $clog2(COLS);
 
     // L_main
-    logic clk, reset_n, L_reset, L_forward, cel_out_pg;
+    logic clk, reset_n, L_reset, L_next_iter, cel_out_pg;
     logic L_idle, L_new_cel, L_LD_cel_g, L_LD_cel_pg;
     logic [row_bits + col_bits - 1:0] L_address;
     // Reg
@@ -31,7 +31,7 @@ module tb_L_main ();
         .clk(clk),
         .reset_n(reset_n),
         .L_reset(L_reset),
-        .L_forward(L_forward),
+        .L_next_iter(L_next_iter),
         .cel_out_pg(cel_out_pg),
         .L_idle(L_idle),
         .L_new_cel(L_new_cel),
