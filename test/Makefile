@@ -7,7 +7,7 @@ FST             ?= -fst # Use more efficient FST format
 TOPLEVEL_LANG   ?= verilog
 SRC_DIR          = $(PWD)/../src
 VERILOG_INCLUDE_DIRS += $(SRC_DIR)
-PROJECT_SOURCES  = project.sv vga.v input.v vga_hvsync_generator.v register_board/register_board.sv logica/L_controller.sv logica/L_datapath.sv logica/L_decider.sv logica/L_main.sv logica/L_rowcol_counter.sv logica/L_sweep_counter.sv logica/L_sweeper.sv
+PROJECT_SOURCES  = project.sv vga/vga.v vga/vga_hvsync_generator.v register_board/register_board.sv logica/L_controller.sv logica/L_datapath.sv logica/L_decider.sv logica/L_main.sv logica/L_rowcol_counter.sv logica/L_sweep_counter.sv logica/L_sweeper.sv
 
 ifneq ($(GATES),yes)
 
