@@ -40,11 +40,11 @@ module tb_Input ();
     end
 
     button_right = 1;
-    button_left = 1;
+    button_down = 1;
     button_set = 1;
     #300;
     button_right = 0;
-    button_left = 0;
+    button_down = 0;
     button_set = 0;
     #300;
     button_start = 1;
