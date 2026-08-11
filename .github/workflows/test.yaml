@@ -90,3 +90,43 @@ jobs:
           path: |
             src/logica/results.xml
             src/logica/*.vcd
+
+  test_vga:
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v6
+        with:
+          submodules: recursive
+
+      - name: Install iverilog
+        run: sudo apt-get update && sudo apt-get install -y iverilog
+
+      - name: Setup python
+        uses: actions/setup-python@v6
+        with:
+          python-version: '3.12'
+
+      - name: Install Python packages
+        run: pip install -r test/requirements.txt
+
+      - name: Run VGA cocotb tests
+        run: |
+          make -C src/vga cocotb
+          ! grep '<failure' src/vga/results.xml
+
+      - name: Test Summary
+        uses: test-summary/action@v2
+        with:
+          paths: "src/vga/results.xml"
+        if: always()
+
+      - name: Upload waveforms and results
+        if: success() || failure()
+        uses: actions/upload-artifact@v7
+        with:
+          name: vga-test-results
+          path: |
+            src/vga/results.xml
+            src/vga/*.fst
+            src/vga/*.vcd
