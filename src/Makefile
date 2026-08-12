@@ -10,5 +10,10 @@ simulate_project:
 	$(IVERILOG) $(FLAGS) -o sim.out $(SRCS) tb_project.sv
 	./sim.out
 
+.PHONY: simulate_sim_speed
+simulate_sim_speed:
+	$(IVERILOG) $(FLAGS) -o sim.out sim_speed.sv tb_sim_speed.sv
+	./sim.out
+
 clean:
 	rm -f sim.out tb_project.vcd
