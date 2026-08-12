@@ -27,7 +27,8 @@ module vga #(
 
     input logic simulation_running,
     input logic [COL_BITS+ROW_BITS-1:0] cursorpos,
-    input logic cell_memory
+    input logic cell_memory,
+    output logic next_iter_allowed
 );
 
   localparam int COL_BITS = $clog2(NUM_COLS);
@@ -42,7 +43,6 @@ module vga #(
   logic display_on;
   logic [9:0] pix_x;
   logic [9:0] pix_y;
-  logic next_iter_allowed;
   logic [COL_BITS-1:0] col_idx;
   logic [ROW_BITS-1:0] row_idx;
   logic [1:0] cell_type;
