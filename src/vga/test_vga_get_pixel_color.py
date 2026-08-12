@@ -24,7 +24,7 @@ async def exhaustive_pixel_color(dut):
             dut.display_on.value = display_on
             dut.cell_type.value = cell_type
 
-            await Timer(1, units="ns")
+            await Timer(1, unit="ns")
 
             if display_on:
                 expected_r, expected_g, expected_b = EXPECTED_COLORS[cell_type]

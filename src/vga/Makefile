@@ -4,7 +4,7 @@ SIM           ?= icarus
 TOPLEVEL_LANG ?= verilog
 
 # List of DUTs that have cocotb tests
-COCOTB_DUTS = vga_get_cell_idx vga_get_cell_type vga_get_pixel_color vga
+COCOTB_DUTS = vga_hvsync_generator vga_get_cell_idx vga_get_cell_type vga_get_pixel_color vga
 
 # Require DUT for cocotb / cocotb_all, but NOT for clean
 ifeq ($(strip $(DUT)),)
@@ -25,7 +25,7 @@ include $(shell cocotb-config --makefiles)/Makefile.sim
 
 .PHONY: cocotb
 cocotb:
-	$(MAKE) sim    # 'sim' from Makefile.sim runs cocotb
+	$(MAKE) sim WAVES=1   # 'sim' from Makefile.sim runs cocotb
 
 .PHONY: cocotb_all
 cocotb_all:
