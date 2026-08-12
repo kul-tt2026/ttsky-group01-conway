@@ -21,10 +21,10 @@ module next_iter_countdown #(
     output logic countdown_done
 );
 
-localparam int longest_clock_cycles_wait_time = 4*clock_cycles_per_second;  // Voor QUARTER_HZ
-localparam int counter_bits = $clog2(longest_clock_cycles_wait_time + 1); // zou 27 bits moeten zijn
+    localparam int longest_clock_cycles_wait_time = 4*clock_cycles_per_second;  // Voor QUARTER_HZ
+    localparam int counter_bits = $clog2(longest_clock_cycles_wait_time + 1); // zou 27 bits moeten zijn
 
-logic [counter_bits-1:0] count;
+    logic [counter_bits-1:0] count;
 
     always_ff @( posedge clk or negedge reset_n ) begin
         if(!reset_n) begin
@@ -40,12 +40,12 @@ logic [counter_bits-1:0] count;
 
     always_comb begin
         case (speed)
-            QUARTER_HZ: countdown_done = (count >= clock_cycles_per_second * 4);
-            HALF_HZ: countdown_done = (count >= clock_cycles_per_second * 2);
-            ONE_HZ: countdown_done = (count >= clock_cycles_per_second);
-            TWO_HZ: countdown_done = (count >= clock_cycles_per_second / 2);
-            FOUR_HZ: countdown_done = (count >= clock_cycles_per_second / 4);
-            default: countdown_done = (count >= clock_cycles_per_second * 4); // QUARTER_HZ
+            QUARTER_HZ: countdown_done = (count >= (counter_bits)'(clock_cycles_per_second * 4) );
+            HALF_HZ: countdown_done = (count >= (counter_bits)'(clock_cycles_per_second * 2) );
+            ONE_HZ: countdown_done = (count >= (counter_bits)'(clock_cycles_per_second) );
+            TWO_HZ: countdown_done = (count >= (counter_bits)'(clock_cycles_per_second / 2) );
+            FOUR_HZ: countdown_done = (count >= (counter_bits)'(clock_cycles_per_second / 4) );
+            default: countdown_done = (count >= (counter_bits)'(clock_cycles_per_second * 4) ); // QUARTER_HZ
         endcase
     end
 

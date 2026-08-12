@@ -8,7 +8,7 @@ module tb_sim_speed ();
     localparam int CLK_PERIOD = 10;   // ns
 
     logic clk, reset_n, reset_speed, increase, decrease;
-    logic [2:0] speed;
+    speed_e speed;
 
     int errors = 0;
 
