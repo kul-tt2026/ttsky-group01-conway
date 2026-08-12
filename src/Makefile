@@ -15,5 +15,10 @@ simulate_sim_speed:
 	$(IVERILOG) $(FLAGS) -o sim.out sim_speed.sv tb_sim_speed.sv
 	./sim.out
 
+.PHONY: simulate_next_iter_countdown
+simulate_next_iter_countdown:
+	$(IVERILOG) $(FLAGS) -o sim.out sim_speed.sv next_iter_countdown.sv tb_next_iter_countdown.sv
+	./sim.out
+
 clean:
 	rm -f sim.out tb_project.vcd
