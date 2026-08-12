@@ -1,45 +1,39 @@
-# HOW TO TEST VGA:
-# make cocotb
+# ---------- cocotb setup for VGA modules ----------
 
-# quick test only .sv files:
-# make simulate_all
-# make simulate_filename
-# make sv
+SIM           ?= icarus
+TOPLEVEL_LANG ?= verilog
 
-# ---------- Snelle Icarus simulatie van pure SV-testbenches ----------
-IVERILOG = iverilog
-FLAGS    = -g2012
+# List of DUTs that have cocotb tests
+COCOTB_DUTS = vga_get_cell_idx vga_get_cell_type
 
-MODULES  = vga_get_cell_idx
+# Require DUT for cocotb / cocotb_all, but NOT for clean
+ifeq ($(strip $(DUT)),)
+ifneq ($(MAKECMDGOALS),cocotb_all)
+ifneq ($(MAKECMDGOALS),clean)
+$(error You must specify DUT, e.g. 'make cocotb DUT=vga_get_cell_type')
+endif
+endif
+endif
 
-.PHONY: simulate_% simulate_all sv
-simulate_%:
-	$(IVERILOG) $(FLAGS) -o sim_$*.out $*.sv tb_$*.sv
-	./sim_$*.out
-
-simulate_all: $(addprefix simulate_,$(MODULES))
-
-# Laat 'sv' het standaard SV-doel zijn
-sv: simulate_vga_get_cell_idx
-
-
-# ---------- cocotb-set-up voor Python tests + results.xml ----------
-SIM             ?= icarus
-TOPLEVEL_LANG   ?= verilog
-
-VERILOG_SOURCES += $(PWD)/vga_get_cell_idx.sv
-
-TOPLEVEL         = vga_get_cell_idx
-COCOTB_TEST_MODULES = test_vga_get_cell_idx
-COCOTB_RESULTS_FILE ?= results.xml
+VERILOG_SOURCES     = $(PWD)/$(DUT).sv
+TOPLEVEL            = $(DUT)
+COCOTB_TEST_MODULES = test_$(DUT)
+COCOTB_RESULTS_FILE ?= results_$(DUT).xml
+SIM_BUILD            = sim_build_$(DUT)
 
 include $(shell cocotb-config --makefiles)/Makefile.sim
 
 .PHONY: cocotb
 cocotb:
-	$(MAKE) sim    # 'sim' target komt uit Makefile.sim en runt cocotb
+	$(MAKE) sim    # 'sim' from Makefile.sim runs cocotb
+
+.PHONY: cocotb_all
+cocotb_all:
+	for d in $(COCOTB_DUTS); do \
+		$(MAKE) cocotb DUT=$$d || exit $$?; \
+	done
 
 .PHONY: clean
 clean::
-	rm -f sim_*.out tb_*.vcd *.fst results.xml
-	rm -rf sim_build/ __pycache__
+	rm -f results*.xml
+	rm -rf sim_build sim_build_* __pycache__

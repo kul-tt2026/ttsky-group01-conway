@@ -1,6 +1,8 @@
+`timescale 1ns / 1ps
+
 module vga_get_cell_idx #(
-    parameter int NUM_COLS = 8,
-    parameter int NUM_ROWS = 6
+    parameter int NUM_COLS = 16,
+    parameter int NUM_ROWS = 12
 ) (
     input logic [9:0] hpos,
     input logic [9:0] vpos,
