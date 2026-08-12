@@ -1,5 +1,5 @@
 `timescale 1ns/1ps
-module Input #(parameter BOARD_SIZE = 8, parameter DEBOUNCE_MAX = 19'd499999) (
+module Input #(parameter COL_COUNT = 8, parameter ROW_COUNT = 8 ,parameter DEBOUNCE_MAX = 19'd499999) (
     input clk,
     input reset_n,
     input button_up,
@@ -8,8 +8,8 @@ module Input #(parameter BOARD_SIZE = 8, parameter DEBOUNCE_MAX = 19'd499999) (
     input button_right,
     input button_set,
     input button_start,
-    output reg [$clog2(BOARD_SIZE)-1:0] write_address_x,
-    output reg [$clog2(BOARD_SIZE)-1:0] write_address_y,
+    output reg [$clog2(COL_COUNT)-1:0] write_address_col,
+    output reg [$clog2(ROW_COUNT)-1:0] write_address_row,
     output reg write_value,
     output reg start
 );
@@ -26,6 +26,7 @@ wire left_rise;
 wire right_rise;
 wire set_rise;
 wire start_rise;
+
 
 Debouncer #(DEBOUNCE_MAX) up_D (
     .clk(clk),
@@ -119,24 +120,24 @@ Edge_detection start_E (
 
 always @(posedge clk or negedge reset_n) begin
     if (!reset_n) begin
-        write_address_x <= 0;
-        write_address_y <= 0;
+        write_address_col <= 0;
+        write_address_row <= 0;
         write_value <= 0;
     end
     else begin
         write_value <= set_rise;
         start <= start_rise;
         if (up_rise) begin 
-            write_address_y <= write_address_y + 1;
+            write_address_row <= write_address_row + 1;
         end
         if (down_rise) begin 
-            write_address_y <= write_address_y - 1;
+            write_address_row <= write_address_row - 1;
         end
         if (right_rise) begin 
-            write_address_x <= write_address_x + 1;
+            write_address_col <= write_address_col + 1;
         end
         if (left_rise) begin 
-            write_address_x <= write_address_x - 1;
+            write_address_col <= write_address_col - 1;
         end
     end
 end
