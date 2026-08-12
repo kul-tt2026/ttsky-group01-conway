@@ -4,7 +4,7 @@ SIM           ?= icarus
 TOPLEVEL_LANG ?= verilog
 
 # List of DUTs that have cocotb tests
-COCOTB_DUTS = vga_get_cell_idx vga_get_cell_type
+COCOTB_DUTS = vga_get_cell_idx vga_get_cell_type vga_get_pixel_color
 
 # Require DUT for cocotb / cocotb_all, but NOT for clean
 ifeq ($(strip $(DUT)),)
@@ -29,7 +29,7 @@ cocotb:
 
 .PHONY: cocotb_all
 cocotb_all:
-	@rm -f results_*.xml results.xml
+	$(MAKE) clean
 	@status=0; \
 	for d in $(COCOTB_DUTS); do \
 		$(MAKE) cocotb DUT=$$d COCOTB_RESULTS_FILE=results_$$d.xml || status=1; \
