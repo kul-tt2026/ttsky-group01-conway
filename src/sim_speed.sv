@@ -9,7 +9,7 @@ sim_speed houd de huidige simulatiesnelheid bij
 package sim_speed_pkg;
     typedef enum logic [2:0] {  // Als je extra snelheiden toevoegd: pas ook de max en min aan in de ifs meer naar beneden
         QUARTER_HZ = 3'b001,    // én voeg ze ook toe in next_iter_countdown!
-        HALF_HZ    = 3'b010,
+        HALF_HZ    = 3'b010,    
         ONE_HZ     = 3'b011,
         TWO_HZ     = 3'b100,
         FOUR_HZ    = 3'b101
