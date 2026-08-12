@@ -87,12 +87,13 @@ L_main #(
 );
 
 // meer interne wires
-logic [row_bits-1:0] input_write_address_x;
-logic [col_bits-1:0] input_write_address_y;
+logic [row_bits-1:0] input_write_address_row;
+logic [col_bits-1:0] input_write_address_col;
 logic input_write_value;
 
 Input #(
-    .BOARD_SIZE(row_count) // TODO: bord is geen vierkant meer, dus we hebben aparte variabelen nodig voor aantal rijen en kolommen
+    .ROW_COUNT(row_count),
+    .COL_COUNT(col_count)
 ) u_input (
     .clk(clk),
     .reset_n(reset_n),
@@ -103,8 +104,8 @@ Input #(
     .button_set(button_set),
     .button_start(button_start),
 
-    .write_address_x(input_write_address_x),
-    .write_address_y(input_write_address_y),
+    .write_address_row(input_write_address_row),
+    .write_address_col(input_write_address_col),
     .write_value(input_write_value),
     .start(start)
     // TODO geef cursorpos aan vga
@@ -131,13 +132,13 @@ always_comb begin
         active_board_write = L_LD_cel_pg;
     end
     else begin
-        read_address_row = row_idx;
-        read_address_col = col_idx;
+        read_address_row = vga_row_idx;
+        read_address_col = vga_col_idx;
         
         write_enable = input_write_value; // TODO: wanneer mag input schrijven?
 
-        write_address_row = input_write_address_x;
-        write_address_col = input_write_address_y;
+        write_address_row = input_write_address_row;
+        write_address_col = input_write_address_col;
 
         data_in = input_write_value;
 
@@ -165,8 +166,8 @@ register_board #(
 );
 
 // nog interne wires
-logic [row_bits-1:0] row_idx;
-logic [col_bits-1:0] col_idx;
+logic [row_bits-1:0] vga_row_idx;
+logic [col_bits-1:0] vga_col_idx;
 logic [row_bits+col_bits-1:0] cursorpos;
 
 vga #(
@@ -184,8 +185,8 @@ vga #(
     .simulation_running(simulation_running),
     .cursorpos(cursorpos),
     .cell_memory(data_out),
-    .col_idx(col_idx),
-    .row_idx(row_idx),
+    .col_idx(vga_col_idx),
+    .row_idx(vga_row_idx),
     .next_iter_allowed(next_iter_allowed)
 );
 
