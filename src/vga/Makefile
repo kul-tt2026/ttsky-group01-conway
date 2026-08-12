@@ -29,9 +29,13 @@ cocotb:
 
 .PHONY: cocotb_all
 cocotb_all:
+	@rm -f results_*.xml results.xml
+	@status=0; \
 	for d in $(COCOTB_DUTS); do \
-		$(MAKE) cocotb DUT=$$d || exit $$?; \
-	done
+		$(MAKE) cocotb DUT=$$d COCOTB_RESULTS_FILE=results_$$d.xml || status=1; \
+	done; \
+	python3 merge_results.py results_*.xml -o results.xml; \
+	exit $$status
 
 .PHONY: clean
 clean::

@@ -18,7 +18,7 @@ module vga_get_cell_type #(
     if (!simulation_running && (cursorpos == {col_idx, row_idx})) begin
       cell_type = 2'b10;  // cursor
     end else begin
-      cell_type = {1'b0, cell_memory};  // 00=dead, 01=alive
+      cell_type = {1'b0, 1'b1};  // 00=dead, 01=alive
     end
   end
 
