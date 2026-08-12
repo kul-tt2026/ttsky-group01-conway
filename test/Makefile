@@ -35,14 +35,12 @@ VERILOG_SOURCES += $(PWD)/gate_level_netlist.v
 
 endif
 
-COMPILE_ARGS += -I$(PWD)/../src/vga # trying to fix errors with files not found
-
 # Include the testbench sources:
 VERILOG_SOURCES += $(PWD)/tb.v
 TOPLEVEL         = tb
 
 # List test modules to run, separated by commas !NO SPACES! and without the .py suffix:
-COCOTB_TEST_MODULES = test_vga,test_vga_comprehensive
+COCOTB_TEST_MODULES = test
 
 # Include cocotb's make rules to take care of the simulator setup
 include $(shell cocotb-config --makefiles)/Makefile.sim
