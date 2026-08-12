@@ -35,4 +35,8 @@ png:
 
 clean:
 	$(MAKE) -C test clean
+	$(MAKE) -C src/vga clean
+	$(MAKE) -C src/register_board clean
+	$(MAKE) -C src/logica clean
+	$(MAKE) -C src/Input clean
 	rm -rf runs/ src/config_merged.json src/user_config.json

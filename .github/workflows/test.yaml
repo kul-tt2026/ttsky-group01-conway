@@ -91,7 +91,7 @@ jobs:
             src/logica/results.xml
             src/logica/*.vcd
 
-  test_vga:
+  test_vga: # Deel Mathias
     runs-on: ubuntu-24.04
     steps:
       - name: Checkout repo
@@ -112,7 +112,7 @@ jobs:
 
       - name: Run VGA cocotb tests
         run: |
-          make -C src/vga cocotb
+          make -C src/vga cocotb_all
           ! grep '<failure' src/vga/results.xml
 
       - name: Test Summary
