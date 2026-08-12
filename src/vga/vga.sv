@@ -1,3 +1,12 @@
+/*
+
+Connects the vga modules together. See diagram for more details.
+
+Created by Mathias Van Nuland
+
+*/
+
+
 `include "vga_hvsync_generator.sv"
 `include "vga_get_cell_idx.sv"
 `include "vga_get_cell_type.sv"

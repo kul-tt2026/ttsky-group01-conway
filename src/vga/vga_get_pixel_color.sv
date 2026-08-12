@@ -1,3 +1,20 @@
+/*
+
+Calculates the pixel color based on cell type (see vga_get_cell_type.sv) and if the pixel is in visible range.
+If not in visible range, show black.
+
+- cell_type: 2 bits
+--> 00 dead, black 000000
+--> 01 alive, white 111111
+--> 10 cursor, blue 000011
+--> 11 not assigned, invalid, red 110000
+
+Created by Mathias Van Nuland
+
+*/
+
+
+
 `timescale 1ns / 1ps
 
 module vga_get_pixel_color #(

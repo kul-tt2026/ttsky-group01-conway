@@ -1,3 +1,12 @@
+/*
+
+Calculates the cell index position (col_idx and row_idx) based on pixel position (hpos and vpos). Depends on vga_hvsync_generator.sv
+Parameters: number of columns and number of rows of the grid
+
+Created by Mathias Van Nuland
+
+*/
+
 `timescale 1ns / 1ps
 
 module vga_get_cell_idx #(

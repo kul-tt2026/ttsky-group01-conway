@@ -1,3 +1,25 @@
+/*
+
+Calculates the cell type based on the cell index (see vga_get_cell_idx.sv)
+inputs:
+- simulation_running:   0 when user is editing the grid
+                        1 when simulation is running and user cannot edit the grid
+- col_idx and row_idx: column and row index of the cell in the grid -> see vga_get_cell_idx.sv
+- cursorpos: position of the cursor on the screen. first bits is the column position, last bits are the row position
+- cell_memory: value of the current cell in memory. 0 = dead, 1 = alive
+
+output:
+- cell_type: 2 bits
+--> 00 dead
+--> 01 alive
+--> 10 cursor
+--> 11 not assigned, invalid
+
+Created by Mathias Van Nuland
+
+*/
+
+
 `timescale 1ns / 1ps
 
 module vga_get_cell_type #(

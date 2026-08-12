@@ -1,3 +1,11 @@
+# ---- HOW TO TEST ----
+# -- Test 1 file
+# make cocotb DUT=filename
+# -- Test everything
+# make cocotb_all
+# -- Clean
+# make clean
+
 # ---------- cocotb setup for VGA modules ----------
 
 SIM           ?= icarus
@@ -25,10 +33,10 @@ include $(shell cocotb-config --makefiles)/Makefile.sim
 
 .PHONY: cocotb
 cocotb:
-	$(MAKE) sim WAVES=1   # 'sim' from Makefile.sim runs cocotb
+	$(MAKE) sim WAVES=1   # 'sim' from Makefile.sim runs cocotb, WAVES creates .fst files.
 
 .PHONY: cocotb_all
-cocotb_all:
+cocotb_all: # test all duts and merge the .xml files
 	$(MAKE) clean
 	@status=0; \
 	for d in $(COCOTB_DUTS); do \
