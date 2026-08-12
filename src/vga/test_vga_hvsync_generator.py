@@ -7,16 +7,18 @@ Tests VGA timing, sync signal behavior, and pixel counters directly
 on the hvsync_generator submodule (no Tiny Tapeout wrapper).
 
 Signal mapping matches the actual RTL:
-    hpos, vpos    -> horizontal/vertical pixel position counters
-    display_on    -> combinational "visible frame" flag
-    hsync, vsync  -> registered sync pulses
-    reset_n       -> active-low synchronous reset
+    hpos, vpos          -> horizontal/vertical pixel position counters
+    display_on          -> combinational "visible frame" flag
+    hsync, vsync        -> registered sync pulses
+    next_iter_allowed    -> combinational flag, high when vpos >= V_DISPLAY
+                            (asserted for the entire vertical blanking region:
+                            front porch, sync pulse, and back porch)
+    reset_n              -> active-low synchronous reset
 """
 
 import cocotb
 from cocotb.clock import Clock
 from cocotb.triggers import ClockCycles, ReadOnly, RisingEdge
-
 
 # VGA timing constants (from vga_hvsync_generator.v)
 H_DISPLAY = 640
@@ -69,8 +71,9 @@ async def test_reset_behavior(dut):
     assert int(dut.display_on.value) == 1, "Display should be active at startup"
     assert int(dut.hsync.value) == 1, "hsync should be 1 (not in sync pulse)"
     assert int(dut.vsync.value) == 1, "vsync should be 1 (not in sync pulse)"
+    assert int(dut.next_iter_allowed.value) == 0, "next_iter_allowed should be 0 at vpos=0"
 
-    dut._log.info("✓ Reset behavior correct")
+    dut._log.info("Reset behavior correct")
 
 
 @cocotb.test()
@@ -80,19 +83,16 @@ async def test_horizontal_timing(dut):
     await reset_dut(dut)
     await ReadOnly()
 
-    # Test visible display region
     dut._log.info(f"Checking visible region (0-{H_DISPLAY-1})")
     for x in range(1, H_DISPLAY):
         assert int(dut.hpos.value) == x, f"At step {x-1}: hpos mismatch"
         assert int(dut.display_on.value) == 1, f"At hpos={x}: display should be active"
         await step(dut)
 
-    # Test front porch (visible end)
     assert int(dut.hpos.value) == H_DISPLAY, "hpos should be at H_DISPLAY"
     assert int(dut.display_on.value) == 0, "Display should be inactive in front porch"
-    dut._log.info(f"✓ Front porch: display_on goes inactive at hpos={H_DISPLAY}")
+    dut._log.info(f"Front porch: display_on goes inactive at hpos={H_DISPLAY}")
 
-    # Test hsync pulse
     await step(dut, H_SYNC_START - H_DISPLAY)
     assert int(dut.hpos.value) == H_SYNC_START, "Should reach hsync start"
     assert int(dut.hsync.value) == 1, "hsync should still be 1 before pulse"
@@ -100,7 +100,7 @@ async def test_horizontal_timing(dut):
     await step(dut)
     assert int(dut.hpos.value) == H_SYNC_START + 1
     assert int(dut.hsync.value) == 0, "hsync should be 0 during pulse"
-    dut._log.info(f"✓ hsync pulse starts at hpos={H_SYNC_START}")
+    dut._log.info(f"hsync pulse starts at hpos={H_SYNC_START}")
 
     await step(dut, H_SYNC_END - H_SYNC_START)
     assert int(dut.hpos.value) == H_SYNC_END + 1
@@ -109,16 +109,57 @@ async def test_horizontal_timing(dut):
     await step(dut)
     assert int(dut.hpos.value) == H_SYNC_END + 2
     assert int(dut.hsync.value) == 1, "hsync should return to 1"
-    dut._log.info(f"✓ hsync pulse ends at hpos={H_SYNC_END+1}")
+    dut._log.info(f"hsync pulse ends at hpos={H_SYNC_END+1}")
 
-    # Test line end and wrap-around into next line
     await step(dut, H_MAX - (H_SYNC_END + 2) + 1)
     assert int(dut.hpos.value) == 0, "hpos should wrap to 0"
     assert int(dut.vpos.value) == 1, "vpos should increment to 1"
     assert int(dut.display_on.value) == 1, "Display should be active again on new line"
     assert int(dut.hsync.value) == 1, "hsync should be 1 after wrap"
     assert int(dut.vsync.value) == 1, "vsync should still be 1 (not near frame end)"
-    dut._log.info(f"✓ Horizontal counter wraps at hpos={H_MAX+1}")
+    assert int(dut.next_iter_allowed.value) == 0, "next_iter_allowed should still be 0 (vpos=1)"
+    dut._log.info(f"Horizontal counter wraps at hpos={H_MAX+1}")
+
+
+@cocotb.test()
+async def test_next_iter_allowed(dut):
+    """Test that next_iter_allowed covers the full vertical blanking region
+    (front porch, sync pulse, back porch), i.e. vpos >= V_DISPLAY."""
+    dut._log.info("=== TEST: next_iter_allowed Coverage ===")
+    await reset_dut(dut)
+    await ReadOnly()
+
+    pixels_per_line = H_MAX + 1
+
+    await step(dut, pixels_per_line * (V_DISPLAY - 1) - 1)
+    assert int(dut.vpos.value) == V_DISPLAY - 1, "Should be on last visible line"
+    assert int(dut.next_iter_allowed.value) == 0, (
+        "next_iter_allowed should be 0 on last visible line (vpos < V_DISPLAY)"
+    )
+    dut._log.info(f"next_iter_allowed=0 at vpos={V_DISPLAY-1} (still visible)")
+
+    await step(dut, pixels_per_line)
+    assert int(dut.vpos.value) == V_DISPLAY, "Should be at first blanking line"
+    assert int(dut.next_iter_allowed.value) == 1, (
+        f"next_iter_allowed should be 1 at vpos={V_DISPLAY} (start of blanking, off-by-one fix)"
+    )
+    dut._log.info(f"next_iter_allowed=1 at vpos={V_DISPLAY} (front porch start)")
+
+    for vline in range(V_DISPLAY + 1, V_MAX + 1):
+        await step(dut, pixels_per_line)
+        assert int(dut.vpos.value) == vline, f"Expected vpos={vline}"
+        assert int(dut.next_iter_allowed.value) == 1, (
+            f"next_iter_allowed should remain 1 at vpos={vline}"
+        )
+
+    dut._log.info(f"next_iter_allowed=1 for entire blanking region ({V_DISPLAY}-{V_MAX})")
+
+    await step(dut, pixels_per_line)
+    assert int(dut.vpos.value) == 0, "vpos should wrap to 0 for new frame"
+    assert int(dut.next_iter_allowed.value) == 0, (
+        "next_iter_allowed should drop back to 0 at start of new frame"
+    )
+    dut._log.info("next_iter_allowed=0 after wrap to new frame")
 
 
 @cocotb.test()
@@ -127,7 +168,6 @@ async def test_full_frame_cycle(dut):
     dut._log.info("=== TEST: Full Frame Cycle ===")
     await reset_dut(dut)
 
-    # Calculate total pixels in one frame
     pixels_per_line = H_MAX + 1
     total_lines = V_MAX + 1
     total_pixels = pixels_per_line * total_lines
@@ -135,17 +175,20 @@ async def test_full_frame_cycle(dut):
     dut._log.info(f"Frame size: {H_DISPLAY}x{V_DISPLAY} pixels")
     dut._log.info(f"Total timing: {pixels_per_line}x{total_lines} ({total_pixels} pixels)")
 
-    # Quick check: after one frame, we should be back at (0, 0)
     await step(dut, total_pixels - 1)
 
     hpos = int(dut.hpos.value)
     vpos = int(dut.vpos.value)
     display_on = int(dut.display_on.value)
+    next_iter_allowed = int(dut.next_iter_allowed.value)
 
     assert hpos == 0, f"After frame cycle, hpos should be 0, got {hpos}"
     assert vpos == 0, f"After frame cycle, vpos should be 0, got {vpos}"
     assert display_on == 1, f"After frame cycle, display_on should be 1, got {display_on}"
+    assert next_iter_allowed == 0, (
+        f"After frame cycle, next_iter_allowed should be 0, got {next_iter_allowed}"
+    )
 
-    dut._log.info(f"✓ Frame cycle complete: {total_pixels} pixels")
+    dut._log.info(f"Frame cycle complete: {total_pixels} pixels")
     dut._log.info(f"  Horizontal: {pixels_per_line} pixels/line")
     dut._log.info(f"  Vertical: {total_lines} lines/frame")

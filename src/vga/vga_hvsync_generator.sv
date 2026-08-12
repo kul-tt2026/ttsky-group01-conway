@@ -20,7 +20,8 @@ module vga_hvsync_generator (
     vsync,
     display_on,
     hpos,
-    vpos
+    vpos,
+    next_iter_allowed
 );
 
   input clk;
@@ -29,6 +30,7 @@ module vga_hvsync_generator (
   output display_on;
   output reg [9:0] hpos;
   output reg [9:0] vpos;
+  output logic next_iter_allowed;
 
   // declarations for TV-simulator sync parameters
   // horizontal constants
@@ -69,6 +71,7 @@ module vga_hvsync_generator (
 
   // display_on is set when beam is in "safe" visible frame
   assign display_on = (hpos < H_DISPLAY) && (vpos < V_DISPLAY);
+  assign next_iter_allowed = vpos >= V_DISPLAY; // next iteration is allowed in the vertical blanking time
 
 endmodule
 

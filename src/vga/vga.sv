@@ -42,6 +42,7 @@ module vga #(
   logic display_on;
   logic [9:0] pix_x;
   logic [9:0] pix_y;
+  logic next_iter_allowed;
   logic [COL_BITS-1:0] col_idx;
   logic [ROW_BITS-1:0] row_idx;
   logic [1:0] cell_type;
@@ -64,7 +65,8 @@ module vga #(
       .vsync(vsync),
       .display_on(display_on),
       .hpos(pix_x),
-      .vpos(pix_y)
+      .vpos(pix_y),
+      .next_iter_allowed(next_iter_allowed)
   );
 
   vga_get_cell_idx #(
