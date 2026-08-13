@@ -23,9 +23,9 @@ async def reset(dut):
     dut.ui_in.value = 0
     dut.reset_n.value = 0
     dut.ena.value = 1
-    await Timer(100, units="ns")
+    await Timer(100, unit="ns")
     dut.reset_n.value = 1
-    await Timer(100, units="ns")
+    await Timer(100, unit="ns")
 
 
 def set_bit(dut, bit, value):
@@ -52,75 +52,73 @@ async def test_project(dut):
     ).start()
 
     # Move cursor to (1,1)
-    set_bit(dut, UP, 1)
+    set_bit(dut, DOWN, 1)
     set_bit(dut, RIGHT, 1)
-    await Timer(400, units="ns")
+    await Timer(400, unit="ns")
 
     # Write (set) cell at (1,1)
-    set_bit(dut, UP, 0)
+    set_bit(dut, DOWN, 0)
     set_bit(dut, RIGHT, 0)
     set_bit(dut, SET, 1)
-    await Timer(400, units="ns")
+    await Timer(400, unit="ns")
 
     # Move to (2,1)
     set_bit(dut, SET, 0)
     set_bit(dut, RIGHT, 1)
-    await Timer(400, units="ns")
+    await Timer(400, unit="ns")
 
     # Move to (3,2)
-    set_bit(dut, UP, 1)
+    set_bit(dut, DOWN, 1)
     set_bit(dut, RIGHT, 1)
-    await Timer(400, units="ns")
+    await Timer(400, unit="ns")
 
     # Write (set) cell at (3,2)
-    set_bit(dut, UP, 0)
+    set_bit(dut, DOWN, 0)
     set_bit(dut, RIGHT, 0)
     set_bit(dut, SET, 1)
-    await Timer(400, units="ns")
+    await Timer(400, unit="ns")
 
-    # Move (up+right again)
-    set_bit(dut, UP, 1)
+    set_bit(dut, DOWN, 1)
     set_bit(dut, RIGHT, 1)
-    await Timer(400, units="ns")
+    await Timer(400, unit="ns")
 
     # Move to (4,3)
-    set_bit(dut, UP, 0)
+    set_bit(dut, DOWN, 0)
     set_bit(dut, RIGHT, 0)
-    await Timer(400, units="ns")
+    await Timer(400, unit="ns")
 
     # Move (up+right again)
-    set_bit(dut, UP, 1)
+    set_bit(dut, DOWN, 1)
     set_bit(dut, RIGHT, 1)
-    await Timer(400, units="ns")
+    await Timer(400, unit="ns")
 
     # Move to (5,4), then start moving left
-    set_bit(dut, UP, 0)
+    set_bit(dut, DOWN, 0)
     set_bit(dut, RIGHT, 0)
     set_bit(dut, LEFT, 1)
-    await Timer(400, units="ns")
+    await Timer(400, unit="ns")
 
     # Move to (5,3), start moving right again
     set_bit(dut, LEFT, 0)
     set_bit(dut, RIGHT, 1)
-    await Timer(400, units="ns")
+    await Timer(400, unit="ns")
 
     # Move to (6,3), write (set) cell there
     set_bit(dut, RIGHT, 0)
     set_bit(dut, SET, 1)
-    await Timer(400, units="ns")
+    await Timer(400, unit="ns")
 
     # Press start to begin the simulation
     set_bit(dut, START, 1)
     set_bit(dut, SET, 0)
-    await Timer(400, units="ns")
+    await Timer(400, unit="ns")
 
     # Release start (simulation running)
     set_bit(dut, START, 0)
-    await Timer(400, units="ns")
+    await Timer(400, unit="ns")
 
     frames = await cap.wait_for_frames(NUM_FRAMES)
     cap.stop()
-    driver_task.kill()
 
     cap.check_timing(require_frames=NUM_FRAMES)
     cap.save_gif()
