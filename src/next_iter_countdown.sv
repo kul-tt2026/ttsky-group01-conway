@@ -7,16 +7,13 @@ Deze module begint houd bij of er al genoeg tijd verstreken is om
 een nieuwe iteratie van Logica te beginnen.
 */
 
-import sim_speed_pkg::*; // Als de terminal hier errors over geeft: zorg dat sim_speed vóór deze module staat in de laadvolgorde
-
-
 module next_iter_countdown #(
     parameter int clock_cycles_per_second = 25175000 // Hz,    accessible zodat het makkelijker te testen is
 )(
     input logic clk,
     input logic reset_n,
     input logic reset,
-    input speed_e speed,
+    input sim_speed_pkg::speed_e speed,
 
     output logic countdown_done
 );
@@ -40,11 +37,11 @@ module next_iter_countdown #(
 
     always_comb begin
         case (speed)
-            QUARTER_HZ: countdown_done = (count >= (counter_bits)'(clock_cycles_per_second * 4) );
-            HALF_HZ: countdown_done = (count >= (counter_bits)'(clock_cycles_per_second * 2) );
-            ONE_HZ: countdown_done = (count >= (counter_bits)'(clock_cycles_per_second) );
-            TWO_HZ: countdown_done = (count >= (counter_bits)'(clock_cycles_per_second / 2) );
-            FOUR_HZ: countdown_done = (count >= (counter_bits)'(clock_cycles_per_second / 4) );
+            sim_speed_pkg::QUARTER_HZ: countdown_done = (count >= (counter_bits)'(clock_cycles_per_second * 4) );
+            sim_speed_pkg::HALF_HZ: countdown_done = (count >= (counter_bits)'(clock_cycles_per_second * 2) );
+            sim_speed_pkg::ONE_HZ: countdown_done = (count >= (counter_bits)'(clock_cycles_per_second) );
+            sim_speed_pkg::TWO_HZ: countdown_done = (count >= (counter_bits)'(clock_cycles_per_second / 2) );
+            sim_speed_pkg::FOUR_HZ: countdown_done = (count >= (counter_bits)'(clock_cycles_per_second / 4) );
             default: countdown_done = (count >= (counter_bits)'(clock_cycles_per_second * 4) ); // QUARTER_HZ
         endcase
     end
