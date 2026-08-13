@@ -130,3 +130,33 @@ jobs:
             src/vga/results.xml
             src/vga/*.fst
             src/vga/*.vcd
+
+  test_project_helpers: # porject_controller, sim_speed, next_iter_countdown
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v6
+        with:
+          submodules: recursive
+
+      - name: Install iverilog
+        run: sudo apt-get update && sudo apt-get install -y iverilog
+
+      - name: Setup python
+        uses: actions/setup-python@v6
+        with:
+          python-version: '3.12'
+
+      - name: Install Python packages
+        run: pip install -r test/requirements.txt
+
+      - name: Run standalone testbenches
+        run: make -C src simulate_sim_speed simulate_next_iter_countdown simulate_project_controller
+
+      - name: Upload waveforms and results
+        if: success() || failure()
+        uses: actions/upload-artifact@v7
+        with:
+          name: project_helpers-test-results
+          path: |
+            src/*.vcd
