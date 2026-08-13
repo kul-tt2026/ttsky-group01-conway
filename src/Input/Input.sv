@@ -128,10 +128,10 @@ always @(posedge clk or negedge reset_n) begin
         write_value <= set_rise;
         start <= start_rise;
         if (up_rise) begin 
-            write_address_row <= write_address_row + 1;
+            write_address_row <= write_address_row - 1;
         end
         if (down_rise) begin 
-            write_address_row <= write_address_row - 1;
+            write_address_row <= write_address_row + 1;
         end
         if (right_rise) begin 
             write_address_col <= write_address_col + 1;
