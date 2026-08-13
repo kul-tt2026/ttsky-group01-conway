@@ -20,6 +20,7 @@ module project_datapath #(
     input logic button_set,
     input logic button_start,
 
+    /* --- IS THIS NEEDED??? ---*/
     input logic ena,
     input logic [7:0] ui_in,  // Dedicated inputs
     output logic [7:0] uo_out,  // Dedicated outputs

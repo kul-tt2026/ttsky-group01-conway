@@ -1,6 +1,6 @@
 # Tiny Tapeout project information
 project:
-  title:        "Conway's Game of Life"      # Project title
+  title:        "Interactive Conway's Game of Life"      # Project title
   author:       "Mathias Van Nuland, Sander Vanlessen, Sieben De Witte"      # Your name
   discord:      ""      # Your discord username, for communication and automatically assigning you a Tapeout role (optional)
   description:  "Simulate Conway's Game of Life"      # One line description of what your project does
@@ -22,6 +22,10 @@ project:
     - "project_datapath.sv"
     - "project_controller.sv"
     - "next_iter_countdown.sv"
+    - "vga/vga_get_cell_idx.sv"
+    - "vga/vga_get_cell_type.sv"
+    - "vga/vga_get_pixel_color.sv"
+    - "vga/vga_hvsync_generator.sv"
     - "vga/vga.sv"
     - "logica/L_controller.sv"
     - "logica/L_datapath.sv"
@@ -39,12 +43,12 @@ project:
 # This section is for the datasheet/website. Use descriptive names (e.g., RX, TX, MOSI, SCL, SEG_A, etc.).
 pinout:
   # Inputs
-  ui[0]: ""
-  ui[1]: ""
-  ui[2]: ""
-  ui[3]: ""
-  ui[4]: ""
-  ui[5]: ""
+  ui[0]: "button_up"
+  ui[1]: "button_down"
+  ui[2]: "button_left"
+  ui[3]: "button_right"
+  ui[4]: "button_set"
+  ui[5]: "button_start"
   ui[6]: ""
   ui[7]: ""
 
