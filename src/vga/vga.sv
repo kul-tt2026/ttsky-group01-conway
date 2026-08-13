@@ -16,14 +16,9 @@ module vga #(
     parameter int NUM_COLS = 16,
     parameter int NUM_ROWS = 12
 ) (
-    input  logic [7:0] ui_in,    // Dedicated inputs
-    output logic [7:0] uo_out,   // Dedicated outputs
-    input  logic [7:0] uio_in,   // IOs: Input path
-    output logic [7:0] uio_out,  // IOs: Output path
-    output logic [7:0] uio_oe,   // IOs: Enable path (active high: 0=input, 1=output)
-    input  logic       ena,      // always 1 when the design is powered, so you can ignore it
-    input  logic       clk,      // clock
-    input  logic       reset_n,  // reset_n - low to reset
+    output logic [7:0] uo_out,  // Dedicated outputs
+    input  logic       clk,     // clock
+    input  logic       reset_n, // reset_n - low to reset
 
     input logic simulation_running,
     input logic [COL_BITS+ROW_BITS-1:0] cursorpos,
@@ -48,15 +43,7 @@ module vga #(
   logic [1:0] cell_type;
 
   // TinyVGA PMOD
-  assign uo_out  = {hsync, B[0], G[0], R[0], vsync, B[1], G[1], R[1]};
-
-  // TODO! check with Sieben and Sander
-  // Unused outputs assigned to 0.
-  assign uio_out = 0;
-  assign uio_oe  = 0;
-
-  // Suppress unused signals warning
-  wire _unused_ok = &{ena, ui_in, uio_in};
+  assign uo_out = {hsync, B[0], G[0], R[0], vsync, B[1], G[1], R[1]};
 
   vga_hvsync_generator um_vga_hvsync_generator (
       .clk(clk),

@@ -83,9 +83,6 @@ async def reset_dut(dut):
     clock = Clock(dut.clk, CLOCK_PERIOD_NS, unit="ns")
     cocotb.start_soon(clock.start())
 
-    dut.ena.value = 1
-    dut.ui_in.value = 0
-    dut.uio_in.value = 0
     dut.simulation_running.value = 1
     dut.cursorpos.value = 0
     dut.cell_memory.value = 0

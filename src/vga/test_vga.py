@@ -5,9 +5,6 @@ from cocotb.triggers import RisingEdge, Timer
 
 async def reset_dut(dut, cycles=5):
     dut.reset_n.value = 0
-    dut.ena.value = 1
-    dut.ui_in.value = 0
-    dut.uio_in.value = 0
     dut.simulation_running.value = 0
     dut.cell_memory.value = 0
     dut.cursorpos.value = 0
@@ -56,30 +53,6 @@ async def uo_out_bit_packing(dut):
             f"R={r:#04b}, G={g:#04b}, B={b:#04b} -> "
             f"got {actual_uo_out:#010b}, expected {expected_uo_out:#010b}"
         )
-
-
-@cocotb.test()
-async def unused_signals_do_not_affect_output(dut):
-    """Check that uio_out and uio_oe are always driven to 0, as intended
-    by the unused-signal handling in the top module."""
-
-    cocotb.start_soon(Clock(dut.clk, 10, unit="ns").start())
-    await reset_dut(dut)
-
-    for ui_val in (0x00, 0xFF, 0x55, 0xAA):
-        for uio_val in (0x00, 0xFF, 0x55, 0xAA):
-            dut.ui_in.value = ui_val
-            dut.uio_in.value = uio_val
-
-            await RisingEdge(dut.clk)
-            await Timer(1, unit="ns")
-
-            assert int(dut.uio_out.value) == 0, (
-                f"uio_out should always be 0, got {int(dut.uio_out.value)}"
-            )
-            assert int(dut.uio_oe.value) == 0, (
-                f"uio_oe should always be 0, got {int(dut.uio_oe.value)}"
-            )
 
 
 @cocotb.test()
