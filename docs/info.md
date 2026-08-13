@@ -47,6 +47,8 @@ Based on the cell type, `vga_get_pixel_color` calculates the correct pixel color
 | cursor             | `10`               | 00  | 00  | 11  | blue  |
 | not valid / unused | `11`               | 11  | 00  | 00  | red   |
 
+When testing, sylefeb's [TinyTapeout VGA trace visualizer](https://github.com/sylefeb/tt-vgaviz) proved to be very useful in visualising the VGA output.
+
 ## How to test
 
 Plug in the VGA Pmod connector and let Conway's Game of Life come to life!
