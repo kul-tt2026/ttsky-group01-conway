@@ -50,4 +50,4 @@ cocotb_all: # test all duts and merge the .xml files
 .PHONY: clean
 clean::
 	rm -f results*.xml *.ppm
-	rm -rf sim_build sim_build_* __pycache__
+	rm -rf sim_build sim_build_* __pycache__ output

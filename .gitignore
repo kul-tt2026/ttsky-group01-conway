@@ -18,3 +18,4 @@ sim*.out
 sim_build*/
 __pycache__/
 results*.xml
+output/
