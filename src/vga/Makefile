@@ -1,6 +1,8 @@
 # ---- HOW TO TEST ----
 # -- Test 1 file
 # make cocotb DUT=filename
+# -- Test 1 file with specific python testfile
+# make cocotb DUT=vga COCOTB_TEST_MODULES=test_vga_screen
 # -- Test everything
 # make cocotb_all
 # -- Clean
@@ -47,5 +49,5 @@ cocotb_all: # test all duts and merge the .xml files
 
 .PHONY: clean
 clean::
-	rm -f results*.xml
+	rm -f results*.xml *.ppm
 	rm -rf sim_build sim_build_* __pycache__
