@@ -94,7 +94,8 @@ module project_datapath #(
 
   Input #(
       .ROW_COUNT(row_count),
-      .COL_COUNT(col_count)
+      .COL_COUNT(col_count),
+      .DEBOUNCE_MAX(10) // TODO testing only
   ) u_input (
       .clk(clk),
       .reset_n(reset_n),
