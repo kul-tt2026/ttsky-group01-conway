@@ -101,14 +101,14 @@ Input #(
     .button_down(button_down),
     .button_left(button_left),
     .button_right(button_right),
-    .button_set(button_set),
+    .button_set(button_set), 
     .button_start(button_start),
 
-    .write_address_row(input_write_address_row),
+    .write_address_row(input_write_address_row),    // TODO mag ik deze ook meegeven als cursorpos naar vga?
     .write_address_col(input_write_address_col),
     .write_value(input_write_value),
     .start(start)
-    // TODO geef cursorpos aan vga
+    // TODO er is een write_enable nodig 
 );
 
 // nog meer interne wires
