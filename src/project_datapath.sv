@@ -1,8 +1,6 @@
 `default_nettype none
 `timescale 1ns/1ps
 
-import sim_speed_pkg::*;  // Als de terminal hier errors over geeft: zorg dat sim_speed vóór deze module staat in de laadvolgorde
-
 module project_datapath #(
     parameter int row_count = 16,
     parameter int col_count = 12
@@ -38,8 +36,10 @@ localparam int row_bits = $clog2(row_count);
 localparam int col_bits = $clog2(col_count);
 
 // Interne wires
-speed_e speed;
+sim_speed_pkg::speed_e speed;
 logic increase, decrease, reset_countdown, countdown_done;
+
+assign {increase, decrease} = 2'b0; // TODO dit is heel tijdelijk
 
 sim_speed u_sim_speed (
     .clk(clk),
@@ -63,7 +63,7 @@ next_iter_countdown u_next_iter_countdown (
 );
 
 // nog interne wires
-logic cel_out_pg, L_new_cel, L_LD_cel_g, L_LD_cel_pg;
+logic L_new_cel, L_LD_cel_g, L_LD_cel_pg;
 logic [row_bits + col_bits - 1:0] L_address;
 logic next_iter_allowed;
 
@@ -77,7 +77,7 @@ L_main #(
     .reset_n(reset_n),
     .L_reset(L_reset),
     .L_next_iter(next_iter),
-    .cel_out_pg(cel_out_pg),
+    .cel_out_pg(data_out),
 
     .L_idle(L_idle),
     .L_address(L_address),
@@ -109,6 +109,7 @@ Input #(
     .write_value(input_write_value),
     .start(start)
     // TODO er is een write_enable nodig 
+    // TODO signaal om de simulatie snelheid te verhogen/verlagen
 );
 
 // nog meer interne wires
@@ -169,6 +170,9 @@ register_board #(
 logic [row_bits-1:0] vga_row_idx;
 logic [col_bits-1:0] vga_col_idx;
 logic [row_bits+col_bits-1:0] cursorpos;
+
+assign cursorpos = '0; // TODO dit is heel tijdelijk
+
 
 vga #(
     .NUM_ROWS(row_count),

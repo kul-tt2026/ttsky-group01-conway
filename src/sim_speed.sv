@@ -16,8 +16,6 @@ package sim_speed_pkg;
     } speed_e;
 endpackage
 
-import sim_speed_pkg::*;
-
 module sim_speed (
     input logic clk,
     input logic reset_n,
@@ -25,24 +23,22 @@ module sim_speed (
     input logic increase,
     input logic decrease,
 
-    output speed_e speed
+    output sim_speed_pkg::speed_e speed
 );
-
     always_ff @( posedge clk or negedge reset_n ) begin
         if(!reset_n) begin
-            speed <= QUARTER_HZ; // Beginsnelheid, kunnen we later nog vervangen
-        end
+            speed <= sim_speed_pkg::QUARTER_HZ;
+        end      
         else if(reset) begin
-            speed <= QUARTER_HZ; // Beginsnelheid, kunnen we later nog vervangen
+             speed <= sim_speed_pkg::QUARTER_HZ;
+        end   
+        else if(increase && speed != sim_speed_pkg::FOUR_HZ) begin
+            speed <= sim_speed_pkg::speed_e'(speed + 3'd1);
         end
-        else if(increase && speed != FOUR_HZ) begin
-            speed <= speed.next();
-        end
-        else if(decrease && speed != QUARTER_HZ) begin
-            speed <= speed.prev();
-        end
+        else if(decrease && speed != sim_speed_pkg::QUARTER_HZ) begin
+            speed <= sim_speed_pkg::speed_e'(speed - 3'd1);
+        end            
     end
-    
 endmodule
 
 `default_nettype wire
