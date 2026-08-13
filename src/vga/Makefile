@@ -3,6 +3,7 @@
 # make cocotb DUT=filename
 # -- Test 1 file with specific python testfile
 # make cocotb DUT=vga COCOTB_TEST_MODULES=test_vga_screen
+# make cocotb DUT=vga COCOTB_TEST_MODULES=test_vga_screen_cocotbvga
 # -- Test everything
 # make cocotb_all
 # -- Clean
@@ -25,7 +26,7 @@ endif
 endif
 endif
 
-VERILOG_SOURCES     = $(PWD)/$(DUT).sv
+VERILOG_SOURCES     = $(wildcard $(PWD)/*.sv)
 TOPLEVEL            = $(DUT)
 COCOTB_TEST_MODULES = test_$(DUT)
 COCOTB_RESULTS_FILE ?= results_$(DUT).xml

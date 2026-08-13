@@ -16,9 +16,13 @@ module tt_um_conwaysgameoflife (
     input  wire       rst_n     // reset_n - low to reset
 );
 
+  // Unused
+  assign uio_out = 0;
+  assign uio_oe  = 0;
+
   parameter int ROWS = 16;
   parameter int COLS = 12;
-  
+
   localparam int row_bits = $clog2(ROWS);
   localparam int col_bits = $clog2(COLS);
 
@@ -33,52 +37,50 @@ module tt_um_conwaysgameoflife (
   wire _unused = &{ui_in[7:6]};
 
   // Intere wires
-  logic start, next_iter, L_idle, L_reset, nic_reset, reset_speed, simulation_running, next_iter_busy;
+  logic
+      start, next_iter, L_idle, L_reset, nic_reset, reset_speed, simulation_running, next_iter_busy;
 
 
   project_controller u_project_controller (
-    .clk(clk),
-    .reset_n(rst_n),
-    .start(start),
-    .next_iter(next_iter),
-    .L_idle(L_idle),
+      .clk(clk),
+      .reset_n(rst_n),
+      .start(start),
+      .next_iter(next_iter),
+      .L_idle(L_idle),
 
-    .L_reset(L_reset),
-    .nic_reset(nic_reset),
-    .reset_speed(reset_speed),
-    .simulation_running(simulation_running),
-    .next_iter_busy(next_iter_busy)
+      .L_reset(L_reset),
+      .nic_reset(nic_reset),
+      .reset_speed(reset_speed),
+      .simulation_running(simulation_running),
+      .next_iter_busy(next_iter_busy)
   );
 
   project_datapath #(
-    .row_count(ROWS),
-    .col_count(COLS)
+      .row_count(ROWS),
+      .col_count(COLS)
   ) u_project_datapath (
-    .clk(clk),
-    .reset_n(rst_n),
-    .L_reset(L_reset),
-    .nic_reset(nic_reset),
-    .reset_speed(reset_speed),
-    .simulation_running(simulation_running),
-    .next_iter_busy(next_iter_busy),
+      .clk(clk),
+      .reset_n(rst_n),
+      .L_reset(L_reset),
+      .nic_reset(nic_reset),
+      .reset_speed(reset_speed),
+      .simulation_running(simulation_running),
+      .next_iter_busy(next_iter_busy),
 
-    .button_up(button_up),
-    .button_down(button_down),
-    .button_left(button_left),
-    .button_right(button_right),
-    .button_set(button_set),
-    .button_start(button_start),
+      .button_up(button_up),
+      .button_down(button_down),
+      .button_left(button_left),
+      .button_right(button_right),
+      .button_set(button_set),
+      .button_start(button_start),
 
-    .ena(ena),
-    .ui_in(ui_in),
-    .uo_out(uo_out),
-    .uio_in(uio_in),
-    .uio_out(uio_out),
-    .uio_oe(uio_oe),
+      .ena(ena),
+      .ui_in(ui_in),
+      .uo_out(uo_out),
 
-    .start(start),
-    .next_iter(next_iter),
-    .L_idle(L_idle)
-  ); 
+      .start(start),
+      .next_iter(next_iter),
+      .L_idle(L_idle)
+  );
 
 endmodule

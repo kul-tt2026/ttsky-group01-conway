@@ -11,12 +11,27 @@ VERILOG_INCLUDE_DIRS += $(SRC_DIR)/vga
 VERILOG_INCLUDE_DIRS += $(SRC_DIR)/register_board
 VERILOG_INCLUDE_DIRS += $(SRC_DIR)/logica
 VERILOG_INCLUDE_DIRS += $(SRC_DIR)/Input
-PROJECT_SOURCES  = project.sv
+
+# RTL sources needed for the top-level Conway design.
+# Order matters: sim_speed_pkg must come before anything that
+# references sim_speed_pkg::speed_e (e.g. project_datapath.sv).
+PROJECT_SOURCES := \
+	$(SRC_DIR)/sim_speed.sv \
+	$(SRC_DIR)/next_iter_countdown.sv \
+	$(SRC_DIR)/project_controller.sv \
+	$(SRC_DIR)/project_datapath.sv \
+	$(wildcard $(SRC_DIR)/logica/L_*.sv) \
+	$(wildcard $(SRC_DIR)/register_board/*.sv) \
+	$(SRC_DIR)/vga/vga.sv \
+	$(wildcard $(SRC_DIR)/Input/*.sv) \
+	$(wildcard $(SRC_DIR)/vga/vga_*.sv) \
+	$(SRC_DIR)/project.sv
+
 ifneq ($(GATES),yes)
 
 # RTL simulation:
 SIM_BUILD        = sim_build/rtl
-VERILOG_SOURCES += $(addprefix $(SRC_DIR)/,$(PROJECT_SOURCES))
+VERILOG_SOURCES += $(PROJECT_SOURCES)
 
 else
 
@@ -37,7 +52,7 @@ VERILOG_SOURCES += $(PWD)/gate_level_netlist.v
 endif
 
 # Include the testbench sources:
-VERILOG_SOURCES += $(PWD)/tb.v
+VERILOG_SOURCES += $(PWD)/tb.sv
 TOPLEVEL         = tb
 
 # List test modules to run, separated by commas !NO SPACES! and without the .py suffix:
@@ -49,4 +64,4 @@ include $(shell cocotb-config --makefiles)/Makefile.sim
 # Extend cocotb's clean target to also remove build artifacts
 .PHONY: clean
 clean::
-	rm -rf sim_build/ __pycache__/ results.xml tb.fst tb.gtkw
+	rm -rf sim_build/ __pycache__/ results.xml tb.fst tb.gtkw output/

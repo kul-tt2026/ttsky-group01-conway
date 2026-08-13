@@ -20,13 +20,9 @@ module project_datapath #(
     input logic button_set,
     input logic button_start,
 
-    /* --- IS THIS NEEDED??? ---*/
     input logic ena,
     input logic [7:0] ui_in,  // Dedicated inputs
     output logic [7:0] uo_out,  // Dedicated outputs
-    input logic [7:0] uio_in,  // IOs: Input path
-    output logic [7:0] uio_out,  // IOs: Output path
-    output logic [7:0] uio_oe,  // IOs: Enable path (active high: 0=input, 1=output)
 
     output logic start,
     output logic next_iter,
@@ -95,7 +91,7 @@ module project_datapath #(
   Input #(
       .ROW_COUNT(row_count),
       .COL_COUNT(col_count),
-      .DEBOUNCE_MAX(10) // TODO testing only
+      .DEBOUNCE_MAX(10)  // TODO testing only
   ) u_input (
       .clk(clk),
       .reset_n(reset_n),

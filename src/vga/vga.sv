@@ -7,11 +7,6 @@ Created by Mathias Van Nuland
 */
 
 
-`include "vga_hvsync_generator.sv"
-`include "vga_get_cell_idx.sv"
-`include "vga_get_cell_type.sv"
-`include "vga_get_pixel_color.sv"
-
 module vga #(
     parameter int NUM_COLS = 16,
     parameter int NUM_ROWS = 12

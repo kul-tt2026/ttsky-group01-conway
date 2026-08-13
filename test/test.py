@@ -1,40 +1,126 @@
-# SPDX-FileCopyrightText: © 2024 Tiny Tapeout
-# SPDX-License-Identifier: Apache-2.0
+"""
+Button bit mapping in ui_in (from the original SV comment):
+  ui_in[0] = up
+  ui_in[1] = down
+  ui_in[2] = left
+  ui_in[3] = right
+  ui_in[4] = set
+  ui_in[5] = start
+"""
 
 import cocotb
 from cocotb.clock import Clock
-from cocotb.triggers import ClockCycles
+from cocotb.triggers import Timer
+from cocotb_vga import VGACapture, TinyVGA, VGA_640x480_60
+
+# Bit positions for readability
+UP, DOWN, LEFT, RIGHT, SET, START = 0, 1, 2, 3, 4, 5
+
+# Number of frames to simulate
+NUM_FRAMES = 10
+
+async def reset(dut):
+    dut.ui_in.value = 0
+    dut.reset_n.value = 0
+    dut.ena.value = 1
+    await Timer(100, units="ns")
+    dut.reset_n.value = 1
+    await Timer(100, units="ns")
+
+
+def set_bit(dut, bit, value):
+    """Set/clear a single bit of ui_in without disturbing the others."""
+    cur = int(dut.ui_in.value)
+    if value:
+        cur |= (1 << bit)
+    else:
+        cur &= ~(1 << bit)
+    dut.ui_in.value = cur
 
 
 @cocotb.test()
 async def test_project(dut):
-    dut._log.info("Start")
-
-    # Set the clock period to 10 us (100 KHz)
-    clock = Clock(dut.clk, 10, unit="us")
+    # Clock that matches VGA
+    clock = Clock(dut.clk, 39.722, unit="ns")
     cocotb.start_soon(clock.start())
 
-    # Reset
-    dut._log.info("Reset")
-    dut.ena.value = 1
-    dut.ui_in.value = 0
-    dut.uio_in.value = 0
-    dut.reset_n.value = 0
-    await ClockCycles(dut.clk, 10)
-    dut.reset_n.value = 1
+    await reset(dut)
 
-    dut._log.info("Test project behavior")
+    cap = VGACapture(
+        dut.clk, TinyVGA(dut.uo_out), VGA_640x480_60,
+        out_dir="output", name="vga_screen"
+    ).start()
 
-    # Set the input values you want to test
-    dut.ui_in.value = 20
-    dut.uio_in.value = 30
+    # Move cursor to (1,1)
+    set_bit(dut, UP, 1)
+    set_bit(dut, RIGHT, 1)
+    await Timer(400, units="ns")
 
-    # Wait for one clock cycle to see the output values
-    await ClockCycles(dut.clk, 1)
+    # Write (set) cell at (1,1)
+    set_bit(dut, UP, 0)
+    set_bit(dut, RIGHT, 0)
+    set_bit(dut, SET, 1)
+    await Timer(400, units="ns")
 
-    # The following assersion is just an example of how to check the output values.
-    # Change it to match the actual expected output of your module:
-    assert dut.uo_out.value == 50
+    # Move to (2,1)
+    set_bit(dut, SET, 0)
+    set_bit(dut, RIGHT, 1)
+    await Timer(400, units="ns")
 
-    # Keep testing the module by changing the input values, waiting for
-    # one or more clock cycles, and asserting the expected output values.
+    # Move to (3,2)
+    set_bit(dut, UP, 1)
+    set_bit(dut, RIGHT, 1)
+    await Timer(400, units="ns")
+
+    # Write (set) cell at (3,2)
+    set_bit(dut, UP, 0)
+    set_bit(dut, RIGHT, 0)
+    set_bit(dut, SET, 1)
+    await Timer(400, units="ns")
+
+    # Move (up+right again)
+    set_bit(dut, UP, 1)
+    set_bit(dut, RIGHT, 1)
+    await Timer(400, units="ns")
+
+    # Move to (4,3)
+    set_bit(dut, UP, 0)
+    set_bit(dut, RIGHT, 0)
+    await Timer(400, units="ns")
+
+    # Move (up+right again)
+    set_bit(dut, UP, 1)
+    set_bit(dut, RIGHT, 1)
+    await Timer(400, units="ns")
+
+    # Move to (5,4), then start moving left
+    set_bit(dut, UP, 0)
+    set_bit(dut, RIGHT, 0)
+    set_bit(dut, LEFT, 1)
+    await Timer(400, units="ns")
+
+    # Move to (5,3), start moving right again
+    set_bit(dut, LEFT, 0)
+    set_bit(dut, RIGHT, 1)
+    await Timer(400, units="ns")
+
+    # Move to (6,3), write (set) cell there
+    set_bit(dut, RIGHT, 0)
+    set_bit(dut, SET, 1)
+    await Timer(400, units="ns")
+
+    # Press start to begin the simulation
+    set_bit(dut, START, 1)
+    set_bit(dut, SET, 0)
+    await Timer(400, units="ns")
+
+    # Release start (simulation running)
+    set_bit(dut, START, 0)
+    await Timer(400, units="ns")
+
+    frames = await cap.wait_for_frames(NUM_FRAMES)
+    cap.stop()
+    driver_task.kill()
+
+    cap.check_timing(require_frames=NUM_FRAMES)
+    cap.save_gif()

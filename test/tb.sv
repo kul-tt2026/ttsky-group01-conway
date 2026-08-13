@@ -1,4 +1,3 @@
-`include "vga.sv"
 `default_nettype none
 `timescale 1ns / 1ps
 
@@ -23,18 +22,18 @@ module tb ();
   wire [7:0] uo_out;
   wire [7:0] uio_out;
   wire [7:0] uio_oe;
-  // `ifdef GL_TEST
-  //   wire VPWR = 1'b1;
-  //   wire VGND = 1'b0;
-  // `endif
+`ifdef GL_TEST
+  wire VPWR = 1'b1;
+  wire VGND = 1'b0;
+`endif
 
-  vga user_project (
+  tt_um_conwaysgameoflife user_project (
 
       // Include power ports for the Gate Level test:
-      // `ifdef GL_TEST
-      //       .VPWR(VPWR),
-      //       .VGND(VGND),
-      // `endif
+`ifdef GL_TEST
+      .VPWR(VPWR),
+      .VGND(VGND),
+`endif
 
       .ui_in  (ui_in),    // Dedicated inputs
       .uo_out (uo_out),   // Dedicated outputs
@@ -43,7 +42,7 @@ module tb ();
       .uio_oe (uio_oe),   // IOs: Enable path (active high: 0=input, 1=output)
       .ena    (ena),      // enable - goes high when design is selected
       .clk    (clk),      // clock
-      .reset_n(reset_n)   // not reset
+      .rst_n  (reset_n)   // not reset
   );
 
 endmodule

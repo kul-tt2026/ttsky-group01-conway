@@ -24,6 +24,10 @@ module vga_get_cell_idx #(
   localparam int CELL_WIDTH = H_DISPLAY / NUM_COLS;
   localparam int CELL_HEIGHT = V_DISPLAY / NUM_ROWS;
 
+  initial begin
+    if (NUM_COLS <= 0 || NUM_ROWS <= 0) $fatal("NUM_COLS and NUM_ROWS must be > 0");
+  end
+
   always_comb begin
     col_idx = $bits(col_idx)'(32'(hpos) / CELL_WIDTH);
     row_idx = $bits(row_idx)'(32'(vpos) / CELL_HEIGHT);
