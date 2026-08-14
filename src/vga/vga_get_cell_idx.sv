@@ -15,6 +15,7 @@ module vga_get_cell_idx #(
 ) (
     input logic [9:0] hpos,
     input logic [9:0] vpos,
+    input logic display_on,
     output logic [$clog2(NUM_COLS)-1:0] col_idx,
     output logic [$clog2(NUM_ROWS)-1:0] row_idx
 );
@@ -29,8 +30,13 @@ module vga_get_cell_idx #(
   end
 
   always_comb begin
-    col_idx = $bits(col_idx)'(32'(hpos) / CELL_WIDTH);
-    row_idx = $bits(row_idx)'(32'(vpos) / CELL_HEIGHT);
+    if (display_on && (32'(hpos) < H_DISPLAY) && (32'(vpos) < V_DISPLAY)) begin // Make sure col_idx and row_idx never get out of bounds
+      col_idx = $bits(col_idx)'(32'(hpos) / CELL_WIDTH);
+      row_idx = $bits(row_idx)'(32'(vpos) / CELL_HEIGHT);
+    end else begin
+      col_idx = 0;
+      row_idx = 0;
+    end
   end
 
 

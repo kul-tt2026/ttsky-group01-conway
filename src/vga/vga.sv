@@ -57,6 +57,7 @@ module vga #(
   ) um_vga_get_cell_idx (
       .hpos(pix_x),
       .vpos(pix_y),
+      .display_on(display_on),
       .col_idx(col_idx),
       .row_idx(row_idx)
   );
