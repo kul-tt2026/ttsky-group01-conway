@@ -48,7 +48,7 @@ async def test_project(dut):
 
     cap = VGACapture(
         dut.clk, TinyVGA(dut.uo_out), VGA_640x480_60,
-        out_dir="output", name="vga_screen"
+        out_dir="output", name="vga_screen_capture"
     ).start()
 
     # Move cursor to (1,1)
