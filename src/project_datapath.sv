@@ -2,8 +2,8 @@
 `timescale 1ns / 1ps
 
 module project_datapath #(
-    parameter int row_count = 16,
-    parameter int col_count = 12
+    parameter int row_count = 12,
+    parameter int col_count = 16
 ) (
     input logic clk,
     input logic reset_n,
@@ -168,7 +168,7 @@ module project_datapath #(
   logic [col_bits-1:0] vga_col_idx;
   logic [row_bits+col_bits-1:0] cursorpos;
 
-  assign cursorpos = '0;  // TODO dit is heel tijdelijk
+  assign cursorpos = {input_write_address_col, input_write_address_row};  // vga gebruikt {col, row}
 
 
   vga #(

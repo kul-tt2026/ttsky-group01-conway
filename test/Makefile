@@ -21,9 +21,9 @@ PROJECT_SOURCES := \
 	$(SRC_DIR)/project_controller.sv \
 	$(SRC_DIR)/project_datapath.sv \
 	$(wildcard $(SRC_DIR)/logica/L_*.sv) \
-	$(wildcard $(SRC_DIR)/register_board/*.sv) \
+	$(filter-out %/tb_%,$(wildcard $(SRC_DIR)/register_board/*.sv)) \
 	$(SRC_DIR)/vga/vga.sv \
-	$(wildcard $(SRC_DIR)/Input/*.sv) \
+	$(filter-out %/tb_%,$(wildcard $(SRC_DIR)/Input/*.sv)) \
 	$(wildcard $(SRC_DIR)/vga/vga_*.sv) \
 	$(SRC_DIR)/project.sv
 
