@@ -2,8 +2,8 @@
 `timescale 1ns / 1ps
 
 module project_datapath #(
-    parameter int row_count = 16,
-    parameter int col_count = 12
+    parameter int row_count = 12,
+    parameter int col_count = 16
 ) (
     input logic clk,
     input logic reset_n,
