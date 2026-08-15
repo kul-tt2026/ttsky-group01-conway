@@ -128,8 +128,8 @@ module project_datapath #(
       write_address_row = L_address[row_bits+col_bits-1:col_bits];
       write_address_col = L_address[col_bits-1:0];
 
-    if (L_LD_cel_pg) data_in = data_out;
-    else data_in = L_new_cel;      
+      if (L_LD_cel_pg) data_in = data_out;
+      else data_in = L_new_cel;      
 
       active_board_read = !L_LD_cel_pg;
       active_board_write = L_LD_cel_pg;

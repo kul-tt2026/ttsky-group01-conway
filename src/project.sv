@@ -59,7 +59,8 @@ module tt_um_conwaysgameoflife #(
 
   project_datapath #(
       .row_count(ROWS),
-      .col_count(COLS)
+      .col_count(COLS),
+      .TESTING(TESTING)
   ) u_project_datapath (
       .clk(clk),
       .reset_n(rst_n),
