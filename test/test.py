@@ -29,26 +29,20 @@ async def reset(dut):
     await Timer(100, unit="ns")
 
 
-def set_bit(dut, bit, value):
-    """Set/clear a single bit of ui_in without disturbing the others."""
-    cur = int(dut.ui_in.value)
-    if value:
-        cur |= 1 << bit
-    else:
-        cur &= ~(1 << bit)
-    dut.ui_in.value = cur
-
-
 async def move_and_settle(dut, clear_bits, set_bits, hold_ns=400, settle_ns=10000):
     """Clear old button bits, wait one settle period, then set new bits,
     then hold for the full press duration. Guarantees no same-timestamp
     overlap between releasing and pressing buttons."""
+    cur = int(dut.ui_in.value)
     for bit in clear_bits:
-        set_bit(dut, bit, 0)
-    await Timer(settle_ns, unit="ns")  # let the release be sampled first
+        cur &= ~(1 << bit)
+    dut.ui_in.value = cur
+    await Timer(settle_ns, unit="ns")
 
+    cur = int(dut.ui_in.value)
     for bit in set_bits:
-        set_bit(dut, bit, 1)
+        cur |= (1 << bit)
+    dut.ui_in.value = cur
     await Timer(hold_ns, unit="ns")
 
 
