@@ -29,7 +29,7 @@ async def reset(dut):
     await Timer(100, unit="ns")
 
 
-async def move_and_settle(dut, clear_bits, set_bits, hold_ns=400, settle_ns=10000):
+async def move_and_settle(dut, clear_bits, set_bits, hold_ns=10000, settle_ns=10000):
     """Clear old button bits, wait one settle period, then set new bits,
     then hold for the full press duration. Guarantees no same-timestamp
     overlap between releasing and pressing buttons."""
@@ -45,6 +45,15 @@ async def move_and_settle(dut, clear_bits, set_bits, hold_ns=400, settle_ns=1000
     dut.ui_in.value = cur
     await Timer(hold_ns, unit="ns")
 
+async def print_board(dut):
+    board = dut.user_project.u_project_datapath.u_register_board.board0
+    print("\n========== BOARD ==========")
+    for row in range(12):
+        for i in range(16):
+            index = row*16+i
+            print(str(board[index].value),end=" ")
+        print()
+    print("===========================\n")
 
 @cocotb.test()
 async def test_project(dut):
@@ -67,24 +76,28 @@ async def test_project(dut):
     # Move to (1, 1)
     await move_and_settle(dut, clear_bits=[], set_bits=[DOWN, RIGHT])
     await move_and_settle(dut, clear_bits=[DOWN, RIGHT], set_bits=[SET])
+    await print_board(dut)
 
     await Timer(39.722 * 420000, unit="ns")  # Wait one frame
 
     # Move to (2,1)
     await move_and_settle(dut, clear_bits=[SET], set_bits=[RIGHT])
     await move_and_settle(dut, clear_bits=[RIGHT], set_bits=[SET])
+    await print_board(dut)
 
     await Timer(39.722 * 420000, unit="ns")  # Wait one frame
 
     # Move to (2,2)
     await move_and_settle(dut, clear_bits=[SET], set_bits=[DOWN])
     await move_and_settle(dut, clear_bits=[DOWN], set_bits=[SET])
+    await print_board(dut)
 
     await Timer(39.722 * 420000, unit="ns")  # Wait one frame
 
     # START
     await move_and_settle(dut, clear_bits=[SET], set_bits=[START])
     await move_and_settle(dut, clear_bits=[START], set_bits=[])
+    await print_board(dut)
 
     frames = await cap.wait_for_frames(NUM_FRAMES)
     cap.stop()
