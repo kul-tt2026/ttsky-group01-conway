@@ -49,7 +49,7 @@ def png_to_grid(png_path):
 
 
 def verify_PNGs(folder_path):
-    png_valid = True
+    folder_path = Path(folder_path)
     sim_starting = True
     frame_count = 1
 
@@ -89,5 +89,4 @@ def verify_PNGs(folder_path):
 if __name__ == "__main__":
     import sys
     from pathlib import Path
-    folder = Path(sys.argv[1]) if len(sys.argv) > 1 else Path(__file__).parent / "output"
-    verify_PNGs(folder)
+    verify_PNGs("output")
