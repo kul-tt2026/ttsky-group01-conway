@@ -3,7 +3,8 @@
 
 module project_datapath #(
     parameter int row_count = 12,
-    parameter int col_count = 16
+    parameter int col_count = 16,
+    parameter bit TESTING = 0 // ALS DEZE HOOG IS, UPDATE LOGICA ELKE FRAME
 ) (
     input logic clk,
     input logic reset_n,
@@ -50,7 +51,9 @@ module project_datapath #(
 
   assign reset_countdown = nic_reset || next_iter;
 
-  next_iter_countdown u_next_iter_countdown (
+  next_iter_countdown #(
+    .TESTING(TESTING)
+  ) u_next_iter_countdown (
       .clk(clk),
       .reset_n(reset_n),
       .reset(reset_countdown),
@@ -102,11 +105,11 @@ module project_datapath #(
       .button_set(button_set),
       .button_start(button_start),
 
-      .write_address_row(input_write_address_row),    // TODO mag ik deze ook meegeven als cursorpos naar vga?
+      .write_address_row(input_write_address_row),
       .write_address_col(input_write_address_col),
       .write_value(input_write_value),
       .start(start)
-      // TODO er is een write_enable nodig 
+      // TODO is er een write_enable nodig ?
       // TODO signaal om de simulatie snelheid te verhogen/verlagen
   );
 
@@ -125,10 +128,12 @@ module project_datapath #(
       write_address_row = L_address[row_bits+col_bits-1:col_bits];
       write_address_col = L_address[col_bits-1:0];
 
-      data_in = L_new_cel;
+    if (L_LD_cel_pg) data_in = data_out;
+    else data_in = L_new_cel;      
 
       active_board_read = !L_LD_cel_pg;
       active_board_write = L_LD_cel_pg;
+
     end else begin
       read_address_row = vga_row_idx;
       read_address_col = vga_col_idx;

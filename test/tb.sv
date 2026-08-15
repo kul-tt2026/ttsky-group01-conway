@@ -27,7 +27,9 @@ module tb ();
   wire VGND = 1'b0;
 `endif
 
-  tt_um_conwaysgameoflife user_project (
+  tt_um_conwaysgameoflife #(
+    .TESTING(1'b1) // ZORGT ERVOOR DAT LOGICA ELKE FRAME (60Hz) update
+    ) user_project (
 
       // Include power ports for the Gate Level test:
 `ifdef GL_TEST

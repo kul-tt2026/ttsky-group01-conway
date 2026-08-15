@@ -5,7 +5,9 @@
 
 `default_nettype none
 
-module tt_um_conwaysgameoflife (
+module tt_um_conwaysgameoflife #(
+    parameter bit TESTING = 0   // If this is 1, the logic will update every frame (60Hz), which makes the project easier to test
+    )(
     input  wire [7:0] ui_in,    // Dedicated inputs
     output wire [7:0] uo_out,   // Dedicated outputs
     input  wire [7:0] uio_in,   // IOs: Input path
