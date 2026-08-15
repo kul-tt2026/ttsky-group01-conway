@@ -8,8 +8,8 @@ module Input #(parameter COL_COUNT = 8, parameter ROW_COUNT = 8 ,parameter DEBOU
     input button_right,
     input button_set,
     input button_start,
-    output reg [COL_BITS-1:0] write_address_col,
-    output reg [ROW_BITS-1:0] write_address_row,
+    output reg [$clog2(COL_COUNT)-1:0] write_address_col,
+    output reg [$clog2(ROW_COUNT)-1:0] write_address_row,
     output reg write_value,
     output reg start
 );
@@ -129,6 +129,7 @@ always @(posedge clk or negedge reset_n) begin
         write_address_col <= 0;
         write_address_row <= 0;
         write_value <= 0;
+        start <= 0;
     end
     else begin
         write_value <= set_rise;
