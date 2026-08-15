@@ -128,11 +128,6 @@ async def test_project(dut):
     await print_board(dut)
     await Timer(FRAME, unit="ns")  # Wait one frame
 
-    # Move to (3,1)
-    await move_and_settle(dut, clear_bits=[SET], set_bits=[UP, RIGHT])
-    await move_and_settle(dut, clear_bits=[UP, RIGHT], set_bits=[SET])
-    await print_board(dut)
-
     await Timer(39.722 * 420000, unit="ns")  # Wait one frame
 
     # START
