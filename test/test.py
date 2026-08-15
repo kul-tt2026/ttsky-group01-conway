@@ -17,7 +17,9 @@ from cocotb_vga import VGACapture, TinyVGA, VGA_640x480_60
 UP, DOWN, LEFT, RIGHT, SET, START = 0, 1, 2, 3, 4, 5
 
 # Number of frames to simulate
-NUM_FRAMES = 10
+NUM_FRAMES = 12 * 4
+
+FRAME = 39.722 * 420000  # ns, one full frame
 
 
 async def reset(dut):
@@ -41,19 +43,21 @@ async def move_and_settle(dut, clear_bits, set_bits, hold_ns=10000, settle_ns=10
 
     cur = int(dut.ui_in.value)
     for bit in set_bits:
-        cur |= (1 << bit)
+        cur |= 1 << bit
     dut.ui_in.value = cur
     await Timer(hold_ns, unit="ns")
+
 
 async def print_board(dut):
     board = dut.user_project.u_project_datapath.u_register_board.board0
     print("\n========== BOARD ==========")
     for row in range(12):
         for i in range(16):
-            index = row*16+i
-            print(str(board[index].value),end=" ")
+            index = row * 16 + i
+            print(str(board[index].value), end=" ")
         print()
     print("===========================\n")
+
 
 @cocotb.test()
 async def test_project(dut):
@@ -71,28 +75,52 @@ async def test_project(dut):
         name="vga_screen_capture",
     ).start()
 
-    await Timer(39.722 * 420000, unit="ns")  # Wait one frame
+    await Timer(FRAME, unit="ns")  # Wait one frame
+
+    # Conway's Game of Life glider pattern:
+    #   . X .
+    #   . . X
+    #   X X X
+    # Cells (col, row) relative to anchor (1,1): (2,1), (3,2), (1,3), (2,3), (3,3)
 
     # Move to (1, 1)
-    await move_and_settle(dut, clear_bits=[], set_bits=[DOWN, RIGHT])
-    await move_and_settle(dut, clear_bits=[DOWN, RIGHT], set_bits=[SET])
-    await print_board(dut)
+    await move_and_settle(dut, clear_bits=[], set_bits=[RIGHT, DOWN])
 
-    await Timer(39.722 * 420000, unit="ns")  # Wait one frame
-
-    # Move to (2,1)
-    await move_and_settle(dut, clear_bits=[SET], set_bits=[RIGHT])
+    # Move to (2, 1) and set
+    await move_and_settle(dut, clear_bits=[RIGHT, DOWN], set_bits=[RIGHT])
     await move_and_settle(dut, clear_bits=[RIGHT], set_bits=[SET])
     await print_board(dut)
 
-    await Timer(39.722 * 420000, unit="ns")  # Wait one frame
+    await Timer(FRAME, unit="ns")  # Wait one frame
 
-    # Move to (2,2)
+    # Move to (3, 2) and set
+    await move_and_settle(dut, clear_bits=[SET], set_bits=[RIGHT])
+    await move_and_settle(dut, clear_bits=[RIGHT], set_bits=[DOWN])
+    await move_and_settle(dut, clear_bits=[DOWN], set_bits=[SET])
+
+    await print_board(dut)
+    await Timer(FRAME, unit="ns")  # Wait one frame
+
+    # Move to (3, 3) and set
     await move_and_settle(dut, clear_bits=[SET], set_bits=[DOWN])
     await move_and_settle(dut, clear_bits=[DOWN], set_bits=[SET])
-    await print_board(dut)
 
-    await Timer(39.722 * 420000, unit="ns")  # Wait one frame
+    await print_board(dut)
+    await Timer(FRAME, unit="ns")  # Wait one frame
+
+    # Move to (2, 3) and set
+    await move_and_settle(dut, clear_bits=[SET], set_bits=[LEFT])
+    await move_and_settle(dut, clear_bits=[LEFT], set_bits=[SET])
+
+    await print_board(dut)
+    await Timer(FRAME, unit="ns")  # Wait one frame
+
+    # Move to (1, 3) and set
+    await move_and_settle(dut, clear_bits=[SET], set_bits=[LEFT])
+    await move_and_settle(dut, clear_bits=[LEFT], set_bits=[SET])
+
+    await print_board(dut)
+    await Timer(FRAME, unit="ns")  # Wait one frame
 
     # START
     await move_and_settle(dut, clear_bits=[SET], set_bits=[START])
