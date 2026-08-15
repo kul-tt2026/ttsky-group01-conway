@@ -8,8 +8,8 @@ module Input #(parameter COL_COUNT = 8, parameter ROW_COUNT = 8 ,parameter DEBOU
     input button_right,
     input button_set,
     input button_start,
-    output reg [$clog2(COL_COUNT)-1:0] write_address_col,
-    output reg [$clog2(ROW_COUNT)-1:0] write_address_row,
+    output reg [COL_BITS-1:0] write_address_col,
+    output reg [ROW_BITS-1:0] write_address_row,
     output reg write_value,
     output reg start
 );
@@ -26,6 +26,12 @@ wire left_rise;
 wire right_rise;
 wire set_rise;
 wire start_rise;
+
+localparam ROW_BITS = $clog2(ROW_COUNT);
+localparam COL_BITS = $clog2(COL_COUNT);
+
+localparam [ROW_BITS-1:0] LAST_ROW = ROW_BITS'(ROW_COUNT-1);
+localparam [COL_BITS-1:0] LAST_COL = COL_BITS'(COL_COUNT-1);
 
 
 Debouncer #(DEBOUNCE_MAX) up_D (
@@ -128,18 +134,37 @@ always @(posedge clk or negedge reset_n) begin
         write_value <= set_rise;
         start <= start_rise;
         if (up_rise) begin 
-            write_address_row <= write_address_row - 1;
+            if (write_address_row == 0) begin
+                write_address_row <= LAST_ROW;
+            end 
+            else begin
+                write_address_row <= write_address_row - 1;
+            end
         end
         if (down_rise) begin 
-            write_address_row <= write_address_row + 1;
+            if (write_address_row == LAST_ROW) begin 
+                write_address_row <= 0;
+            end
+            else begin
+                write_address_row <= write_address_row + 1;
+            end
         end
         if (right_rise) begin 
-            write_address_col <= write_address_col + 1;
+            if (write_address_col == LAST_COL) begin
+                write_address_col <= 0;
+            end
+            else begin
+                write_address_col <= write_address_col + 1;
+            end
         end
         if (left_rise) begin 
-            write_address_col <= write_address_col - 1;
+            if (write_address_col == 0) begin
+                write_address_col <= LAST_COL;
+            end
+            else begin
+                write_address_col <= write_address_col - 1;
+            end
         end
     end
 end
-
 endmodule
