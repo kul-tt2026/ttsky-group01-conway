@@ -13,6 +13,7 @@ import os
 from cocotb.clock import Clock
 from cocotb.triggers import Timer
 from cocotb_vga import VGACapture, TinyVGA, VGA_640x480_60
+from verify_PNGs import verify_PNGs
 
 # zodat de gate-level simulatie werkt
 GL = os.environ.get("GATES") == "yes"
@@ -116,3 +117,7 @@ async def test_project(dut):
 
     cap.check_timing(require_frames=NUM_FRAMES)
     cap.save_gif()
+
+    # Algoritmische verificatie: zie andere file
+    # gooit zelf errors indien nodig
+    verify_PNGs("output")
