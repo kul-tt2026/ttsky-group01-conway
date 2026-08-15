@@ -27,9 +27,14 @@ module tb ();
   wire VGND = 1'b0;
 `endif
 
+
+`ifdef GL_TEST
+  tt_um_conwaysgameoflife user_project ( // in de gate level test kan je geen waarde meegeven aan TESTING
+`else
   tt_um_conwaysgameoflife #(
-    .TESTING(1'b1) // ZORGT ERVOOR DAT LOGICA ELKE FRAME (60Hz) update
-    ) user_project (
+    .TESTING(1'b1) // zorgt ervoor dat logica elke frame (60Hz) update
+  ) user_project (
+`endif
 
       // Include power ports for the Gate Level test:
 `ifdef GL_TEST
