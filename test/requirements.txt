@@ -1,5 +1,5 @@
 pytest==8.4.2
 cocotb==2.0.1
 pillow==12.1.1
-numpy==2.5.0
+numpy==2.4.6
 git+https://github.com/kul-tt2026/cocotb-vga
