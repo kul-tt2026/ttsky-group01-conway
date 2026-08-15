@@ -1,10 +1,13 @@
 from PIL import Image
 import numpy as np
 from pyConway import Grid, PyConway
+from pathlib import Path
 
 # Voornamelijk geschreven door Sieben, hulp van Claude en Gemini voor syntax met png's
 # Verifiëert of de door vga gegeneerde png's voldoen aan de regels van Conway's game of life
 # moet opgeroepen worden in een andere file (test.py)
+# run door eerst 'cd test' en dan 'python verify_PNGs.py'
+
 
 # kijkt of the png een bepaalde kleur bevat
 # kleur meegeven als tuple (R, G, B)
@@ -87,6 +90,4 @@ def verify_PNGs(folder_path):
 
 # danku Claude
 if __name__ == "__main__":
-    import sys
-    from pathlib import Path
     verify_PNGs("output")
