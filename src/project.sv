@@ -29,14 +29,16 @@ module tt_um_conwaysgameoflife #(
   localparam int col_bits = $clog2(COLS);
 
   // inputknoppen
-  logic button_up, button_down, button_left, button_right, button_set, button_start;
+  logic button_up, button_down, button_left, button_right, button_set, button_start, testing;
   assign button_up    = ui_in[0];
   assign button_down  = ui_in[1];
   assign button_left  = ui_in[2];
   assign button_right = ui_in[3];
   assign button_set   = ui_in[4];
   assign button_start = ui_in[5];
-  wire _unused = &{ui_in[7:6]};
+  wire _unused = &{ui_in[6]};
+
+  assign testing = ui_in[7]; // Als dit hoog is gaat logica elke frame updaten (zodat logica ook in de gate-level simulatie getest kan worden)
 
   // Intere wires
   logic
@@ -59,8 +61,7 @@ module tt_um_conwaysgameoflife #(
 
   project_datapath #(
       .row_count(ROWS),
-      .col_count(COLS),
-      .TESTING(TESTING)
+      .col_count(COLS)
   ) u_project_datapath (
       .clk(clk),
       .reset_n(rst_n),
@@ -80,6 +81,7 @@ module tt_um_conwaysgameoflife #(
       .ena(ena),
       .ui_in(ui_in),
       .uo_out(uo_out),
+      .testing(testing),
 
       .start(start),
       .next_iter(next_iter),

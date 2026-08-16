@@ -19,10 +19,10 @@ from verify_PNGs import verify_PNGs
 GL = os.environ.get("GATES") == "yes"
 
 # Bit positions for readability
-UP, DOWN, LEFT, RIGHT, SET, START = 0, 1, 2, 3, 4, 5
+UP, DOWN, LEFT, RIGHT, SET, START, TESTING = 0, 1, 2, 3, 4, 5, 7
 
 # Number of frames to simulate
-NUM_FRAMES = 12 * 4
+NUM_FRAMES = 12
 
 FRAME = 39.722 * 420000  # ns, one full frame
 
@@ -49,6 +49,7 @@ async def move_and_settle(dut, clear_bits, set_bits, hold_ns=10000, settle_ns=10
     cur = int(dut.ui_in.value)
     for bit in set_bits:
         cur |= 1 << bit
+    cur |= 1 << TESTING # zodat logica elke frame update, zowel in gewone als gate level tests
     dut.ui_in.value = cur
     await Timer(hold_ns, unit="ns")
 

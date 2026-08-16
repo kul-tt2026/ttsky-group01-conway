@@ -28,14 +28,7 @@ module tb ();
 `endif
 
 
-`ifdef GL_TEST
-  tt_um_conwaysgameoflife user_project ( // in de gate level test kan je geen waarde meegeven aan TESTING
-`else
-  tt_um_conwaysgameoflife #(
-    .TESTING(1'b1) // zorgt ervoor dat logica elke frame (60Hz) update
-  ) user_project (
-`endif
-
+tt_um_conwaysgameoflife user_project (
       // Include power ports for the Gate Level test:
 `ifdef GL_TEST
       .VPWR(VPWR),

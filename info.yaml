@@ -50,7 +50,7 @@ pinout:
   ui[4]: "button_set"
   ui[5]: "button_start"
   ui[6]: ""
-  ui[7]: ""
+  ui[7]: "testing" # makes the simulation update once per frame, useful in tests
 
   # Outputs
   uo[0]: "R1"

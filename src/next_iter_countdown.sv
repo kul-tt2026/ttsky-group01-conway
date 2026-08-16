@@ -8,12 +8,12 @@ een nieuwe iteratie van Logica te beginnen.
 */
 
 module next_iter_countdown #(
-    parameter int clock_cycles_per_second = 25175000, // Hz
-    parameter bit TESTING = 0
+    parameter int clock_cycles_per_second = 25175000 // Hz
 )(
     input logic clk,
     input logic reset_n,
     input logic reset,
+    input logic testing, // Als dit hoog is wordt de snelheid 100Hz, dat is makkelijker om te testen
     input sim_speed_pkg::speed_e speed,
 
     output logic countdown_done
@@ -39,7 +39,7 @@ module next_iter_countdown #(
     always_comb begin
         case (speed)
             sim_speed_pkg::QUARTER_HZ: begin
-                    if (TESTING) countdown_done = (count >= (counter_bits)'(clock_cycles_per_second / 100) ); // OP DEZE MANIER WORDT ELKE FRAME DE SIMULATIE GEÜPDATE (60Hz)
+                    if (testing) countdown_done = (count >= (counter_bits)'(clock_cycles_per_second / 100) ); // OP DEZE MANIER WORDT ELKE FRAME DE SIMULATIE GEÜPDATE (60Hz)
                     else countdown_done = (count >= (counter_bits)'(clock_cycles_per_second * 4) );
                 end
             sim_speed_pkg::HALF_HZ: countdown_done = (count >= (counter_bits)'(clock_cycles_per_second * 2) );

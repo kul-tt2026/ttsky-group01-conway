@@ -40,7 +40,7 @@ def png_to_grid(png_path):
 
             # check if all pixels in the block equal the top-left pixel
             if not np.all(block == block[0, 0]):
-                print(f"TODO (Sieben): vierkant lijkt niet-uniform op rij {int(x/square_size)}, kolom {int(y/square_size)}")
+                print(f"WARNING: vierkant lijkt niet-uniform op rij {int(x/square_size)}, kolom {int(y/square_size)}")
                 #raise ValueError(f"{png_path}: niet-uniform vierkant op rij {int(x/square_size)}, kolom {int(y/square_size)} (bekijk zelf de png)")
 
             if np.array_equal(block[0, 0], (255, 255, 255)): # wit
@@ -80,9 +80,11 @@ def verify_PNGs(folder_path):
             current_grid = png_to_grid(png)
 
             if not current_grid.equal(conway.get_grid()):
+                print("gekregen grid")
                 current_grid.print()
-                print()
+                print("verwacht grid")
                 conway.get_grid().print()
+                print("deze test neemt aan dat de simulatie elke frame geüpdate wordt")
                 raise AssertionError(f"{png}: resultaat is algoritmisch fout (bekijk zelf de png)")
 
     print("Algoritmische verificatie van png's complete!")

@@ -3,8 +3,7 @@
 
 module project_datapath #(
     parameter int row_count = 12,
-    parameter int col_count = 16,
-    parameter bit TESTING = 0 // ALS DEZE HOOG IS, UPDATE LOGICA ELKE FRAME
+    parameter int col_count = 16
 ) (
     input logic clk,
     input logic reset_n,
@@ -24,6 +23,7 @@ module project_datapath #(
     input logic ena,
     input logic [7:0] ui_in,  // Dedicated inputs
     output logic [7:0] uo_out,  // Dedicated outputs
+    input logic testing,
 
     output logic start,
     output logic next_iter,
@@ -51,11 +51,10 @@ module project_datapath #(
 
   assign reset_countdown = nic_reset || next_iter;
 
-  next_iter_countdown #(
-    .TESTING(TESTING)
-  ) u_next_iter_countdown (
+  next_iter_countdown u_next_iter_countdown (
       .clk(clk),
       .reset_n(reset_n),
+      .testing(testing),
       .reset(reset_countdown),
       .speed(speed),
 
