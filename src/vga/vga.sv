@@ -78,6 +78,8 @@ module vga #(
       .NUM_COLS(NUM_COLS),
       .NUM_ROWS(NUM_ROWS)
   ) um_vga_get_pixel_color (
+      .clk(clk),
+      .reset_n(reset_n),
       .display_on(display_on),
       .cell_type(cell_type),
       .R(R),
