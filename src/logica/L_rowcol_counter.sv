@@ -16,8 +16,8 @@ module L_rowcol_counter #(
     input logic reset_address,  // active high: reset bij 1
     input logic advance_grid,
 
-    output logic [row_bits-1:0] row,
-    output logic [col_bits-1:0] col,
+    output logic [$clog2(row_count)-1:0] row,
+    output logic [$clog2(col_count)-1:0] col,
     output logic row_0,
     output logic col_0,
     output logic row_max,
