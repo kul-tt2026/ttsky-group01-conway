@@ -44,9 +44,8 @@ jobs:
         with:
           name: test-results
           path: |
-            test/tb.fst
             test/results.xml
-            test/output/*        
+            test/output/*
             
   test_logica: # Deel Sieben; Github test structuur geschreven door Claude Opus 5
     runs-on: ubuntu-24.04
