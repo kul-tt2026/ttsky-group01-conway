@@ -21,23 +21,20 @@ module L_controller (
     input logic L_next_iter,
     input mode_pkg::mode_e L_mode,
     input logic address_max,
-    input logic read_ready,
+    input logic row_0,
+    input logic col_1,
 
     output logic L_idle,
-    output logic L_LD_cel_pg,
-    output logic L_LD_cel_g,
-    output logic advance_grid,
+    output logic L_write_enable,
+    output logic L_copying,
+    output logic [1:0] advance_grid,
     output logic reset_address,
-    output logic advance_sweep,
-    output logic reset_sweep,
-    output logic reset_decider,
     output mode_pkg::mode_e d_mode
 );
 
-typedef enum logic [2:0] {
+typedef enum logic [1:0] {
     IDLE, COPY,
-    READ_T, WRITE_T, MOVE_T,
-    READ_B, WRITE_B, MOVE_B
+    BOUNDED, TORUS
 } state_e;
 
 state_e state;
@@ -51,22 +48,12 @@ always_ff @( posedge clk or negedge reset_n ) begin : next_state_logic
     end
     else case (state)
         IDLE: if(L_next_iter) state <= COPY;
-        COPY: if(address_max) begin
-            if(L_mode === mode_pkg::TORUS) state <= READ_T;
-            else state <= READ_B;                               // Idee is dat eens die een iteratie begonnen is met in bounded/torus, die die iteratie ook daarmee moet afmaken
+        COPY: if(col_1 && row_0) begin
+            if(L_mode === mode_pkg::TORUS) state <= TORUS;
+            else state <= BOUNDED;
         end
-        READ_T: if(read_ready) state <= WRITE_T;
-        WRITE_T: begin
-            if (address_max) state <= IDLE;
-            else state <= MOVE_T;
-        end
-        MOVE_T: state <= READ_T;
-        READ_B: if(read_ready) state <= WRITE_B;
-        WRITE_B: begin
-            if (address_max) state <= IDLE;
-            else state <= MOVE_B;
-        end
-        MOVE_B: state <= READ_B;
+        BOUNDED: if(address_max) state <= IDLE;
+        TORUS: if(address_max) state <= IDLE;
         default: state <= IDLE;
     endcase
 end
@@ -74,22 +61,14 @@ end
 always_comb begin : control_signals
     case (state)
         // default is voor IDLE
-        default: {L_idle, L_LD_cel_pg, L_LD_cel_g, advance_grid, reset_address, advance_sweep, reset_sweep, reset_decider, d_mode} = 
-                 {1'b1,   1'b0,        1'b0,       1'b0,         1'b1,          1'b0,          1'b1,        1'b1,          mode_pkg::TORUS};
-        COPY:    {L_idle, L_LD_cel_pg, L_LD_cel_g, advance_grid, reset_address, advance_sweep, reset_sweep, reset_decider, d_mode} = 
-                 {1'b0,   1'b1,        1'b0,       1'b1,         1'b0,          1'b0,          1'b1,        1'b1,          mode_pkg::TORUS};
-        READ_T:  {L_idle, L_LD_cel_pg, L_LD_cel_g, advance_grid, reset_address, advance_sweep, reset_sweep, reset_decider, d_mode} = 
-                 {1'b0,   1'b0,        1'b0,       1'b0,         1'b0,          1'b1,          1'b0,        1'b0,          mode_pkg::TORUS};
-        WRITE_T: {L_idle, L_LD_cel_pg, L_LD_cel_g, advance_grid, reset_address, advance_sweep, reset_sweep, reset_decider, d_mode} = 
-                 {1'b0,   1'b0,        1'b1,       1'b1,         1'b0,          1'b0,          1'b1,        1'b1,          mode_pkg::TORUS};
-        MOVE_T:  {L_idle, L_LD_cel_pg, L_LD_cel_g, advance_grid, reset_address, advance_sweep, reset_sweep, reset_decider, d_mode} = 
-                 {1'b0,   1'b0,        1'b0,       1'b0,         1'b0,          1'b1,          1'b0,        1'b0,          mode_pkg::TORUS};
-        READ_B:  {L_idle, L_LD_cel_pg, L_LD_cel_g, advance_grid, reset_address, advance_sweep, reset_sweep, reset_decider, d_mode} = 
-                 {1'b0,   1'b0,        1'b0,       1'b0,         1'b0,          1'b1,          1'b0,        1'b0,          mode_pkg::BOUNDED};
-        WRITE_B: {L_idle, L_LD_cel_pg, L_LD_cel_g, advance_grid, reset_address, advance_sweep, reset_sweep, reset_decider, d_mode} = 
-                 {1'b0,   1'b0,        1'b1,       1'b1,         1'b0,          1'b0,          1'b1,        1'b1,          mode_pkg::BOUNDED};
-        MOVE_B:  {L_idle, L_LD_cel_pg, L_LD_cel_g, advance_grid, reset_address, advance_sweep, reset_sweep, reset_decider, d_mode} = 
-                 {1'b0,   1'b0,        1'b0,       1'b0,         1'b0,          1'b1,          1'b0,        1'b0,          mode_pkg::BOUNDED};
+        default: {L_idle, L_write_enable, L_copying, advance_grid, reset_address, d_mode} = 
+                 {1'b1,   1'b0,           1'b0,       2'b00,       1'b1,          mode_pkg::TORUS};
+        COPY:    {L_idle, L_write_enable, L_copying, advance_grid, reset_address, d_mode} = 
+                 {1'b0,   1'b1,           1'b1,       2'b10,       1'b0,          mode_pkg::TORUS};
+        BOUNDED: {L_idle, L_write_enable, L_copying, advance_grid, reset_address, d_mode} = 
+                 {1'b0,   1'b1,           1'b0,       2'b01,       1'b0,          mode_pkg::BOUNDED};
+        TORUS:   {L_idle, L_write_enable, L_copying, advance_grid, reset_address, d_mode} = 
+                 {1'b0,   1'b1,           1'b0,       2'b01,       1'b0,          mode_pkg::TORUS};
     endcase
 end
     

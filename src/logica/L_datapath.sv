@@ -13,17 +13,17 @@ module L_datapath #(
 ) (
     input logic clk,
     input logic reset_n,
-    input logic advance_grid,
+    input logic [1:0] advance_grid,
     input logic reset_address,
-    input logic advance_sweep,
-    input logic reset_sweep,
-    input logic reset_decider,
-    input logic cel_out_pg,
+    input logic old_cel,
+    input logic [7:0] neighbours,
     input mode_pkg::mode_e d_mode,
 
     output logic address_max,
-    output logic read_ready,
-    output logic [$clog2(row_count) + $clog2(col_count) - 1:0] L_address,
+    output logic row_0,
+    output logic col_1,
+    output logic [$clog2(row_count) - 1:0] L_row,
+    output logic [$clog2(col_count) - 1:0] L_col,
     output logic L_new_cel
 );
 
@@ -31,10 +31,7 @@ module L_datapath #(
     localparam int col_bits = $clog2(col_count);
 
     // Interne verbindingen
-    logic [row_bits - 1:0] row;
-    logic [col_bits - 1:0] col;
-    logic [3:0] sweep_number;
-    logic row_max, row_0, col_max, col_0;
+    logic row_max, col_max, col_0;
 
     L_rowcol_counter #(
         .row_count(row_count),
@@ -44,40 +41,21 @@ module L_datapath #(
         .reset_n(reset_n),
         .advance_grid(advance_grid),
         .reset_address(reset_address),
-        .row(row),
-        .col(col),
+        .row(L_row),
+        .col(L_col),
         .row_0(row_0),
         .col_0(col_0),
+        .col_1(col_1),
         .row_max(row_max),
         .col_max(col_max),
         .address_max(address_max)
     );
 
-    L_sweep_counter u_L_sweep_counter (
-        .clk(clk),
-        .reset_n(reset_n),
-        .reset_sweep(reset_sweep),
-        .advance_sweep(advance_sweep),
-        .sweep_number(sweep_number),
-        .read_ready(read_ready)
-    );
-
-    L_sweeper #(
-        .row_count(row_count),
-        .col_count(col_count)
-    ) u_L_sweeper (
-        .row(row),
-        .col(col),
-        .sweep_number(sweep_number),
-        .L_address(L_address)
-    );
-
     L_decider u_L_decider (
         .clk(clk),
         .reset_n(reset_n),
-        .reset_decider(reset_decider),
-        .cel(cel_out_pg),
-        .sweep_number(sweep_number),
+        .cel(old_cel),
+        .neighbours(neighbours),
         .d_mode(d_mode),
         .row_0(row_0),
         .col_0(col_0),

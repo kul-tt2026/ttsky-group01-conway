@@ -15,6 +15,7 @@ package sim_speed_pkg;
         FOUR_HZ    = 3'b101
     } speed_e;
 endpackage
+// TODO EIGHT & SIXTEEN HZ toevoegen
 
 module sim_speed (
     input logic clk,

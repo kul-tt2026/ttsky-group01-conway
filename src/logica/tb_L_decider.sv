@@ -11,8 +11,8 @@ module tb_L_decider ();
 
     localparam int CLK_PERIOD = 10;   // ns
     
-    logic clk, reset_n, reset_decider, cel, row_0, row_max, col_0, col_max;
-    logic [3:0] sweep_number;
+    logic clk, reset_n, cel, row_0, row_max, col_0, col_max;
+    logic [7:0] neighbours;
     mode_pkg::mode_e d_mode;
     logic L_new_cel;
 
@@ -21,9 +21,8 @@ module tb_L_decider ();
     L_decider dut (
         .clk(clk),
         .reset_n(reset_n),
-        .reset_decider(reset_decider),
         .cel(cel),
-        .sweep_number(sweep_number),
+        .neighbours(neighbours),
         .d_mode(d_mode),
         .row_0(row_0),
         .row_max(row_max),
@@ -64,9 +63,8 @@ module tb_L_decider ();
     // Tests
     initial begin
         reset_n = 1'b0;
-        reset_decider = 1'b0;
         cel = 1'b0;
-        sweep_number = 4'b0;
+        neighbours = '0;
         d_mode = mode_pkg::TORUS;
         row_0 = '0;
         row_max = '0;
@@ -80,133 +78,35 @@ module tb_L_decider ();
 
 
         // Test 1: cel zelf is dood
+        
+        neighbours = 8'b0001_1000;
         step(1);
         check(L_new_cel === '0, "decider werkt niet (1)");
-
-        cel = 1'b1;
-        sweep_number = 4'd1;
-        step(1);
-        check(L_new_cel === '0, "decider werkt niet (2)");
-
-        cel = 1'b0;
-        sweep_number = 4'd2;
-        step(1);
-        check(L_new_cel === '0, "decider werkt niet (3)");
-
-        cel = 1'b1;
-        sweep_number = 4'd3;
-        step(1);
-        check(L_new_cel === '0, "decider werkt niet (4)");
-
-        cel = 1'b1;
-        sweep_number = 4'd4;
-        step(1);
-        check(L_new_cel === 1'b1, "decider werkt niet (5)"); // exact drie buren
-
-        cel = 1'b0;
-        sweep_number = 4'd5;
-        step(1);
-        check(L_new_cel === 1'b1, "decider werkt niet (6)"); // nog steeds exact drie buren
-
-        reset_decider = 1'b1;
-        step(1);
-        check(L_new_cel === 1'b0, "reset_decider werkt niet (1)");
-        reset_decider = 1'b0;
 
         // Test 2: cel zelf is levend
 
         cel = 1'b1;
-        sweep_number = 4'd0;
+        neighbours = 8'b1010_1010;
         step(1);
-        check(L_new_cel === '0, "decider werkt niet (7)");
+        check(L_new_cel === '0, "decider werkt niet (2)");
+
+        // Test 3: cel zelf is levend
 
         cel = 1'b1;
-        sweep_number = 4'd1;
+        neighbours = 8'b0100_0110;
         step(1);
-        check(L_new_cel === '0, "decider werkt niet (8)");
-
-        cel = 1'b0;
-        sweep_number = 4'd2;
-        step(1);
-        check(L_new_cel === '0, "decider werkt niet (9)");
-
-        cel = 1'b1;
-        sweep_number = 4'd3;
-        step(1);
-        check(L_new_cel === 1'b1, "decider werkt niet (10)"); // Twee buren
-
-        cel = 1'b0;
-        sweep_number = 4'd4;
-        step(1);
-        check(L_new_cel === 1'b1, "decider werkt niet (11)"); // nog steeds twee buren
-
-        cel = 1'b1;
-        sweep_number = 4'd5;
-        step(1);
-        check(L_new_cel === 1'b1, "decider werkt niet (12)"); // drie buren
-
-        cel = 1'b1;
-        sweep_number = 4'd6;
-        step(1);
-        check(L_new_cel === 1'b0, "decider werkt niet (13)");
-
-        reset_decider = 1'b1;
-        step(1);
-        check(L_new_cel === 1'b0, "reset_decider werkt niet (2)");
-        reset_decider = 1'b0;
+        check(L_new_cel === 1'b1, "decider werkt niet (3)");
 
 
-
-
-        // Test drie: cel zelf is dood, aan de rand, bounded mode
+        // Test 4: cel zelf is dood, aan de rand, bounded mode
         d_mode = mode_pkg::BOUNDED;
         row_0 = 1'b1;
-        col_0 = 1'b1; // linkerbovenhoek, dus sweep 1 2 6 7 8 mogen niet pakken
+        col_0 = 1'b1; // linkerbovenhoek, dus 0 1 5 6  mogen niet pakken
 
         cel = 1'b0;
-        sweep_number = 4'd0;
+        neighbours = 8'b1111_1111;
         step(1);
-        check(L_new_cel === '0, "decider werkt niet (14)");
-
-        cel = 1'b1;
-        sweep_number = 4'd1;    // Buiten het veld
-        step(1);
-        check(L_new_cel === '0, "decider werkt niet (15)");
-
-        cel = 1'b0;
-        sweep_number = 4'd2;    // Buiten het veld
-        step(1);
-        check(L_new_cel === '0, "decider werkt niet (16)");
-
-        cel = 1'b1;
-        sweep_number = 4'd3;
-        step(1);
-        check(L_new_cel === 1'b0, "decider werkt niet (17)"); // Eén buur
-
-        cel = 1'b1;
-        sweep_number = 4'd4;
-        step(1);
-        check(L_new_cel === 1'b0, "decider werkt niet (18)"); // Twee buren
-
-        cel = 1'b1;
-        sweep_number = 4'd5;
-        step(1);
-        check(L_new_cel === 1'b1, "decider werkt niet (19)"); // Drie buren
-
-        cel = 1'b1;
-        sweep_number = 4'd6;    // Buiten het veld
-        step(1);
-        check(L_new_cel === 1'b1, "decider werkt niet (20)");
-
-        cel = 1'b0;
-        sweep_number = 4'd7;    // Buiten het veld
-        step(1);
-        check(L_new_cel === 1'b1, "decider werkt niet (21)");
-
-        cel = 1'b1;
-        sweep_number = 4'd8;    // Buiten het veld
-        step(1);
-        check(L_new_cel === 1'b1, "decider werkt niet (22)");
+        check(L_new_cel === 1'b1, "decider werkt niet (4)");
 
         // Einde
         if (errors == 0) begin

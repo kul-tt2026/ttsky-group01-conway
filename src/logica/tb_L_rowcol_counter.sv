@@ -13,10 +13,11 @@ module tb_L_rowcol_counter ();
     localparam int COLS       = 3;
     localparam int CLK_PERIOD = 10;   // ns
 
-    logic clk, reset_n, reset_address, advance_grid ;
+    logic clk, reset_n, reset_address;
+    logic [1:0] advance_grid;
     logic [$clog2(ROWS)-1:0] row;
     logic [$clog2(COLS)-1:0] col;
-    logic row_0, col_0, row_max, col_max, address_max;
+    logic row_0, col_0, col_1, row_max, col_max, address_max;
 
     int errors = 0;
 
@@ -33,6 +34,7 @@ module tb_L_rowcol_counter ();
         .col(col),
         .row_0(row_0),
         .col_0(col_0),
+        .col_1(col_1),
         .row_max(row_max),
         .col_max(col_max),
         .address_max(address_max)
@@ -80,24 +82,25 @@ module tb_L_rowcol_counter ();
         // Alle inputs een bekende waarde geven voor de eerste klokflank.
         reset_n       = 1'b1;
         reset_address = 1'b0;
-        advance_grid  = 1'b0;
+        advance_grid  = 2'b0;
 
         step(2);
         reset_n = 1'b0;
         step(2);
         check_rc(0, 0, "reset_n werkt niet");
-        check(row_0 && col_0, "row_0/col_0 kloppen niet tijdens reset_n");
+        check(row_0 && col_0 && !col_1, "row_0/col_0 kloppen niet tijdens reset_n");
         check(!row_max && !col_max && !address_max, "row_max/col_max/address_max zijn hoog wanneer ze laag moeten zijn");
 
         reset_n       = 1'b1;
-        advance_grid  = 1'b1;
+        advance_grid  = 2'b01;
         step(1);
         check_rc(0, 1, "advance_grid  werkt niet (1)");
+        check(col_1, "col_1 werkt niet");
 
         step(4);
         check_rc(1, 2, "advance_grid  werkt niet (2)");
         check(col_max, "col_max werkt niet");
-        check(!row_0 && !col_0, "row_0/col_0 zijn hoog wanneer ze laag moeten zijn");
+        check(!row_0 && !col_0 && !col_1, "row_0/col_0 zijn hoog wanneer ze laag moeten zijn");
 
         reset_address = 1'b1;
         step(1);
@@ -111,6 +114,13 @@ module tb_L_rowcol_counter ();
         step(2);
         check_rc(3, 2, "advance_grid  werkt niet (4)");
         check(row_max && col_max && address_max, "row_max/col_max/address_max werken niet (2)");
+
+        advance_grid = 2'b10;
+
+        step(1);
+        check_rc(3,1, "advance_grid werkt niet in de achterwaartse richting");
+
+
 
         // Einde
         if (errors == 0) begin

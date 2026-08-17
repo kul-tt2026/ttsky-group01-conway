@@ -32,8 +32,6 @@ project:
     - "logica/L_decider.sv"
     - "logica/L_main.sv"
     - "logica/L_rowcol_counter.sv"
-    - "logica/L_sweep_counter.sv"
-    - "logica/L_sweeper.sv"
     - "register_board/register_board.sv"
     - "Input/Input.sv"
     - "Input/Debouncer.sv"

@@ -30,14 +30,13 @@ async def test_project(dut):
 
     def set_value(row, col, value):
         pyGrid.set(row, col, value)
-        dut.address_row.value = row
-        dut.address_col.value = col
-        dut.data_in.value = value
-        dut.write_enable.value = 1
+        dut.init_row.value = row
+        dut.init_col.value = col
+        dut.init_write_data.value = value
 
     # tetrisvorm
     #     X
-    #   X X X
+    #   X X X  
     set_value(3,3,1)
     await ClockCycles(dut.clk, 1)
     set_value(3,4,1)
@@ -90,10 +89,9 @@ async def test_project(dut):
 
     def set_value(row, col, value):
         pyGrid.set(row, col, value)
-        dut.address_row.value = row
-        dut.address_col.value = col
-        dut.data_in.value = value
-        dut.write_enable.value = 1
+        dut.init_row.value = row
+        dut.init_col.value = col
+        dut.init_write_data.value = value
 
     # tetrisvorm
     #     X
