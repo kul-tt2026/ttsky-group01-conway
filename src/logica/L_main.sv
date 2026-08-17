@@ -22,7 +22,7 @@ module L_main #(
     input logic cel_out_pg,
 
     output logic L_idle,
-    output logic [row_bits + col_bits - 1:0] L_address,
+    output logic [$clog2(row_count) + $clog2(col_count) - 1:0] L_address,
     output logic L_new_cel,
     output logic L_LD_cel_g,
     output logic L_LD_cel_pg
