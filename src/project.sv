@@ -101,6 +101,7 @@ module tt_um_conwaysgameoflife #(
       .uo_out (uo_out),
       .testing(testing),
 
+      .manual_full_reset_n(),
       .start_stop_rise(start_stop_rise),
       .next_iter(next_iter),
       .L_idle(L_idle)

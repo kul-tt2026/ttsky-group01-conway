@@ -28,6 +28,7 @@ module project_datapath #(
     output logic [7:0] uo_out,  // Dedicated outputs
     input logic testing,
 
+    output logic manual_full_reset_n,
     output logic start_stop_rise,
     output logic next_iter,
     output logic L_idle
@@ -38,16 +39,14 @@ module project_datapath #(
 
   // Interne wires
   sim_speed_pkg::speed_e speed;
-  logic increase, decrease, reset_countdown, countdown_done;
-
-  assign {increase, decrease} = 2'b0;  // TODO dit is heel tijdelijk
+  logic reset_countdown, countdown_done;
 
   sim_speed u_sim_speed (
       .clk(clk),
       .reset_n(reset_n),
       .reset(reset_speed),
-      .increase(increase),
-      .decrease(decrease),
+      .increase(speed_sim_increase),
+      .decrease(speed_sim_decrease),
 
       .speed(speed)
   );
@@ -66,6 +65,7 @@ module project_datapath #(
 
   // nog interne wires
   logic L_new_cel, L_LD_cel_g, L_LD_cel_pg;
+  logic bounded_board, speed_sim_decrease, speed_sim_increase;
   logic [row_bits + col_bits - 1:0] L_address;
   logic next_iter_allowed;
   logic data_in, active_board_read, active_board_write, toggle_read, write_enable, data_out;
@@ -135,14 +135,21 @@ module project_datapath #(
       .button_set(button_set),
       .button_start_stop(button_start_stop),
       .button_cursor_on_off(button_cursor_on_off),
+      .button_bounded_board(button_bounded_board),
+      .button_speed_sim_up(button_speed_sim_up),
+      .button_speed_sim_down(button_speed_sim_down),
+      .button_reset_n(button_reset_n),
+      .manual_full_reset_n(manual_full_reset_n),
       .running(running),
 
       .write_address_row(input_write_address_row),
       .write_address_col(input_write_address_col),
       .write_value(input_write_value),
       .start_stop_rise(start_stop_rise),
+      .bounded_board(bounded_board),
+      .speed_sim_down_rise(speed_sim_decrease),
+      .speed_sim_up_rise(speed_sim_increase),
       .cursor_on(cursor_on)
-      // TODO signaal om de simulatie snelheid te verhogen/verlagen
   );
 
   assign cursorpos = {input_write_address_col, input_write_address_row};  // vga gebruikt {col, row}
@@ -178,7 +185,7 @@ module project_datapath #(
       active_board_write = 1'b0;
     end
   end
-
+  
   register_board #(
       .row_count(row_count),
       .col_count(col_count)
