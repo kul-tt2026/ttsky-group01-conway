@@ -77,14 +77,16 @@ module project_datapath #(
   logic pending_write;
   logic [row_bits-1:0] pending_write_row;
   logic [col_bits-1:0] pending_write_col;
+  logic pending_write_value;
 
   always_ff @(posedge clk or negedge reset_n) begin
     if (!reset_n) begin
       pending_write <= 1'b0;
     end else if (input_write_value) begin
-      pending_write     <= 1'b1;
-      pending_write_row <= input_write_address_row;
-      pending_write_col <= input_write_address_col;
+      pending_write       <= 1'b1;
+      pending_write_row   <= input_write_address_row;
+      pending_write_col   <= input_write_address_col;
+      pending_write_value <= input_write_value;
     end else if (pending_write && next_iter_allowed && !next_iter_busy) begin
       pending_write <= 1'b0;  // applied, clear the pending flag
     end
@@ -166,7 +168,7 @@ module project_datapath #(
       write_address_row = pending_write_row;
       write_address_col = pending_write_col;
 
-      data_in = input_write_value;
+      data_in = pending_write_value;
 
       active_board_read = 1'b0;
       active_board_write = 1'b0;
