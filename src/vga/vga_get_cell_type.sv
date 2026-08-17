@@ -27,9 +27,9 @@ module vga_get_cell_type #(
     parameter int NUM_ROWS = 12
 ) (
     input logic simulation_running,
-    input logic [COL_BITS-1:0] col_idx,
-    input logic [ROW_BITS-1:0] row_idx,
-    input logic [COL_BITS+ROW_BITS-1:0] cursorpos,  // {col_idx,row_idx}
+    input logic [$clog2(NUM_COLS)-1:0] col_idx,
+    input logic [$clog2(NUM_ROWS)-1:0] row_idx,
+    input logic [$clog2(NUM_COLS)+$clog2(NUM_ROWS)-1:0] cursorpos,  // {col_idx,row_idx}
     input logic cell_memory,  // 0=dead,1=alive ; pulled from memory based on col_idx and row_idx
     output logic [1:0] cell_type
 );
