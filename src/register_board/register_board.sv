@@ -1,17 +1,11 @@
-// input 
-// reset_n == global reset
-// data_in == cel black or white (0 or 1)
-// read_address == row and col coordinate for cel that needs to be displayed
-// write_address == row and col coordinate where new value gets saved
-// write_enable == 1 if you want to write to a board
-// active_board_read selects which board you read
-// active_board_write selects which board you write to
-
-// output 
-// data_out == value of cel from read address
-// general: logic can write to a board, when its full active_board bitflips. The board thats just been written changes to read
-// and the old read board can get new data written onto it.
-// testing via cd src, cd register_board, make simulate in terminal 
+/*
+Board0 is het algemene board waar input naar schrijft, vga uit leest en logica naar schrijft en uit leest. Dit board 
+is random acces voor zowel write als read. Board1 wordt door logica gebruikt als bufferboard en is een shift register. 
+Er is een write_enable die hoog moet staan om te kunnen schrijven. Active_board- read en write bepalen in welk board geschreven
+of gelezen wordt. Toggle read shift het register board1 naar links om de volgende cel te kunnen uitlezen (beginnend bij (0,0)). 
+Als write_enable en copy hoog zijn dan wordt het register board1 naar rechts geshift en wordt data_in op de eerste plaats gezet
+(beginnende met de laatste cel).
+*/
 
 /*
 Origineel geschreven door Sander, licht aangepast door Sieben
