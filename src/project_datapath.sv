@@ -21,7 +21,9 @@ module project_datapath #(
     input logic button_start_stop,
     input logic button_cursor_on_off,
     input logic button_bounded_board,
-  
+    input logic button_speed_sim_up,
+    input logic button_speed_sim_down,
+    input logic button_reset_n,
 
     output logic [7:0] uo_out,  // Dedicated outputs
     input logic testing,
@@ -70,6 +72,7 @@ module project_datapath #(
   logic [row_bits-1:0] read_address_row, write_address_row, vga_row_idx;
   logic [col_bits-1:0] read_address_col, write_address_col, vga_col_idx;
   logic [row_bits+col_bits-1:0] cursorpos;
+  logic [8:0] neighbour_out;
   mode_pkg::mode_e L_mode = mode_pkg::TORUS; // TODO: uiteindelijk moet input dit aansturen
 
   assign next_iter = next_iter_allowed && countdown_done;
@@ -139,7 +142,6 @@ module project_datapath #(
       .write_value(input_write_value),
       .start_stop_rise(start_stop_rise),
       .cursor_on(cursor_on)
-      // TODO is er een write_enable nodig ?
       // TODO signaal om de simulatie snelheid te verhogen/verlagen
   );
 
@@ -192,6 +194,7 @@ module project_datapath #(
       .active_board_write(active_board_write),
       .toggle_read(toggle_read),
       .write_enable(write_enable),
+      .neighbour_out(neighbour_out),
 
       .data_out(data_out)
   );
