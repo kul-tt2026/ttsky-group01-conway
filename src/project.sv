@@ -51,6 +51,8 @@ module tt_um_conwaysgameoflife #(
   assign button_cursor_on_off = ui_in[6];
   assign button_bounded_board = ui_in[7];
   assign button_speed_sim_up = uio_in[0];
+  assign button_speed_sim_down = uio_in[1];
+  assign button_reset_n = uio_in[2];
 
   assign testing = uio_in[7]; // Als dit hoog is gaat logica elke frame updaten (zodat logica ook in de gate-level simulatie getest kan worden)
 

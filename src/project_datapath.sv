@@ -20,6 +20,8 @@ module project_datapath #(
     input logic button_set,
     input logic button_start_stop,
     input logic button_cursor_on_off,
+    input logic button_bounded_board,
+  
 
     output logic [7:0] uo_out,  // Dedicated outputs
     input logic testing,

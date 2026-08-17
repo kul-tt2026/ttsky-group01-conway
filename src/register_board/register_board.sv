@@ -79,7 +79,7 @@ module register_board #(
         end
         else begin
             data_out = 0;
-            neighbour_out = board1[8:0];
+            neighbour_out = {board1[0],board1[col_count],board1[2*col_count],board1[2*col_count+1],board1[2*col_count+2],board1[col_count+2],board1[2],board1[1],board1[col_count+1]};
         end
     end
 
