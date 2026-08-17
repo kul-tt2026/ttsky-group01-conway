@@ -18,10 +18,11 @@ module L_main #(
     input logic reset_n,
     input logic L_reset, // doet hetzelfde als reset_n. Wel twee cyclussen hoog laten staan: eerst reset je de controller, dan reset de controller het datapad
     input logic L_next_iter, // start de berekening van de volgende iteratie van de simulatie. Is klaar wanneer L_idle weer hoog is
+    input mode_pkg::mode_e L_mode, // TORUS of BOUNDED
     input logic cel_out_pg,
 
     output logic L_idle,
-    output logic [row_bits + col_bits - 1:0] L_address,
+    output logic [$clog2(row_count) + $clog2(col_count) - 1:0] L_address,
     output logic L_new_cel,
     output logic L_LD_cel_g,
     output logic L_LD_cel_pg
@@ -33,12 +34,14 @@ module L_main #(
     // interne signalen
     logic advance_grid, reset_address, advance_sweep, reset_sweep, reset_decider;
     logic address_max, read_ready;
+    mode_pkg::mode_e d_mode;
 
     L_controller u_L_controller (
         .clk(clk),
         .reset_n(reset_n),
         .reset_controller(L_reset),
         .L_next_iter(L_next_iter),
+        .L_mode(L_mode),
         .address_max(address_max),
         .read_ready(read_ready),
         .L_idle(L_idle),
@@ -48,7 +51,8 @@ module L_main #(
         .reset_address(reset_address),
         .advance_sweep(advance_sweep),
         .reset_sweep(reset_sweep),
-        .reset_decider(reset_decider)
+        .reset_decider(reset_decider),
+        .d_mode(d_mode)
     );
 
     L_datapath #(
@@ -62,6 +66,7 @@ module L_main #(
         .advance_sweep(advance_sweep),
         .reset_sweep(reset_sweep),
         .reset_decider(reset_decider),
+        .d_mode(d_mode),
         .read_ready(read_ready),
         .address_max(address_max),
         .cel_out_pg(cel_out_pg),

@@ -10,7 +10,7 @@ module project_datapath #(
     input logic L_reset,
     input logic nic_reset,
     input logic reset_speed,
-    input logic simulation_running,
+    input logic running,
     input logic next_iter_busy,
 
     input logic button_up,
@@ -18,14 +18,13 @@ module project_datapath #(
     input logic button_left,
     input logic button_right,
     input logic button_set,
-    input logic button_start,
+    input logic button_start_stop,
+    input logic button_cursor_on_off,
 
-    input logic ena,
-    input logic [7:0] ui_in,  // Dedicated inputs
     output logic [7:0] uo_out,  // Dedicated outputs
     input logic testing,
 
-    output logic start,
+    output logic start_stop_rise,
     output logic next_iter,
     output logic L_idle
 );
@@ -65,8 +64,31 @@ module project_datapath #(
   logic L_new_cel, L_LD_cel_g, L_LD_cel_pg;
   logic [row_bits + col_bits - 1:0] L_address;
   logic next_iter_allowed;
+  logic data_in, active_board_read, active_board_write, write_enable, data_out;
+  logic [row_bits-1:0] read_address_row, write_address_row, vga_row_idx;
+  logic [col_bits-1:0] read_address_col, write_address_col, vga_col_idx;
+  logic [row_bits+col_bits-1:0] cursorpos;
+  mode_pkg::mode_e L_mode = mode_pkg::TORUS; // TODO: uiteindelijk moet input dit aansturen
 
   assign next_iter = next_iter_allowed && countdown_done;
+
+  // Latch input writes so they only get applied during vertical blanking
+  // (next_iter_allowed), preventing the board from changing mid-scan.
+  logic pending_write;
+  logic [row_bits-1:0] pending_write_row;
+  logic [col_bits-1:0] pending_write_col;
+
+  always_ff @(posedge clk or negedge reset_n) begin
+    if (!reset_n) begin
+      pending_write <= 1'b0;
+    end else if (input_write_value) begin
+      pending_write     <= 1'b1;
+      pending_write_row <= input_write_address_row;
+      pending_write_col <= input_write_address_col;
+    end else if (pending_write && next_iter_allowed && !next_iter_busy) begin
+      pending_write <= 1'b0;  // applied, clear the pending flag
+    end
+  end
 
   L_main #(
       .row_count(row_count),
@@ -76,6 +98,7 @@ module project_datapath #(
       .reset_n(reset_n),
       .L_reset(L_reset),
       .L_next_iter(next_iter),
+      .L_mode(L_mode),
       .cel_out_pg(data_out),
 
       .L_idle(L_idle),
@@ -89,6 +112,7 @@ module project_datapath #(
   logic [row_bits-1:0] input_write_address_row;
   logic [col_bits-1:0] input_write_address_col;
   logic input_write_value;
+  logic cursor_on;
 
   Input #(
       .ROW_COUNT(row_count),
@@ -102,20 +126,20 @@ module project_datapath #(
       .button_left(button_left),
       .button_right(button_right),
       .button_set(button_set),
-      .button_start(button_start),
+      .button_start_stop(button_start_stop),
+      .button_cursor_on_off(button_cursor_on_off),
+      .running(running),
 
       .write_address_row(input_write_address_row),
       .write_address_col(input_write_address_col),
       .write_value(input_write_value),
-      .start(start)
+      .start_stop_rise(start_stop_rise),
+      .cursor_on(cursor_on)
       // TODO is er een write_enable nodig ?
       // TODO signaal om de simulatie snelheid te verhogen/verlagen
   );
 
-  // nog meer interne wires
-  logic data_in, active_board_read, active_board_write, write_enable, data_out;
-  logic [row_bits-1:0] read_address_row, write_address_row;
-  logic [col_bits-1:0] read_address_col, write_address_col;
+  assign cursorpos = {input_write_address_col, input_write_address_row};  // vga gebruikt {col, row}
 
   always_comb begin
     if (next_iter_busy) begin
@@ -128,19 +152,19 @@ module project_datapath #(
       write_address_col = L_address[col_bits-1:0];
 
       if (L_LD_cel_pg) data_in = data_out;
-      else data_in = L_new_cel;      
+      else data_in = L_new_cel;
 
-      active_board_read = !L_LD_cel_pg;
+      active_board_read  = !L_LD_cel_pg;
       active_board_write = L_LD_cel_pg;
 
     end else begin
       read_address_row = vga_row_idx;
       read_address_col = vga_col_idx;
 
-      write_enable = input_write_value;  // TODO: wanneer mag input schrijven?
+      write_enable = pending_write && next_iter_allowed;
 
-      write_address_row = input_write_address_row;
-      write_address_col = input_write_address_col;
+      write_address_row = pending_write_row;
+      write_address_col = pending_write_col;
 
       data_in = input_write_value;
 
@@ -166,14 +190,27 @@ module project_datapath #(
 
       .data_out(data_out)
   );
+  // Synchronize running and cursor_on to the display: only update these
+  // copies during vertical blanking (next_iter_allowed), so VGA always sees
+  // a single consistent value for the whole frame. Without this, a mid-frame
+  // toggle can cause part of the screen to render with the old value and
+  // part with the new value in the same frame (e.g. some dead cells grey,
+  // others black; or the cursor overlay appearing on only part of the grid).
+  logic running_display;
+  logic cursor_on_display;
+  logic [row_bits+col_bits-1:0] cursorpos_display;
 
-  // nog interne wires
-  logic [row_bits-1:0] vga_row_idx;
-  logic [col_bits-1:0] vga_col_idx;
-  logic [row_bits+col_bits-1:0] cursorpos;
-
-  assign cursorpos = {input_write_address_col, input_write_address_row};  // vga gebruikt {col, row}
-
+  always_ff @(posedge clk or negedge reset_n) begin
+    if (!reset_n) begin
+      running_display   <= 1'b0;
+      cursor_on_display <= 1'b0;
+      cursorpos_display <= 0;
+    end else if (next_iter_allowed) begin
+      running_display   <= running;
+      cursor_on_display <= cursor_on;
+      cursorpos_display <= cursorpos;
+    end
+  end
 
   vga #(
       .NUM_ROWS(row_count),
@@ -182,8 +219,9 @@ module project_datapath #(
       .clk(clk),
       .reset_n(reset_n),
       .uo_out(uo_out),
-      .simulation_running(simulation_running),
-      .cursorpos(cursorpos),
+      .cursor_on(cursor_on_display),
+      .running(running_display),
+      .cursorpos(cursorpos_display),
       .cell_memory(data_out),
       .col_idx(vga_col_idx),
       .row_idx(vga_row_idx),
