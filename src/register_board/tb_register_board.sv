@@ -13,13 +13,14 @@ module tb_register_board ();
 
     reg active_board_read;
     reg toggle_read;
-    reg copy;
+    reg active_board_write;
     reg write_enable;
 
     reg [$clog2(ROWS)-1:0] read_address_row;
     reg [$clog2(COLS)-1:0] read_address_col;
     reg [$clog2(ROWS)-1:0] write_address_row;
     reg [$clog2(COLS)-1:0] write_address_col;
+    logic [8:0] neighbour_out;
 
     wire data_out;
 
@@ -35,7 +36,7 @@ module tb_register_board ();
 
         .active_board_read(active_board_read),
         .toggle_read(toggle_read),
-        .copy(copy),
+        .active_board_write(active_board_write),
         .write_enable(write_enable),
 
         .read_address_row(read_address_row),
@@ -44,6 +45,7 @@ module tb_register_board ();
         .write_address_row(write_address_row),
         .write_address_col(write_address_col),
 
+        .neighbour_out(neighbour_out),
         .data_out(data_out)
     );
 
@@ -73,7 +75,7 @@ module tb_register_board ();
 
         active_board_read = 0;
         toggle_read = 0;
-        copy = 0;
+        active_board_write = 0;
         write_enable = 0;
 
         read_address_row = 0;
@@ -220,9 +222,9 @@ module tb_register_board ();
             $display("TEST 6 FAILED: expected 1, received %b", data_out);
         // --------------------------------------------------
         // TEST 7:
-        // Copy Board1
+        // active_board_write Board1
         // --------------------------------------------------
-        copy = 1;
+        active_board_write = 1;
         #1;
         for (i=ROWS-1;i>=0;i--) begin
             for (j=COLS-1;j>=0;j--) begin
