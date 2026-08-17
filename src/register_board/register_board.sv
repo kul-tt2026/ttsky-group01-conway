@@ -33,7 +33,8 @@ module register_board #(
     input logic toggle_read,
     input logic active_board_write,
     input logic write_enable,
-    output logic data_out
+    output logic data_out,
+    output logic [8:0] neighbour_out
 );
 
     localparam int row_bits = $clog2(row_count);
@@ -41,7 +42,7 @@ module register_board #(
     localparam [col_bits-1:0] COL_COUNT = col_bits'(col_count-1);
 
     logic board0 [row_count - 1:0][col_count - 1:0]; // grid
-    logic board1 [row_count*col_count-1:0]; // previous grid
+    logic [row_count*col_count-1:0] board1 ; // previous grid
 
     integer row;
     integer col;
@@ -57,15 +58,15 @@ module register_board #(
         end
         else begin
             if (write_enable) begin
-                if(active_board_write) begin
+                if(active_board_write && ~toggle_read) begin
                     board1 <= {board1[row_count*col_count-2:0], data_in};
                 end
                 else begin
                     board0[write_address_row][write_address_col] <= data_in;
                 end
             end
-            if (toggle_read) begin
-                board1 <= {board1[row_count*col_count-1:1],0};
+            if (toggle_read && ~active_board_write) begin
+                board1 <= {board1[row_count*col_count-1:1],1'b0};
             end
         end
     end
@@ -74,9 +75,11 @@ module register_board #(
     always_comb begin
         if(~active_board_read) begin
             data_out = board0[read_address_row][read_address_col];
+            neighbour_out = 0;
         end
         else begin
-            data_out = board1[0];
+            data_out = 0;
+            neighbour_out = board1[8:0];
         end
     end
 

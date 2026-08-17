@@ -37,7 +37,11 @@ module tt_um_conwaysgameoflife #(
       button_set,
       button_start_stop,
       testing,
-      button_cursor_on_off;
+      button_cursor_on_off,
+      button_speed_sim_up,
+      button_speed_sim_down,
+      button_bounded_board,
+      button_reset_n;
   assign button_up = ui_in[0];
   assign button_down = ui_in[1];
   assign button_left = ui_in[2];
@@ -45,8 +49,10 @@ module tt_um_conwaysgameoflife #(
   assign button_set = ui_in[4];
   assign button_start_stop = ui_in[5];
   assign button_cursor_on_off = ui_in[6];
+  assign button_bounded_board = ui_in[7];
+  assign button_speed_sim_up = uio_in[0];
 
-  assign testing = ui_in[7]; // Als dit hoog is gaat logica elke frame updaten (zodat logica ook in de gate-level simulatie getest kan worden)
+  assign testing = uio_in[7]; // Als dit hoog is gaat logica elke frame updaten (zodat logica ook in de gate-level simulatie getest kan worden)
 
   // Intere wires
   logic
