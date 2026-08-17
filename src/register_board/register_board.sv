@@ -33,6 +33,8 @@ module register_board #(
     input logic toggle_read,
     input logic active_board_write,
     input logic write_enable,
+    input logic manual_reset,
+
     output logic data_out,
     output logic [8:0] neighbour_out
 );
@@ -48,7 +50,7 @@ module register_board #(
     integer col;
 
     always_ff @(posedge clk or negedge reset_n) begin 
-        if (!reset_n) begin
+        if (!reset_n | manual_reset) begin
             for (row=0; row < row_count; row++) begin
                 for (col=0; col < col_count; col++) begin 
                     board0[row][col] <= 1'b0;

@@ -11,6 +11,7 @@ module project_controller (
     input logic reset_n,
     input logic next_iter,
     input logic L_idle,
+    input logic manual_reset,
 
     /* Nog niet geïmplementeerd
     input logic resume,
@@ -37,7 +38,7 @@ module project_controller (
   state_e state;
 
   always_ff @(posedge clk or negedge reset_n) begin : next_state_logic
-    if (!reset_n) begin
+    if (!reset_n | manual_reset) begin
       state <= START;
     end else
       case (state)
