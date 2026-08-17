@@ -79,7 +79,7 @@ module vga_get_pixel_color #(
   end
 
   // Make RGB sync to clock cycles, see comments above.
-  always_ff @(posedge clk) begin
+  always_ff @(posedge clk or negedge reset_n) begin
     if (!reset_n) begin
       R <= 2'b00;
       G <= 2'b00;
