@@ -9,7 +9,7 @@ FLAGS    = -g2012
 MODULES = L_rowcol_counter L_sweep_counter L_sweeper L_decider L_controller
 
 simulate_%:
-	$(IVERILOG) $(FLAGS) -o sim_$*.out $*.sv tb_$*.sv
+	$(IVERILOG) $(FLAGS) -o sim_$*.out $(sort L_controller.sv $*.sv) tb_$*.sv
 	./sim_$*.out
 
 .PHONY: simulate_all

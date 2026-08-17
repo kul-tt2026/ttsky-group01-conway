@@ -22,8 +22,8 @@ module tt_um_conwaysgameoflife #(
   assign uio_out = 0;
   assign uio_oe  = 0;
 
-  parameter int ROWS = 12;
-  parameter int COLS = 16;
+  localparam int ROWS = 12;
+  localparam int COLS = 16;
 
   localparam int row_bits = $clog2(ROWS);
   localparam int col_bits = $clog2(COLS);

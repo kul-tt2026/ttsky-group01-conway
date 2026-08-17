@@ -44,10 +44,11 @@ class Grid:
 
 class PyConway:
 
-    def __init__(self, grid):
+    def __init__(self, grid, mode=0): # mode 0 → TORUS; mode 1 → BOUNDED
         self.grid = grid
         self.rows = grid.get_rows()
         self.cols = grid.get_cols()
+        self.mode = mode
         self.iteration = 0
 
     def get_grid(self):
@@ -81,6 +82,9 @@ class PyConway:
                 case 8:
                     row -= 1
                     col -= 1
+
+            if self.mode == 1 and (row == -1 or row == self.rows or col == -1 or col == self.cols): continue # bounded mode & out of bounds
+
             if row == -1:
                 row = self.rows - 1
             elif row == self.rows:
@@ -90,8 +94,7 @@ class PyConway:
             elif col == self.cols:
                 col = 0
 
-            if self.grid.get(row,col) == 1:
-                neighbours_count += 1
+            neighbours_count += self.grid.get(row,col)
 
         return neighbours_count
 

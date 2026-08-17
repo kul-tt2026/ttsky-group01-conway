@@ -20,6 +20,7 @@ module tb_L_main ();
     logic clk, reset_n, L_reset, L_next_iter, cel_out_pg;
     logic L_idle, L_new_cel, L_LD_cel_g, L_LD_cel_pg;
     logic [row_bits + col_bits - 1:0] L_address;
+    mode_pkg::mode_e L_mode;
     // Reg
     logic data_in, data_out, active_board_read, active_board_write, write_enable;
     logic [row_bits-1:0] address_row;  
@@ -32,6 +33,7 @@ module tb_L_main ();
         .reset_n(reset_n),
         .L_reset(L_reset),
         .L_next_iter(L_next_iter),
+        .L_mode(L_mode),
         .cel_out_pg(cel_out_pg),
         .L_idle(L_idle),
         .L_new_cel(L_new_cel),

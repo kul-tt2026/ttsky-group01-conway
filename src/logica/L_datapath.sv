@@ -19,6 +19,7 @@ module L_datapath #(
     input logic reset_sweep,
     input logic reset_decider,
     input logic cel_out_pg,
+    input mode_pkg::mode_e d_mode,
 
     output logic address_max,
     output logic read_ready,
@@ -77,6 +78,11 @@ module L_datapath #(
         .reset_decider(reset_decider),
         .cel(cel_out_pg),
         .sweep_number(sweep_number),
+        .d_mode(d_mode),
+        .row_0(row_0),
+        .col_0(col_0),
+        .row_max(row_max),
+        .col_max(col_max),
         .L_new_cel(L_new_cel)
     );
 

@@ -58,9 +58,9 @@ async def print_board(dut):
     if GL: return # volgens Claude gaat dit niet werken in de gate level simulatie
     board = dut.user_project.u_project_datapath.u_register_board.board0
     print("\n============ BOARD ============")
-    for row in range(12):
-        for i in range(16):
-            index = row * 16 + i
+    for row in range(int(dut.user_project.ROWS.value)):
+        for i in range(int(dut.user_project.COLS.value)):
+            index = row * int(dut.user_project.COLS.value) + i
             print(str(board[index].value), end=" ")
         print()
     print("===============================\n")
@@ -71,6 +71,13 @@ async def test_project(dut):
     # Clock that matches VGA
     clock = Clock(dut.clk, 39.722, unit="ns")
     cocotb.start_soon(clock.start())
+
+    # aanpassen in project.sv
+    if not GL:
+        ROWS = int(dut.user_project.ROWS.value)
+        COLS = int(dut.user_project.COLS.value)
+
+    # Bounded mode wordt hier (nog) niet getest, maar heeft wel al eens succesvol getest op Sieben's computer
 
     await reset(dut)
 
@@ -144,4 +151,6 @@ async def test_project(dut):
 
     # Algoritmische verificatie: zie andere file
     # gooit zelf errors indien nodig
-    verify_PNGs("output")
+    # De parameters voor ROWS en COLS werken niet in de GL simulatie
+    if not GL:  verify_PNGs("output",mode=1,ROWS=ROWS,COLS=COLS)
+    else:       verify_PNGs("output",mode=1,ROWS=12,COLS=16)

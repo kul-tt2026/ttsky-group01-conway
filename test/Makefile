@@ -17,10 +17,11 @@ VERILOG_INCLUDE_DIRS += $(SRC_DIR)/Input
 # references sim_speed_pkg::speed_e (e.g. project_datapath.sv).
 PROJECT_SOURCES := \
 	$(SRC_DIR)/sim_speed.sv \
+	$(SRC_DIR)/logica/L_controller.sv \
 	$(SRC_DIR)/next_iter_countdown.sv \
 	$(SRC_DIR)/project_controller.sv \
 	$(SRC_DIR)/project_datapath.sv \
-	$(wildcard $(SRC_DIR)/logica/L_*.sv) \
+	$(filter-out $(SRC_DIR)/logica/L_controller.sv, $(wildcard $(SRC_DIR)/logica/L_*.sv)) \
 	$(filter-out %/tb_%,$(wildcard $(SRC_DIR)/register_board/*.sv)) \
 	$(SRC_DIR)/vga/vga.sv \
 	$(filter-out %/tb_%,$(wildcard $(SRC_DIR)/Input/*.sv)) \

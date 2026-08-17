@@ -65,6 +65,7 @@ module project_datapath #(
   logic L_new_cel, L_LD_cel_g, L_LD_cel_pg;
   logic [row_bits + col_bits - 1:0] L_address;
   logic next_iter_allowed;
+  mode_pkg::mode_e L_mode = mode_pkg::TORUS; // TODO: uiteindelijk moet input dit aansturen
 
   assign next_iter = next_iter_allowed && countdown_done;
 
@@ -76,6 +77,7 @@ module project_datapath #(
       .reset_n(reset_n),
       .L_reset(L_reset),
       .L_next_iter(next_iter),
+      .L_mode(L_mode),
       .cel_out_pg(data_out),
 
       .L_idle(L_idle),

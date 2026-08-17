@@ -16,11 +16,11 @@ module L_decider (
     input logic reset_n,
     input logic cel,
     input logic reset_decider,
-    /*input logic d_mode_e, // Momenteel is enkel TORUS mode geïmplementeerd, BOUNDED nog niet
+    input mode_pkg::mode_e d_mode,
     input logic row_max,
     input logic row_0,
     input logic col_max,
-    input logic col_0, */
+    input logic col_0,
     input logic [3:0] sweep_number, // In L_datapath is deze -1 gedaan, zodat die in sync is met de gelezen waarde
 
     output logic L_new_cel
@@ -42,7 +42,17 @@ module L_decider (
             alive <= cel;
         end
         else if (sweep_number < 4'd9) begin // de valid leeswaardes zijn tussen 0 en 8
-            neighbours_count <= neighbours_count + 3'(cel);
+            if(d_mode == mode_pkg::TORUS) begin
+                neighbours_count <= neighbours_count + 3'(cel);
+            end
+            else begin // BOUNDED mode
+            if(row_max && (sweep_number == 4'd4 || sweep_number == 4'd5 || sweep_number == 4'd6));
+            else if(row_0 && (sweep_number == 4'd8 || sweep_number == 4'd1 || sweep_number == 4'd2));
+            else if(col_max && (sweep_number == 4'd2 || sweep_number == 4'd3 || sweep_number == 4'd4));
+            else if(col_0 && (sweep_number == 4'd6 || sweep_number == 4'd7 || sweep_number == 4'd8));
+            else neighbours_count <= neighbours_count + 3'(cel);
+                
+            end
         end
     end
 

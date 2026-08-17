@@ -13,6 +13,7 @@ module tb_L_controller ();
     
     logic clk, reset_n, reset_controller, L_next_iter, address_max, read_ready;
     logic L_idle, L_LD_cel_pg, L_LD_cel_g, advance_grid, reset_address, advance_sweep, reset_sweep, reset_decider;
+    mode_pkg::mode_e L_mode, d_mode;
 
     int errors = 0;
 
@@ -21,6 +22,7 @@ module tb_L_controller ();
         .reset_n(reset_n),
         .reset_controller(reset_controller),
         .L_next_iter(L_next_iter),
+        .L_mode(L_mode),
         .address_max(address_max),
         .read_ready(read_ready),
         .L_idle(L_idle),
@@ -30,7 +32,8 @@ module tb_L_controller ();
         .reset_address(reset_address),
         .advance_sweep(advance_sweep),
         .reset_sweep(reset_sweep),
-        .reset_decider(reset_decider)
+        .reset_decider(reset_decider),
+        .d_mode(d_mode)
     );
 
     // Klok
@@ -70,6 +73,7 @@ module tb_L_controller ();
         L_next_iter = '0;
         address_max = '0;
         read_ready = '0;
+        L_mode = mode_pkg::TORUS;
 
         // Test 1: next state logica
         step(1);
@@ -120,23 +124,62 @@ module tb_L_controller ();
 
         step(1);
         check(dut.state === dut.IDLE, "advanced niet naar IDLE vanuit WRITE_T");
+        
+        
+        address_max = '0;
+        read_ready = '0;
+
+        // Ga naar COPY
+        L_next_iter = 1'b1;
+        step(1);
+        L_next_iter = 1'b0;
+
+        address_max = 1'b1;
+        L_mode = mode_pkg::BOUNDED;
+        step(2);
+
+        check(dut.state === dut.READ_B, "advanced niet naar READ_B (1)");
+        
+        address_max = '0;
+        read_ready = 1'b1;
+
+        step(1);
+        check(dut.state === dut.WRITE_B, "advanced niet naar WRITE_B (1)");
+
+        step(1);
+        check(dut.state === dut.MOVE_B, "advanced niet naar MOVE_B");
+
+        step(1);
+        check(dut.state === dut.READ_B, "advanced niet naar READ_B (2)");
+
+        address_max = 1'b1;
+        // read_ready is al 1
+
+        step(1);
+        check(dut.state === dut.WRITE_B, "advanced niet naar WRITE_B (2)");
+
+        step(1);
+        check(dut.state === dut.IDLE, "advanced niet naar IDLE vanuit WRITE_B");
+
 
 
         // Test 2: controlesignalen
+        L_mode = mode_pkg::TORUS;
 
         // IDLE
         check(dut.state === dut.IDLE, "check_controlesignalen IDLE gebeurt op andere state");     
         check(L_idle === 1'b1 && L_LD_cel_pg === 1'b0 && L_LD_cel_g === 1'b0 && 
               advance_grid === 1'b0 && reset_address=== 1'b1 && advance_sweep === 1'b0 && 
-              reset_sweep === 1'b1 && reset_decider === 1'b1, "controlesignalen IDLE zijn fout");
+              reset_sweep === 1'b1 && reset_decider === 1'b1 && d_mode === mode_pkg::TORUS, "controlesignalen IDLE zijn fout");
 
+        L_next_iter = 1'b1;
         step(1);
         
         // COPY
         check(dut.state === dut.COPY, "check_controlesignalen COPY gebeurt op andere state");     
         check(L_idle === 1'b0 && L_LD_cel_pg === 1'b1 && L_LD_cel_g === 1'b0 && 
               advance_grid === 1'b1 && reset_address=== 1'b0 && advance_sweep === 1'b0 && 
-              reset_sweep === 1'b1 && reset_decider === 1'b1, "controlesignalen COPY zijn fout");
+              reset_sweep === 1'b1 && reset_decider === 1'b1 && d_mode === mode_pkg::TORUS, "controlesignalen COPY zijn fout");
 
         step(1);
 
@@ -144,7 +187,7 @@ module tb_L_controller ();
         check(dut.state === dut.READ_T, "check_controlesignalen READ_T gebeurt op andere state");     
         check(L_idle === 1'b0 && L_LD_cel_pg === 1'b0 && L_LD_cel_g === 1'b0 && 
               advance_grid === 1'b0 && reset_address=== 1'b0 && advance_sweep === 1'b1 && 
-              reset_sweep === 1'b0 && reset_decider === 1'b0, "controlesignalen READ_T zijn fout");
+              reset_sweep === 1'b0 && reset_decider === 1'b0 && d_mode === mode_pkg::TORUS, "controlesignalen READ_T zijn fout");
 
         address_max = 1'b0;
         step(1);
@@ -153,7 +196,7 @@ module tb_L_controller ();
         check(dut.state === dut.WRITE_T, "check_controlesignalen WRITE_T gebeurt op andere state");     
         check(L_idle === 1'b0 && L_LD_cel_pg === 1'b0 && L_LD_cel_g === 1'b1 && 
               advance_grid === 1'b1 && reset_address=== 1'b0 && advance_sweep === 1'b0 && 
-              reset_sweep === 1'b1 && reset_decider === 1'b1, "controlesignalen WRITE_T zijn fout");
+              reset_sweep === 1'b1 && reset_decider === 1'b1 && d_mode === mode_pkg::TORUS, "controlesignalen WRITE_T zijn fout");
 
         step(1);
 
@@ -161,7 +204,7 @@ module tb_L_controller ();
         check(dut.state === dut.MOVE_T, "check_controlesignalen MOVE_T gebeurt op andere state");     
         check(L_idle === 1'b0 && L_LD_cel_pg === 1'b0 && L_LD_cel_g === 1'b0 && 
               advance_grid === 1'b0 && reset_address=== 1'b0 && advance_sweep === 1'b1 && 
-              reset_sweep === 1'b0 && reset_decider === 1'b0, "controlesignalen MOVE_T zijn fout");
+              reset_sweep === 1'b0 && reset_decider === 1'b0 && d_mode === mode_pkg::TORUS, "controlesignalen MOVE_T zijn fout");
 
 
 
