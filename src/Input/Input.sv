@@ -1,5 +1,9 @@
-`timescale 1ns/1ps
-module Input #(parameter COL_COUNT = 8, parameter ROW_COUNT = 8 ,parameter DEBOUNCE_MAX = 18'd251750) (
+`timescale 1ns / 1ps
+module Input #(
+    parameter COL_COUNT = 8,
+    parameter ROW_COUNT = 8,
+    parameter DEBOUNCE_MAX = 18'd251750
+) (
     input clk,
     input reset_n,
     input button_up,
@@ -152,7 +156,11 @@ module Input #(parameter COL_COUNT = 8, parameter ROW_COUNT = 8 ,parameter DEBOU
     end else begin
       write_value <= set_rise;
 
-      if (cursor_on_off_rise && !running) begin
+      if (running) begin  // Turn cursor off automatically when simulation is running
+        cursor_on <= 0;
+      end
+
+      if (cursor_on_off_rise && !running) begin  // Only turn on cursor when simulation is paused
         cursor_on <= ~cursor_on;
       end
 
