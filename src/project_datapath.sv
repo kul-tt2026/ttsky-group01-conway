@@ -64,7 +64,7 @@ module project_datapath #(
   logic L_new_cel, L_LD_cel_g, L_LD_cel_pg;
   logic [row_bits + col_bits - 1:0] L_address;
   logic next_iter_allowed;
-  logic data_in, active_board_read, active_board_write, write_enable, data_out;
+  logic data_in, active_board_read, active_board_write, toggle_read, write_enable, data_out;
   logic [row_bits-1:0] read_address_row, write_address_row, vga_row_idx;
   logic [col_bits-1:0] read_address_col, write_address_col, vga_col_idx;
   logic [row_bits+col_bits-1:0] cursorpos;
@@ -188,6 +188,7 @@ module project_datapath #(
       .write_address_col(write_address_col),
       .active_board_read(active_board_read),
       .active_board_write(active_board_write),
+      .toggle_read(toggle_read),
       .write_enable(write_enable),
 
       .data_out(data_out)

@@ -31,7 +31,7 @@ module register_board #(
     input logic [$clog2(col_count) - 1:0] write_address_col,
     input logic active_board_read,
     input logic toggle_read,
-    input logic copy,
+    input logic active_board_write,
     input logic write_enable,
     output logic data_out
 );
@@ -57,7 +57,7 @@ module register_board #(
         end
         else begin
             if (write_enable) begin
-                if(copy) begin
+                if(active_board_write) begin
                     board1 <= {board1[row_count*col_count-2:0], data_in};
                 end
                 else begin
