@@ -14,9 +14,10 @@ module tb_Input ();
       button_up,
       button_cursor_on_off;
 
-  wire [$clog2(COLS)-1:0] write_address_col;
-  wire [$clog2(ROWS)-1:0] write_address_row;
-  wire running, write_value, cursor_on;
+  logic [$clog2(COLS)-1:0] write_address_col;
+  logic [$clog2(ROWS)-1:0] write_address_row;
+  logic running, write_value, cursor_on, speed_sim_up_rise, speed_sim_down_rise, manual_full_reset_n;
+  logic button_bounded_board, button_sim_speed_up, button_sim_speed_down, button_reset_n, start_stop_rise, bounded_board;
 
   Input #(
       .DEBOUNCE_MAX(10),
@@ -32,10 +33,20 @@ module tb_Input ();
       .button_start_stop(button_start_stop),
       .button_up(button_up),
       .button_cursor_on_off(button_cursor_on_off),
+      .button_bounded_board(button_bounded_board),
+      .button_speed_sim_up(button_sim_speed_up),
+      .button_speed_sim_down(button_sim_speed_down),
+      .button_reset_n(button_reset_n),
+
       .write_address_col(write_address_col),
       .write_address_row(write_address_row),
       .running(running),
       .write_value(write_value),
+      .start_stop_rise(start_stop_rise),
+      .bounded_board(bounded_board),
+      .speed_sim_up_rise(speed_sim_up_rise),
+      .speed_sim_down_rise(speed_sim_down_rise),
+      .manual_full_reset_n(manual_full_reset_n),
       .cursor_on(cursor_on)
   );
 
