@@ -4,20 +4,28 @@ module Input #(
     parameter ROW_COUNT = 8,
     parameter DEBOUNCE_MAX = 18'd251750
 ) (
-    input clk,
-    input reset_n,
-    input button_up,
-    input button_down,
-    input button_left,
-    input button_right,
-    input button_set,
-    input button_start_stop,
-    input button_cursor_on_off,
-    input running,
+    input logic clk,
+    input logic reset_n,
+    input logic button_up,
+    input logic button_down,
+    input logic button_left,
+    input logic button_right,
+    input logic button_set,
+    input logic button_start_stop,
+    input logic button_cursor_on_off,
+    input logic button_bounded_board,
+    input logic button_speed_sim_up,
+    input logic button_speed_sim_down,
+    input logic button_reset_n,
+    input logic running,
     output logic [$clog2(COL_COUNT)-1:0] write_address_col,
     output logic [$clog2(ROW_COUNT)-1:0] write_address_row,
     output logic write_value,
     output logic start_stop_rise,
+    output logic speed_sim_up_rise,
+    output logic speed_sim_down_rise,
+    output logic bounded_board,
+    output logic manual_full_reset_n,
     output logic cursor_on
 );
 
@@ -28,6 +36,10 @@ module Input #(
   logic clean_set;
   logic clean_start_stop;
   logic clean_cursor_on_off;
+  logic clean_bounded_board;
+  logic clean_speed_sim_up;
+  logic clean_speed_sim_down;
+  logic clean_reset_n;
 
   logic up_rise;
   logic down_rise;
@@ -35,6 +47,8 @@ module Input #(
   logic right_rise;
   logic set_rise;
   logic cursor_on_off_rise;
+  logic bounded_board_rise;
+  logic reset_n_rise;
 
   localparam ROW_BITS = $clog2(ROW_COUNT);
   localparam COL_BITS = $clog2(COL_COUNT);
@@ -89,6 +103,30 @@ module Input #(
       .reset_n(reset_n),
       .noisy_in(button_cursor_on_off),
       .clean_signal(clean_cursor_on_off)
+  );
+  Debouncer #(DEBOUNCE_MAX) bounded_board_D (
+      .clk(clk),
+      .reset_n(reset_n),
+      .noisy_in(button_bounded_board),
+      .clean_signal(clean_bounded_board)
+  );
+  Debouncer #(DEBOUNCE_MAX) speed_sim_up_D (
+      .clk(clk),
+      .reset_n(reset_n),
+      .noisy_in(button_speed_sim_up),
+      .clean_signal(clean_speed_sim_up)
+  );
+  Debouncer #(DEBOUNCE_MAX) speed_sim_down_D (
+      .clk(clk),
+      .reset_n(reset_n),
+      .noisy_in(button_speed_sim_down),
+      .clean_signal(clean_speed_sim_down)
+  );
+  Debouncer #(DEBOUNCE_MAX) reset_n_D (
+      .clk(clk),
+      .reset_n(reset_n),
+      .noisy_in(button_reset_n),
+      .clean_signal(clean_reset_n)
   );
 
   Edge_detection up_E (
@@ -146,6 +184,34 @@ module Input #(
       .button_rise(cursor_on_off_rise),
       .button_fall()
   );
+  Edge_detection bounded_board_E (
+      .clk(clk),
+      .reset_n(reset_n),
+      .button(clean_bounded_board),
+      .button_rise(bounded_board_rise),
+      .button_fall()
+  );
+  Edge_detection speed_sim_up_E (
+      .clk(clk),
+      .reset_n(reset_n),
+      .button(clean_speed_sim_up),
+      .button_rise(speed_sim_up_rise),
+      .button_fall()
+  );
+  Edge_detection speed_sim_down_E (
+      .clk(clk),
+      .reset_n(reset_n),
+      .button(clean_speed_sim_down),
+      .button_rise(speed_sim_down_rise),
+      .button_fall()
+  );
+  Edge_detection reset_n_E (
+      .clk(clk),
+      .reset_n(reset_n),
+      .button(clean_reset_n),
+      .button_rise(reset_n_rise),
+      .button_fall()
+  );
 
   always @(posedge clk or negedge reset_n) begin
     if (!reset_n) begin
@@ -153,8 +219,14 @@ module Input #(
       write_address_row <= 0;
       write_value <= 0;
       cursor_on <= 0;
-    end else begin
+      bounded_board <= 0;
+    end 
+    else begin 
+      manual_full_reset_n <= ~reset_n_rise;
       write_value <= set_rise;
+      if (bounded_board_rise) begin
+          bounded_board <= ~bounded_board;
+      end
 
       if (running) begin  // Turn cursor off automatically when simulation is running
         cursor_on <= 0;
@@ -163,7 +235,7 @@ module Input #(
       if (cursor_on_off_rise && !running) begin  // Only turn on cursor when simulation is paused
         cursor_on <= ~cursor_on;
       end
-
+      
       if (up_rise) begin
         if (write_address_row == 0) begin
           write_address_row <= LAST_ROW;
@@ -195,7 +267,6 @@ module Input #(
           write_address_col <= write_address_col - 1;
         end
       end
-
     end
   end
 endmodule
