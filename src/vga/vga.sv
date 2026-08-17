@@ -17,10 +17,10 @@ module vga #(
 
     input logic cursor_on,
     input logic running,
-    input logic [COL_BITS+ROW_BITS-1:0] cursorpos,
+    input logic [$clog2(NUM_COLS)+$clog2(NUM_ROWS)-1:0] cursorpos,
     input logic cell_memory,
-    output logic [COL_BITS-1:0] col_idx,
-    output logic [ROW_BITS-1:0] row_idx,
+    output logic [$clog2(NUM_COLS)-1:0] col_idx,
+    output logic [$clog2(NUM_ROWS)-1:0] row_idx,
     output logic next_iter_allowed
 );
 

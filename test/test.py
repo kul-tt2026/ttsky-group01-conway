@@ -22,10 +22,11 @@ GL = os.environ.get("GATES") == "yes"
 # Bit positions for readability
 UP, DOWN, LEFT, RIGHT, SET, START_STOP, CURSOR, TESTING = 0, 1, 2, 3, 4, 5, 6, 7
 
-# Number of frames to simulate
-NUM_FRAMES = 10
-
-FRAME = 39.722 * 420000  # ns, one full frame
+# Number of frames to capture and verify. The capture now only starts once the
+# simulation is running, so all of these are simulation frames (the earlier
+# version captured 12 frames of which 6 still showed the cursor and were
+# skipped by verify_PNGs, so this checks the same 5 Conway generations).
+NUM_FRAMES = 6
 
 
 async def reset(dut):
@@ -78,20 +79,6 @@ async def test_project(dut):
 
     await reset(dut)
 
-    cap = VGACapture(
-        dut.clk,
-        TinyVGA(dut.uo_out),
-        VGA_640x480_60,
-        out_dir="output",
-        name="vga_screen_capture",
-    ).start()
-
-    await Timer(FRAME, unit="ns")  # Wait one frame
-
-    # Turn cursor on
-    await move_and_settle(dut, clear_bits=[], set_bits=[CURSOR])
-    await Timer(FRAME, unit="ns")  # Wait one frame
-
     # Conway's Game of Life glider pattern:
     #   . X .
     #   . . X
@@ -106,38 +93,41 @@ async def test_project(dut):
     await move_and_settle(dut, clear_bits=[RIGHT], set_bits=[SET])
     await print_board(dut)
 
-    await Timer(FRAME, unit="ns")  # Wait one frame
-
     # Move to (3, 2) and set
     await move_and_settle(dut, clear_bits=[SET], set_bits=[RIGHT])
     await move_and_settle(dut, clear_bits=[RIGHT], set_bits=[DOWN])
     await move_and_settle(dut, clear_bits=[DOWN], set_bits=[SET])
 
     await print_board(dut)
-    await Timer(FRAME, unit="ns")  # Wait one frame
 
     # Move to (3, 3) and set
     await move_and_settle(dut, clear_bits=[SET], set_bits=[DOWN])
     await move_and_settle(dut, clear_bits=[DOWN], set_bits=[SET])
 
     await print_board(dut)
-    await Timer(FRAME, unit="ns")  # Wait one frame
 
     # Move to (2, 3) and set
     await move_and_settle(dut, clear_bits=[SET], set_bits=[LEFT])
     await move_and_settle(dut, clear_bits=[LEFT], set_bits=[SET])
 
     await print_board(dut)
-    await Timer(FRAME, unit="ns")  # Wait one frame
 
     # Move to (1, 3) and set
     await move_and_settle(dut, clear_bits=[SET], set_bits=[LEFT])
     await move_and_settle(dut, clear_bits=[LEFT], set_bits=[SET])
 
     await print_board(dut)
-    await Timer(FRAME, unit="ns")  # Wait one frame
 
-    await Timer(39.722 * 420000, unit="ns")  # Wait one frame
+    # Start the frame capture only now: verify_PNGs skips the editing frames
+    # (the ones with a blue cursor) anyway, and sampling the VGA bus every
+    # clock cycle in Python is by far the slowest part of this test.
+    cap = VGACapture(
+        dut.clk,
+        TinyVGA(dut.uo_out),
+        VGA_640x480_60,
+        out_dir="output",
+        name="vga_screen_capture",
+    ).start()
 
     # START
     await move_and_settle(dut, clear_bits=[SET], set_bits=[START_STOP])

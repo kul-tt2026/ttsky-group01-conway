@@ -22,7 +22,7 @@ module L_datapath #(
 
     output logic address_max,
     output logic read_ready,
-    output logic [row_bits + col_bits - 1:0] L_address,
+    output logic [$clog2(row_count) + $clog2(col_count) - 1:0] L_address,
     output logic L_new_cel
 );
 

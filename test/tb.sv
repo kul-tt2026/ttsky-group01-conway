@@ -7,9 +7,13 @@
 module tb ();
 
   // Dump the signals to a FST file. You can view it with gtkwave or surfer.
+  // Dumping every signal slows the simulation down considerably (especially
+  // for the gate-level netlist), so it is opt-in: run `make WAVES=yes`.
   initial begin
-    $dumpfile("tb.fst");
-    $dumpvars(0, tb);
+    if ($test$plusargs("WAVES")) begin
+      $dumpfile("tb.fst");
+      $dumpvars(0, tb);
+    end
     #1;
   end
 

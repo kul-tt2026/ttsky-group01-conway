@@ -64,6 +64,10 @@ module project_datapath #(
   logic L_new_cel, L_LD_cel_g, L_LD_cel_pg;
   logic [row_bits + col_bits - 1:0] L_address;
   logic next_iter_allowed;
+  logic data_in, active_board_read, active_board_write, write_enable, data_out;
+  logic [row_bits-1:0] read_address_row, write_address_row, vga_row_idx;
+  logic [col_bits-1:0] read_address_col, write_address_col, vga_col_idx;
+  logic [row_bits+col_bits-1:0] cursorpos;
 
   assign next_iter = next_iter_allowed && countdown_done;
 
@@ -133,10 +137,7 @@ module project_datapath #(
       // TODO signaal om de simulatie snelheid te verhogen/verlagen
   );
 
-  // nog meer interne wires
-  logic data_in, active_board_read, active_board_write, write_enable, data_out;
-  logic [row_bits-1:0] read_address_row, write_address_row;
-  logic [col_bits-1:0] read_address_col, write_address_col;
+  assign cursorpos = {input_write_address_col, input_write_address_row};  // vga gebruikt {col, row}
 
   always_comb begin
     if (next_iter_busy) begin
@@ -187,14 +188,6 @@ module project_datapath #(
 
       .data_out(data_out)
   );
-
-  // nog interne wires
-  logic [row_bits-1:0] vga_row_idx;
-  logic [col_bits-1:0] vga_col_idx;
-  logic [row_bits+col_bits-1:0] cursorpos;
-
-  assign cursorpos = {input_write_address_col, input_write_address_row};  // vga gebruikt {col, row}
-
   // Synchronize running and cursor_on to the display: only update these
   // copies during vertical blanking (next_iter_allowed), so VGA always sees
   // a single consistent value for the whole frame. Without this, a mid-frame

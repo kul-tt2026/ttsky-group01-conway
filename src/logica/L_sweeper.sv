@@ -22,11 +22,11 @@ module L_sweeper #(
     parameter int row_count = 8,  // aantal cellen
     parameter int col_count = 8   // Werkt niet voor row_count of col_count = 1
 ) (
-    input logic [row_bits-1:0] row,
-    input logic [col_bits-1:0] col,
+    input logic [$clog2(row_count)-1:0] row,
+    input logic [$clog2(col_count)-1:0] col,
     input logic [3:0] sweep_number,
 
-    output logic [row_bits + col_bits - 1:0] L_address
+    output logic [$clog2(row_count) + $clog2(col_count) - 1:0] L_address
 );
 
     localparam int row_bits = $clog2(row_count);
