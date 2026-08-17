@@ -24,7 +24,7 @@ This project simulates [Conway's Game of Life](https://en.wikipedia.org/wiki/Con
 ## How it works
 
 ### Input
-
+There are four button inputs for moving the cursor up, down, left, and right. These buttons increment or decrement two counters in the row and column directions to determine the correct write address. A set button is used to determine whether a cell is alive or dead. The start/stop button allows the simulation to be started or paused, while the cursor on/off button can be used to show or hide the cursor. All buttons are debounced and synchronized. 
 ### Memory
 
 ### Logic
