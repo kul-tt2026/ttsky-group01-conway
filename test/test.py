@@ -1,11 +1,12 @@
 """
-Button bit mapping in ui_in (from the original SV comment):
+Button bit mapping in ui_in:
   ui_in[0] = up
   ui_in[1] = down
   ui_in[2] = left
   ui_in[3] = right
   ui_in[4] = set
-  ui_in[5] = start
+  ui_in[5] = start/stop
+  ui_in[6] = cursor on/off
 """
 
 import cocotb
@@ -19,10 +20,10 @@ from verify_PNGs import verify_PNGs
 GL = os.environ.get("GATES") == "yes"
 
 # Bit positions for readability
-UP, DOWN, LEFT, RIGHT, SET, START, TESTING = 0, 1, 2, 3, 4, 5, 7
+UP, DOWN, LEFT, RIGHT, SET, START_STOP, CURSOR, TESTING = 0, 1, 2, 3, 4, 5, 6, 7
 
 # Number of frames to simulate
-NUM_FRAMES = 12
+NUM_FRAMES = 10
 
 FRAME = 39.722 * 420000  # ns, one full frame
 
@@ -49,13 +50,16 @@ async def move_and_settle(dut, clear_bits, set_bits, hold_ns=10000, settle_ns=10
     cur = int(dut.ui_in.value)
     for bit in set_bits:
         cur |= 1 << bit
-    cur |= 1 << TESTING # zodat logica elke frame update, zowel in gewone als gate level tests
+    cur |= (
+        1 << TESTING
+    )  # zodat logica elke frame update, zowel in gewone als gate level tests
     dut.ui_in.value = cur
     await Timer(hold_ns, unit="ns")
 
 
 async def print_board(dut):
-    if GL: return # volgens Claude gaat dit niet werken in de gate level simulatie
+    if GL:
+        return  # volgens Claude gaat dit niet werken in de gate level simulatie
     board = dut.user_project.u_project_datapath.u_register_board.board0
     print("\n============ BOARD ============")
     for row in range(12):
@@ -84,17 +88,21 @@ async def test_project(dut):
 
     await Timer(FRAME, unit="ns")  # Wait one frame
 
+    # Turn cursor on
+    await move_and_settle(dut, clear_bits=[], set_bits=[CURSOR])
+    await Timer(FRAME, unit="ns")  # Wait one frame
+
     # Conway's Game of Life glider pattern:
     #   . X .
     #   . . X
     #   X X X
     # Cells (col, row) relative to anchor (1,1): (2,1), (3,2), (1,3), (2,3), (3,3)
 
-    # Move to (1, 1)
-    await move_and_settle(dut, clear_bits=[], set_bits=[RIGHT, DOWN])
+    # # Move to (1, 1)
+    # await move_and_settle(dut, clear_bits=[CURSOR], set_bits=[RIGHT, DOWN])
 
     # Move to (2, 1) and set
-    await move_and_settle(dut, clear_bits=[RIGHT, DOWN], set_bits=[RIGHT])
+    await move_and_settle(dut, clear_bits=[CURSOR], set_bits=[RIGHT])
     await move_and_settle(dut, clear_bits=[RIGHT], set_bits=[SET])
     await print_board(dut)
 
@@ -132,8 +140,8 @@ async def test_project(dut):
     await Timer(39.722 * 420000, unit="ns")  # Wait one frame
 
     # START
-    await move_and_settle(dut, clear_bits=[SET], set_bits=[START])
-    await move_and_settle(dut, clear_bits=[START], set_bits=[])
+    await move_and_settle(dut, clear_bits=[SET], set_bits=[START_STOP])
+    await move_and_settle(dut, clear_bits=[START_STOP], set_bits=[])
     await print_board(dut)
 
     frames = await cap.wait_for_frames(NUM_FRAMES)

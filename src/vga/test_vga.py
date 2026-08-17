@@ -5,7 +5,7 @@ from cocotb.triggers import RisingEdge, Timer
 
 async def reset_dut(dut, cycles=5):
     dut.reset_n.value = 0
-    dut.simulation_running.value = 0
+    dut.cursor_on.value = 0
     dut.cell_memory.value = 0
     dut.cursorpos.value = 0
     for _ in range(cycles):
@@ -25,7 +25,7 @@ async def uo_out_bit_packing(dut):
     for _ in range(200):
         dut.cursorpos.value = 0
         dut.cell_memory.value = 1
-        dut.simulation_running.value = 0
+        dut.cursor_on.value = 0
 
         await RisingEdge(dut.clk)
         await Timer(1, unit="ns")  # allow combinational settle
@@ -37,14 +37,14 @@ async def uo_out_bit_packing(dut):
         b = int(dut.B.value)
 
         expected_uo_out = (
-            (hsync << 7) |
-            ((b & 0b01) << 6) |
-            ((g & 0b01) << 5) |
-            ((r & 0b01) << 4) |
-            (vsync << 3) |
-            (((b >> 1) & 0b01) << 2) |
-            (((g >> 1) & 0b01) << 1) |
-            ((r >> 1) & 0b01)
+            (hsync << 7)
+            | ((b & 0b01) << 6)
+            | ((g & 0b01) << 5)
+            | ((r & 0b01) << 4)
+            | (vsync << 3)
+            | (((b >> 1) & 0b01) << 2)
+            | (((g >> 1) & 0b01) << 1)
+            | ((r >> 1) & 0b01)
         )
 
         actual_uo_out = int(dut.uo_out.value)
@@ -67,9 +67,9 @@ async def reset_drives_known_state(dut):
         await RisingEdge(dut.clk)
         await Timer(1, unit="ns")
         val = dut.uo_out.value
-        assert "x" not in str(val).lower() and "z" not in str(val).lower(), (
-            f"uo_out contains undefined bits after reset: {val}"
-        )
+        assert (
+            "x" not in str(val).lower() and "z" not in str(val).lower()
+        ), f"uo_out contains undefined bits after reset: {val}"
 
 
 @cocotb.test()
@@ -90,9 +90,9 @@ async def cell_type_pipeline_consistency(dut):
         col_idx_sub = int(dut.um_vga_get_cell_type.col_idx.value)
         row_idx_sub = int(dut.um_vga_get_cell_type.row_idx.value)
 
-        assert col_idx_top == col_idx_sub, (
-            f"col_idx wiring mismatch: top={col_idx_top}, submodule={col_idx_sub}"
-        )
-        assert row_idx_top == row_idx_sub, (
-            f"row_idx wiring mismatch: top={row_idx_top}, submodule={row_idx_sub}"
-        )
+        assert (
+            col_idx_top == col_idx_sub
+        ), f"col_idx wiring mismatch: top={col_idx_top}, submodule={col_idx_sub}"
+        assert (
+            row_idx_top == row_idx_sub
+        ), f"row_idx wiring mismatch: top={row_idx_top}, submodule={row_idx_sub}"
