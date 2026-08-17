@@ -1,5 +1,5 @@
 VERILATOR = verilator
-FLAGS =  --binary --timing --top-module --trace tb_register_board
+FLAGS =  --binary --timing --trace --top-module tb_register_board
 FLAG =  --binary --timing --trace
 
 # Voor Sieben thuis:

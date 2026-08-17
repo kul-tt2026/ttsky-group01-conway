@@ -31,21 +31,23 @@ module register_board #(
     input logic clk,
     input logic reset_n,
     input logic data_in,
-    input logic [row_bits - 1:0] read_address_row,
-    input logic [col_bits - 1:0] read_address_col,
-    input logic [row_bits - 1:0] write_address_row,
-    input logic [col_bits - 1:0] write_address_col,
+    input logic [$clog2(row_count) - 1:0] read_address_row,
+    input logic [$clog2(col_count) - 1:0] read_address_col,
+    input logic [$clog2(row_count) - 1:0] write_address_row,
+    input logic [$clog2(col_count) - 1:0] write_address_col,
     input logic active_board_read,
-    input logic active_board_write,
+    input logic toggle_read,
+    input logic copy,
     input logic write_enable,
     output logic data_out
 );
 
     localparam int row_bits = $clog2(row_count);
     localparam int col_bits = $clog2(col_count);
+    localparam [col_bits-1:0] COL_COUNT = col_bits'(col_count-1);
 
-    reg board0 [row_count - 1:0][col_count - 1:0]; // grid
-    reg board1 [row_count - 1:0][col_count - 1:0]; // previous grid
+    logic board0 [row_count - 1:0][col_count - 1:0]; // grid
+    logic board1 [row_count*col_count-1:0]; // previous grid
 
     integer row;
     integer col;
@@ -55,22 +57,34 @@ module register_board #(
             for (row=0; row < row_count; row++) begin
                 for (col=0; col < col_count; col++) begin 
                     board0[row][col] <= 1'b0;
-                    board1[row][col] <= 1'b0;
+                    board1[row*COL_COUNT+col] <= 1'b0;
                 end
             end
         end
         else begin
             if (write_enable) begin
-                if (!active_board_write) 
+                if(copy) begin
+                    board1 <= {board1[row_count*col_count-2:0], data_in};
+                end
+                else begin
                     board0[write_address_row][write_address_col] <= data_in;
-                else
-                    board1[write_address_row][write_address_col] <= data_in;
+                end
+            end
+            if (toggle_read) begin
+                board1 <= {board1[row_count*col_count-1:1],0};
             end
         end
     end
 
     // combinatorisch lezen
-    assign data_out = active_board_read ? board1[read_address_row][read_address_col] : board0[read_address_row][read_address_col];
+    always_comb begin
+        if(~active_board_read) begin
+            data_out = board0[read_address_row][read_address_col];
+        end
+        else begin
+            data_out = board1[0];
+        end
+    end
 
 endmodule
 

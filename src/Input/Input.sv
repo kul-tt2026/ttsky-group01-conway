@@ -1,5 +1,5 @@
 `timescale 1ns/1ps
-module Input #(parameter COL_COUNT = 8, parameter ROW_COUNT = 8 ,parameter DEBOUNCE_MAX = 19'd499999) (
+module Input #(parameter COL_COUNT = 8, parameter ROW_COUNT = 8 ,parameter DEBOUNCE_MAX = 18'd251750) (
     input clk,
     input reset_n,
     input button_up,

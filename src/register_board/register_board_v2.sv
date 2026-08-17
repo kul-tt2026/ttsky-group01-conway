@@ -26,6 +26,7 @@ module register_board_v2 #(
     input logic [col_bits - 1:0] read_address_col,
     input logic active_board_read,
     input logic active_board_write,
+    input logic [1:0] direction,
     input logic write_enable,
     output logic data_out
 );
@@ -57,7 +58,7 @@ module register_board_v2 #(
                 else
                     board1[write_counter] <= data_in;
                 if (write_counter<$clog2(board_size)'(board_size-1)) begin
-                write_counter <= write_counter + 1'b1;
+                    write_counter <= write_counter + 1'b1;
                 end
                 else begin
                     write_counter <= 0;
