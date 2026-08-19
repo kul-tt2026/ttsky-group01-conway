@@ -38,7 +38,9 @@ module project_controller (
   state_e state;
 
   always_ff @(posedge clk or negedge reset_n) begin : next_state_logic
-    if (!reset_n | manual_reset) begin
+    if (!reset_n) begin
+      state <= START;
+    end else if (manual_reset) begin  // reset_n en manual reset moeten apart, anders faalt de gds
       state <= START;
     end else
       case (state)

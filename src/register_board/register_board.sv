@@ -50,7 +50,15 @@ module register_board #(
     integer col;
 
     always_ff @(posedge clk or negedge reset_n) begin 
-        if (!reset_n | manual_reset) begin
+        if (!reset_n) begin
+            for (row=0; row < row_count; row++) begin
+                for (col=0; col < col_count; col++) begin 
+                    board0[row][col] <= 1'b0;
+                    board1[row*col_count + col] <= 1'b0;
+                end
+            end
+        end
+        else if (manual_reset) begin    // reset_n en manual reset moeten apart, anders faalt de gds
             for (row=0; row < row_count; row++) begin
                 for (col=0; col < col_count; col++) begin 
                     board0[row][col] <= 1'b0;

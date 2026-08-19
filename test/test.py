@@ -20,7 +20,10 @@ from verify_PNGs import verify_PNGs
 GL = os.environ.get("GATES") == "yes"
 
 # Bit positions for readability
-UP, DOWN, LEFT, RIGHT, SET, START_STOP, CURSOR, TESTING = 0, 1, 2, 3, 4, 5, 6, 7
+# ui_in
+UP, DOWN, LEFT, RIGHT, SET, START_STOP, CURSOR, BOUNDED = 0, 1, 2, 3, 4, 5, 6, 7
+# uio_in
+SPEED_UP, SPEED_DOWN, RESET, TESTING = 0, 1, 2, 7
 
 # Number of frames to capture and verify. The capture now only starts once the
 # simulation is running, so all of these are simulation frames (the earlier
@@ -28,9 +31,12 @@ UP, DOWN, LEFT, RIGHT, SET, START_STOP, CURSOR, TESTING = 0, 1, 2, 3, 4, 5, 6, 7
 # skipped by verify_PNGs, so this checks the same 5 Conway generations).
 NUM_FRAMES = 6
 
+# Voor de waveform moet je "make WAVES=yes" runnen in test/
+
 
 async def reset(dut):
     dut.ui_in.value = 0
+    dut.uio_in.value = 0
     dut.reset_n.value = 0
     dut.ena.value = 1
     await Timer(100, unit="ns")
@@ -38,7 +44,7 @@ async def reset(dut):
     await Timer(100, unit="ns")
 
 
-async def move_and_settle(dut, clear_bits, set_bits, hold_ns=10000, settle_ns=10000):
+async def move_and_settle_ui_in(dut, clear_bits, set_bits, hold_ns=10000, settle_ns=10000):
     """Clear old button bits, wait one settle period, then set new bits,
     then hold for the full press duration. Guarantees no same-timestamp
     overlap between releasing and pressing buttons."""
@@ -51,10 +57,26 @@ async def move_and_settle(dut, clear_bits, set_bits, hold_ns=10000, settle_ns=10
     cur = int(dut.ui_in.value)
     for bit in set_bits:
         cur |= 1 << bit
+    dut.ui_in.value = cur
+    await Timer(hold_ns, unit="ns")
+
+async def move_and_settle_uio_in(dut, clear_bits, set_bits, hold_ns=10000, settle_ns=10000):
+    """Clear old button bits, wait one settle period, then set new bits,
+    then hold for the full press duration. Guarantees no same-timestamp
+    overlap between releasing and pressing buttons."""
+    cur = int(dut.uio_in.value)
+    for bit in clear_bits:
+        cur &= ~(1 << bit)
+    dut.uio_in.value = cur
+    await Timer(settle_ns, unit="ns")
+
+    cur = int(dut.uio_in.value)
+    for bit in set_bits:
+        cur |= 1 << bit
     cur |= (
         1 << TESTING
     )  # zodat logica elke frame update, zowel in gewone als gate level tests
-    dut.ui_in.value = cur
+    dut.uio_in.value = cur
     await Timer(hold_ns, unit="ns")
 
 
@@ -86,6 +108,9 @@ async def test_project(dut):
 
     await reset(dut)
 
+    # Testing aanzetten
+    await move_and_settle_uio_in(dut, clear_bits=[], set_bits=[TESTING])
+
     # Conway's Game of Life glider pattern:
     #   . X .
     #   . . X
@@ -96,32 +121,32 @@ async def test_project(dut):
     # await move_and_settle(dut, clear_bits=[CURSOR], set_bits=[RIGHT, DOWN])
 
     # Move to (2, 1) and set
-    await move_and_settle(dut, clear_bits=[CURSOR], set_bits=[RIGHT])
-    await move_and_settle(dut, clear_bits=[RIGHT], set_bits=[SET])
+    await move_and_settle_ui_in(dut, clear_bits=[CURSOR], set_bits=[RIGHT])
+    await move_and_settle_ui_in(dut, clear_bits=[RIGHT], set_bits=[SET])
     await print_board(dut)
 
     # Move to (3, 2) and set
-    await move_and_settle(dut, clear_bits=[SET], set_bits=[RIGHT])
-    await move_and_settle(dut, clear_bits=[RIGHT], set_bits=[DOWN])
-    await move_and_settle(dut, clear_bits=[DOWN], set_bits=[SET])
+    await move_and_settle_ui_in(dut, clear_bits=[SET], set_bits=[RIGHT])
+    await move_and_settle_ui_in(dut, clear_bits=[RIGHT], set_bits=[DOWN])
+    await move_and_settle_ui_in(dut, clear_bits=[DOWN], set_bits=[SET])
 
     await print_board(dut)
 
     # Move to (3, 3) and set
-    await move_and_settle(dut, clear_bits=[SET], set_bits=[DOWN])
-    await move_and_settle(dut, clear_bits=[DOWN], set_bits=[SET])
+    await move_and_settle_ui_in(dut, clear_bits=[SET], set_bits=[DOWN])
+    await move_and_settle_ui_in(dut, clear_bits=[DOWN], set_bits=[SET])
 
     await print_board(dut)
 
     # Move to (2, 3) and set
-    await move_and_settle(dut, clear_bits=[SET], set_bits=[LEFT])
-    await move_and_settle(dut, clear_bits=[LEFT], set_bits=[SET])
+    await move_and_settle_ui_in(dut, clear_bits=[SET], set_bits=[LEFT])
+    await move_and_settle_ui_in(dut, clear_bits=[LEFT], set_bits=[SET])
 
     await print_board(dut)
 
     # Move to (1, 3) and set
-    await move_and_settle(dut, clear_bits=[SET], set_bits=[LEFT])
-    await move_and_settle(dut, clear_bits=[LEFT], set_bits=[SET])
+    await move_and_settle_ui_in(dut, clear_bits=[SET], set_bits=[LEFT])
+    await move_and_settle_ui_in(dut, clear_bits=[LEFT], set_bits=[SET])
 
     await print_board(dut)
 
@@ -137,8 +162,8 @@ async def test_project(dut):
     ).start()
 
     # START
-    await move_and_settle(dut, clear_bits=[SET], set_bits=[START_STOP])
-    await move_and_settle(dut, clear_bits=[START_STOP], set_bits=[])
+    await move_and_settle_ui_in(dut, clear_bits=[SET], set_bits=[START_STOP])
+    await move_and_settle_ui_in(dut, clear_bits=[START_STOP], set_bits=[])
     await print_board(dut)
 
     frames = await cap.wait_for_frames(NUM_FRAMES)

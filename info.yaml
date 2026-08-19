@@ -19,6 +19,7 @@ project:
   source_files:
     - "project.sv"
     - "sim_speed.sv"
+    - "logica/L_controller.sv"
     - "project_datapath.sv"
     - "project_controller.sv"
     - "next_iter_countdown.sv"
@@ -26,8 +27,7 @@ project:
     - "vga/vga_get_cell_type.sv"
     - "vga/vga_get_pixel_color.sv"
     - "vga/vga_hvsync_generator.sv"
-    - "vga/vga.sv"
-    - "logica/L_controller.sv"
+    - "vga/vga.sv"    
     - "logica/L_datapath.sv"
     - "logica/L_decider.sv"
     - "logica/L_main.sv"

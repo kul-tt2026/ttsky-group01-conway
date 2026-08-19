@@ -174,6 +174,8 @@ module project_datapath #(
       active_board_read = !L_copying;
       active_board_write = L_copying;
 
+      toggle_read = L_toggle_read;
+
     end else begin
       read_address_row = vga_row_idx;
       read_address_col = vga_col_idx;
@@ -187,6 +189,8 @@ module project_datapath #(
 
       active_board_read = 1'b0;
       active_board_write = 1'b0;
+
+      toggle_read = 1'b0;
     end
   end
   
