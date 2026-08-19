@@ -18,15 +18,13 @@ module tb_L_main ();
 
     // L_main
     logic clk, reset_n, L_reset, L_next_iter;
-    logic L_idle, L_new_cel, L_copying, L_write_enable;
+    logic L_idle, L_new_cel, L_copying, L_write_enable, L_toggle_read;
     logic [row_bits-1:0] L_row;  
     logic [col_bits-1:0] L_col;
-    logic [1:0] advance_grid;
     mode_pkg::mode_e L_mode;
     // Reg
     logic data_in, data_out, active_board_read, active_board_write, toggle_read, write_enable;
     logic [7:0] neighbours;
-    logic [8:0] neighbour_out;
     logic [row_bits-1:0] address_row;  
     logic [col_bits-1:0] address_col;
     // Hulpjes
@@ -40,7 +38,7 @@ module tb_L_main ();
         .L_reset(L_reset),
         .L_next_iter(L_next_iter),
         .L_mode(L_mode),
-        .old_cel(data_in),
+        .old_cel(data_out),
         .neighbours(neighbours),
         .L_idle(L_idle),
         .L_new_cel(L_new_cel),
@@ -48,7 +46,7 @@ module tb_L_main ();
         .L_write_enable(L_write_enable),
         .L_row(L_row),
         .L_col(L_col),
-        .advance_grid(advance_grid)
+        .L_toggle_read(L_toggle_read)
     );
 
     register_board #(
@@ -67,7 +65,7 @@ module tb_L_main ();
         .write_address_col(address_col),
         .toggle_read(toggle_read),
         .data_out(data_out),
-        .neighbour_out(neighbour_out)
+        .neighbour_out(neighbours)
     );
 
     always_comb begin
@@ -79,10 +77,10 @@ module tb_L_main ();
             active_board_write = 1'b0;
 
             {address_row, address_col} = {init_row, init_col};
-            neighbours = '0;
+
+            toggle_read = '0;
         end
         else begin
-            {neighbours, data_in} = {neighbour_out[0], neighbour_out[1], neighbour_out[2], neighbour_out[3], neighbour_out[4], neighbour_out[5], neighbour_out[6], neighbour_out[7], neighbour_out[8]};
 
             if(L_copying) data_in = data_out;
             else data_in = L_new_cel;
@@ -95,13 +93,9 @@ module tb_L_main ();
 
             {address_row, address_col} = {L_row, L_col};
 
-
+            toggle_read = L_toggle_read;
 
         end
-
-        if(advance_grid == 2'b01) toggle_read = 1'b1;
-        else toggle_read = 1'b0;
-
 
     end
 

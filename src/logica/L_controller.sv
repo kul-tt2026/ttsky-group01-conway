@@ -21,13 +21,12 @@ module L_controller (
     input logic L_next_iter,
     input mode_pkg::mode_e L_mode,
     input logic address_max,
-    input logic row_0,
-    input logic col_1,
 
     output logic L_idle,
     output logic L_write_enable,
     output logic L_copying,
-    output logic [1:0] advance_grid,
+    output logic L_toggle_read,
+    output logic advance_grid,
     output logic reset_address,
     output mode_pkg::mode_e d_mode
 );
@@ -48,7 +47,7 @@ always_ff @( posedge clk or negedge reset_n ) begin : next_state_logic
     end
     else case (state)
         IDLE: if(L_next_iter) state <= COPY;
-        COPY: if(col_1 && row_0) begin
+        COPY: if(address_max) begin
             if(L_mode === mode_pkg::TORUS) state <= TORUS;
             else state <= BOUNDED;
         end
@@ -61,14 +60,14 @@ end
 always_comb begin : control_signals
     case (state)
         // default is voor IDLE
-        default: {L_idle, L_write_enable, L_copying, advance_grid, reset_address, d_mode} = 
-                 {1'b1,   1'b0,           1'b0,       2'b00,       1'b1,          mode_pkg::TORUS};
-        COPY:    {L_idle, L_write_enable, L_copying, advance_grid, reset_address, d_mode} = 
-                 {1'b0,   1'b1,           1'b1,       2'b10,       1'b0,          mode_pkg::TORUS};
-        BOUNDED: {L_idle, L_write_enable, L_copying, advance_grid, reset_address, d_mode} = 
-                 {1'b0,   1'b1,           1'b0,       2'b01,       1'b0,          mode_pkg::BOUNDED};
-        TORUS:   {L_idle, L_write_enable, L_copying, advance_grid, reset_address, d_mode} = 
-                 {1'b0,   1'b1,           1'b0,       2'b01,       1'b0,          mode_pkg::TORUS};
+        default: {L_idle, L_write_enable, L_copying, L_toggle_read, advance_grid, reset_address, d_mode} = 
+                 {1'b1,   1'b0,           1'b0,      1'b0,          1'b0,       1'b1,          mode_pkg::TORUS};
+        COPY:    {L_idle, L_write_enable, L_copying, L_toggle_read, advance_grid, reset_address, d_mode} = 
+                 {1'b0,   1'b1,           1'b1,      1'b0,          1'b1,       1'b0,          mode_pkg::TORUS};
+        BOUNDED: {L_idle, L_write_enable, L_copying, L_toggle_read, advance_grid, reset_address, d_mode} = 
+                 {1'b0,   1'b1,           1'b0,      1'b1,          1'b1,       1'b0,          mode_pkg::BOUNDED};
+        TORUS:   {L_idle, L_write_enable, L_copying, L_toggle_read, advance_grid, reset_address, d_mode} = 
+                 {1'b0,   1'b1,           1'b0,      1'b1,          1'b1,       1'b0,          mode_pkg::TORUS};
     endcase
 end
     

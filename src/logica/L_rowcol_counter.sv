@@ -14,13 +14,12 @@ module L_rowcol_counter #(
     input logic clk,
     input logic reset_n,        // active low:  reset bij 0
     input logic reset_address,  // active high: reset bij 1
-    input logic [1:0] advance_grid, // 00 = stay; 01 = forward; 10 = backward
+    input logic advance_grid,   
 
     output logic [$clog2(row_count)-1:0] row,
     output logic [$clog2(col_count)-1:0] col,
     output logic row_0,
     output logic col_0,
-    output logic col_1,
     output logic row_max,
     output logic col_max,
     output logic address_max
@@ -38,8 +37,7 @@ module L_rowcol_counter #(
             row <= '0;
             col <= '0;
         end
-        else if (advance_grid == 2'b01) begin
-            // voorwaarts
+        else if (advance_grid) begin
             // col wordt eerst afgegaan, dan row. Dus eerst naar rechts, dan volgende rij
             if (address_max) begin
                 row <= '0;
@@ -52,25 +50,10 @@ module L_rowcol_counter #(
             else begin
                 col <= col + 1'b1;
             end
-        end        
-        else if (advance_grid == 2'b10) begin
-            // achterwaarts
-            if (row_0 && col_0) begin
-                row <= row_bits'(row_count - 1);
-                col <= col_bits'(col_count - 1);
-            end
-            else if (col_0) begin
-                row <= row - 1'b1;
-                col <= col_bits'(col_count - 1);
-            end
-            else begin
-                col <= col - 1'b1;
-            end
         end
     end
     assign row_0 = (row == '0);
     assign col_0 = (col == '0);
-    assign col_1 = (col == col_bits'(1));
 
     assign row_max = (row == row_bits'(row_count - 1));
     assign col_max = (col == col_bits'(col_count - 1));

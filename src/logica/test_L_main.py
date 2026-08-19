@@ -49,7 +49,7 @@ async def test_project(dut):
 
     dut.init.value = 0
     dut._log.info("Simulatie laten runnen")
-    pySim = PyConway(pyGrid)
+    pySim = PyConway(pyGrid, 0)
 
     def check_grids():
         for row in range(ROWS):

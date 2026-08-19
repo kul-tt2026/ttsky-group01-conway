@@ -11,9 +11,8 @@ module tb_L_controller ();
     
     localparam int CLK_PERIOD = 10;   // ns
     
-    logic clk, reset_n, reset_controller, L_next_iter, address_max, col_1, row_0;
-    logic L_idle, L_write_enable, L_copying, reset_address;
-    logic [1:0] advance_grid; 
+    logic clk, reset_n, reset_controller, L_next_iter, address_max;
+    logic L_idle, L_write_enable, L_copying, L_toggle_read, advance_grid, reset_address; 
     mode_pkg::mode_e L_mode, d_mode;
 
     int errors = 0;
@@ -25,11 +24,10 @@ module tb_L_controller ();
         .L_next_iter(L_next_iter),
         .L_mode(L_mode),
         .address_max(address_max),
-        .col_1(col_1),
-        .row_0(row_0),
         .L_idle(L_idle),
         .L_write_enable(L_write_enable),
         .L_copying(L_copying),
+        .L_toggle_read(L_toggle_read),
         .advance_grid(advance_grid),
         .reset_address(reset_address),
         .d_mode(d_mode)
@@ -71,8 +69,6 @@ module tb_L_controller ();
         reset_controller = '0;
         L_next_iter = '0;
         address_max = '0;
-        row_0 = '0;
-        col_1 = '0;
         L_mode = mode_pkg::TORUS;
 
         // Test 1: next state logica
@@ -90,9 +86,8 @@ module tb_L_controller ();
 
         check(dut.state === dut.COPY, "advanced niet naar COPY");
 
-        row_0 = 1'b1;
-        col_1 = 1'b1;
-        step(2);
+        address_max = 1'b1;
+        step(1);
 
         check(dut.state === dut.TORUS, "advanced niet naar TORUS (1)");
 
@@ -104,7 +99,7 @@ module tb_L_controller ();
 
         // Tot hier geraakt met updaten
 
-        step(3);
+        step(2);
         check(dut.state === dut.TORUS, "advanced niet naar TORUS (2)");
                 
         address_max = 1'b1;
@@ -112,13 +107,10 @@ module tb_L_controller ();
         step(1);
         check(dut.state === dut.IDLE, "advanced niet naar IDLE vanuit TORUS");
 
-        address_max = 1'b0;
         L_mode = mode_pkg::BOUNDED;
 
-        step(3);
+        step(2);
         check(dut.state === dut.BOUNDED, "advanced niet naar MOVE_T");
-
-        address_max = 1'b1;
 
         step(1);
         check(dut.state === dut.IDLE, "advanced niet naar IDLE vanuit BOUNDED");
@@ -128,31 +120,31 @@ module tb_L_controller ();
 
         // IDLE
         check(dut.state === dut.IDLE, "check_controlesignalen IDLE gebeurt op andere state");     
-        check(L_idle === 1'b1 && L_write_enable === 1'b0 && L_copying === 1'b0 && 
-              advance_grid === 2'b00 && reset_address=== 1'b1 && d_mode === mode_pkg::TORUS, "controlesignalen IDLE zijn fout");
+        check(L_idle === 1'b1 && L_write_enable === 1'b0 && L_copying === 1'b0 && L_toggle_read === 1'b0 &&
+              advance_grid === 1'b0 && reset_address=== 1'b1 && d_mode === mode_pkg::TORUS, "controlesignalen IDLE zijn fout");
 
         L_next_iter = 1'b1;
         step(1);
         
         // COPY
         check(dut.state === dut.COPY, "check_controlesignalen COPY gebeurt op andere state");     
-        check(L_idle === 1'b0 && L_write_enable === 1'b1 && L_copying === 1'b1 && 
-              advance_grid === 2'b10 && reset_address=== 1'b0 && d_mode === mode_pkg::TORUS, "controlesignalen COPY zijn fout");
+        check(L_idle === 1'b0 && L_write_enable === 1'b1 && L_copying === 1'b1 && L_toggle_read === 1'b0 &&
+              advance_grid === 1'b1 && reset_address=== 1'b0 && d_mode === mode_pkg::TORUS, "controlesignalen COPY zijn fout");
 
         step(1);
 
         // TORUS
         check(dut.state === dut.TORUS, "check_controlesignalen TORUS gebeurt op andere state");     
-        check(L_idle === 1'b0 && L_write_enable === 1'b1 && L_copying === 1'b0 && 
-              advance_grid === 2'b01 && reset_address=== 1'b0 && d_mode === mode_pkg::TORUS, "controlesignalen TORUS zijn fout");
+        check(L_idle === 1'b0 && L_write_enable === 1'b1 && L_copying === 1'b0 && L_toggle_read === 1'b1 &&
+              advance_grid === 1'b1 && reset_address=== 1'b0 && d_mode === mode_pkg::TORUS, "controlesignalen TORUS zijn fout");
 
         L_mode = mode_pkg::BOUNDED;
         step(3);
 
         // BOUNDED
         check(dut.state === dut.BOUNDED, "check_controlesignalen BOUNDED gebeurt op andere state");     
-        check(L_idle === 1'b0 && L_write_enable === 1'b1 && L_copying === 1'b0 && 
-              advance_grid === 2'b01 && reset_address=== 1'b0 && d_mode === mode_pkg::BOUNDED, "controlesignalen BOUNDED zijn fout");
+        check(L_idle === 1'b0 && L_write_enable === 1'b1 && L_copying === 1'b0 && L_toggle_read === 1'b1 &&
+              advance_grid === 1'b1 && reset_address=== 1'b0 && d_mode === mode_pkg::BOUNDED, "controlesignalen BOUNDED zijn fout");
 
         step(1);
 

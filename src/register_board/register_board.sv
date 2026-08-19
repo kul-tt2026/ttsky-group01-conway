@@ -34,7 +34,7 @@ module register_board #(
     input logic active_board_write,
     input logic write_enable,
     output logic data_out,
-    output logic [8:0] neighbour_out
+    output logic [7:0] neighbour_out
 );
 
     localparam int row_bits = $clog2(row_count);
@@ -52,21 +52,21 @@ module register_board #(
             for (row=0; row < row_count; row++) begin
                 for (col=0; col < col_count; col++) begin 
                     board0[row][col] <= 1'b0;
-                    board1[row*COL_COUNT+col] <= 1'b0;
+                    board1[row*col_count + col] <= 1'b0;
                 end
             end
         end
         else begin
             if (write_enable) begin
                 if(active_board_write && ~toggle_read) begin
-                    board1 <= {board1[row_count*col_count-2:0], data_in};
+                    board1 <= {data_in, board1[row_count*col_count-1:1]};
                 end
                 else begin
                     board0[write_address_row][write_address_col] <= data_in;
                 end
             end
             if (toggle_read && ~active_board_write) begin
-                board1 <= {board1[row_count*col_count-1:1],1'b0};
+                board1 <= {board1[0], board1[row_count*col_count-1:1]};
             end
         end
     end
@@ -78,8 +78,30 @@ module register_board #(
             neighbour_out = 0;
         end
         else begin
-            data_out = 0;
-            neighbour_out = {board1[0],board1[col_count],board1[2*col_count],board1[2*col_count+1],board1[2*col_count+2],board1[col_count+2],board1[2],board1[1],board1[col_count+1]};
+            data_out = board1[0];
+            neighbour_out = {/*7*/board1[(row_count-1)*col_count-1], /*6*/board1[row_count*col_count-1], /*5*/board1[col_count-1],
+                             /*4*/board1[col_count], /*3*/board1[col_count+1], /*2*/board1[1],
+                             /*1*/board1[(row_count-1)*col_count + 1], /*0*/board1[(row_count-1)*col_count]};
+            // fix voor wrapping: verticale wrapping werkt zowieso, horizontale moet gefixt worden (voor cellen aan de rand)
+            if (read_address_col == '0) begin
+                /*
+                alt_7 = 6
+                alt_6 = 5
+                alt_5 = 2*col_count - 1
+                omdat de positie van de buren onbelangrijk is, is er enkel een alt_7 = 2*col_count - 1 (want de normale 7 is ongeldig)
+                */
+                neighbour_out[7] = /*alt_7*/ board1[2*col_count-1];
+            end                    
+            if (read_address_col == col_bits'(col_count-1)) begin
+                /*
+                alt_3 = 2
+                alt_2 = 1
+                alt_1 = (row_count-2)*col_count + 1
+                voor de zelfde reden als hierboven is er enkel een alt_3 = (row_count-2)*col_count + 1
+                */
+                neighbour_out[3] = /*alt_3*/ board1[(row_count-2)*col_count + 1];
+            end 
+
         end
     end
 

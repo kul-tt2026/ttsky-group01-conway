@@ -13,15 +13,13 @@ module L_datapath #(
 ) (
     input logic clk,
     input logic reset_n,
-    input logic [1:0] advance_grid,
+    input logic advance_grid,
     input logic reset_address,
     input logic old_cel,
     input logic [7:0] neighbours,
     input mode_pkg::mode_e d_mode,
 
     output logic address_max,
-    output logic row_0,
-    output logic col_1,
     output logic [$clog2(row_count) - 1:0] L_row,
     output logic [$clog2(col_count) - 1:0] L_col,
     output logic L_new_cel
@@ -31,7 +29,7 @@ module L_datapath #(
     localparam int col_bits = $clog2(col_count);
 
     // Interne verbindingen
-    logic row_max, col_max, col_0;
+    logic row_0, row_max, col_0, col_max;
 
     L_rowcol_counter #(
         .row_count(row_count),
@@ -45,7 +43,6 @@ module L_datapath #(
         .col(L_col),
         .row_0(row_0),
         .col_0(col_0),
-        .col_1(col_1),
         .row_max(row_max),
         .col_max(col_max),
         .address_max(address_max)

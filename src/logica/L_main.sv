@@ -28,15 +28,14 @@ module L_main #(
     output logic L_new_cel,
     output logic L_write_enable,
     output logic L_copying,
-    output logic [1:0] advance_grid
+    output logic L_toggle_read
 );
 
     localparam int row_bits = $clog2(row_count);
     localparam int col_bits = $clog2(col_count);
 
     // interne signalen
-    logic reset_address, row_0, col_1;
-    logic address_max, read_ready;
+    logic advance_grid, reset_address, address_max;
     mode_pkg::mode_e d_mode;
 
     L_controller u_L_controller (
@@ -46,11 +45,10 @@ module L_main #(
         .L_next_iter(L_next_iter),
         .L_mode(L_mode),
         .address_max(address_max),
-        .row_0(row_0),
-        .col_1(col_1),
         .L_idle(L_idle),
         .L_write_enable(L_write_enable),
         .L_copying(L_copying),
+        .L_toggle_read(L_toggle_read),
         .advance_grid(advance_grid),
         .reset_address(reset_address),
         .d_mode(d_mode)
@@ -65,8 +63,6 @@ module L_main #(
         .advance_grid(advance_grid),
         .reset_address(reset_address),
         .d_mode(d_mode),
-        .row_0(row_0),
-        .col_1(col_1),
         .address_max(address_max),
         .old_cel(old_cel),
         .neighbours(neighbours),
