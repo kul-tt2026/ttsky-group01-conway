@@ -23,12 +23,12 @@ module project_datapath #(
     input logic button_bounded_board,
     input logic button_speed_sim_up,
     input logic button_speed_sim_down,
-    input logic button_reset_n,
+    input logic button_reset,
 
     output logic [7:0] uo_out,  // Dedicated outputs
     input logic testing,
 
-    output logic manual_full_reset_n,
+    output logic manual_reset,
     output logic start_stop_rise,
     output logic next_iter,
     output logic L_idle
@@ -138,8 +138,8 @@ module project_datapath #(
       .button_bounded_board(button_bounded_board),
       .button_speed_sim_up(button_speed_sim_up),
       .button_speed_sim_down(button_speed_sim_down),
-      .button_reset_n(button_reset_n),
-      .manual_full_reset_n(manual_full_reset_n),
+      .button_reset(button_reset),
+      .manual_reset(manual_reset),
       .running(running),
 
       .write_address_row(input_write_address_row),
@@ -202,6 +202,7 @@ module project_datapath #(
       .toggle_read(toggle_read),
       .write_enable(write_enable),
       .neighbour_out(neighbour_out),
+      .manual_reset(manual_reset),
 
       .data_out(data_out)
   );

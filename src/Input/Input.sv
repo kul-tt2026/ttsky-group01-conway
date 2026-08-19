@@ -16,7 +16,7 @@ module Input #(
     input logic button_bounded_board,
     input logic button_speed_sim_up,
     input logic button_speed_sim_down,
-    input logic button_reset_n,
+    input logic button_reset,
     input logic running,
     output logic [$clog2(COL_COUNT)-1:0] write_address_col,
     output logic [$clog2(ROW_COUNT)-1:0] write_address_row,
@@ -25,7 +25,7 @@ module Input #(
     output logic speed_sim_up_rise,
     output logic speed_sim_down_rise,
     output logic bounded_board,
-    output logic manual_full_reset_n,
+    output logic manual_reset,
     output logic cursor_on
 );
 
@@ -39,7 +39,7 @@ module Input #(
   logic clean_bounded_board;
   logic clean_speed_sim_up;
   logic clean_speed_sim_down;
-  logic clean_reset_n;
+  logic clean_reset;
 
   logic up_rise;
   logic down_rise;
@@ -48,7 +48,7 @@ module Input #(
   logic set_rise;
   logic cursor_on_off_rise;
   logic bounded_board_rise;
-  logic reset_n_rise;
+  logic reset_rise;
 
   localparam ROW_BITS = $clog2(ROW_COUNT);
   localparam COL_BITS = $clog2(COL_COUNT);
@@ -125,8 +125,8 @@ module Input #(
   Debouncer #(DEBOUNCE_MAX) reset_n_D (
       .clk(clk),
       .reset_n(reset_n),
-      .noisy_in(button_reset_n),
-      .clean_signal(clean_reset_n)
+      .noisy_in(button_reset),
+      .clean_signal(clean_reset)
   );
 
   Edge_detection up_E (
@@ -205,11 +205,11 @@ module Input #(
       .button_rise(speed_sim_down_rise),
       .button_fall()
   );
-  Edge_detection reset_n_E (
+  Edge_detection reset_E (
       .clk(clk),
       .reset_n(reset_n),
-      .button(clean_reset_n),
-      .button_rise(reset_n_rise),
+      .button(clean_reset),
+      .button_rise(reset_rise),
       .button_fall()
   );
 
@@ -222,7 +222,7 @@ module Input #(
       bounded_board <= 0;
     end 
     else begin 
-      manual_full_reset_n <= ~reset_n_rise;
+      manual_reset <= reset_rise;
       write_value <= set_rise;
       if (bounded_board_rise) begin
           bounded_board <= ~bounded_board;
