@@ -64,15 +64,16 @@ module project_datapath #(
   );
 
   // nog interne wires
-  logic L_new_cel, L_LD_cel_g, L_LD_cel_pg;
+  logic L_new_cel, L_write_enable, L_toggle_read, L_copying;
   logic bounded_board, speed_sim_decrease, speed_sim_increase;
-  logic [row_bits + col_bits - 1:0] L_address;
+  logic [row_bits - 1:0] L_row;
+  logic [col_bits - 1:0] L_col;
   logic next_iter_allowed;
   logic data_in, active_board_read, active_board_write, toggle_read, write_enable, data_out;
   logic [row_bits-1:0] read_address_row, write_address_row, vga_row_idx;
   logic [col_bits-1:0] read_address_col, write_address_col, vga_col_idx;
   logic [row_bits+col_bits-1:0] cursorpos;
-  logic [8:0] neighbour_out;
+  logic [7:0] neighbour_out;
   mode_pkg::mode_e L_mode = mode_pkg::TORUS; // TODO: uiteindelijk moet input dit aansturen
 
   assign next_iter = next_iter_allowed && countdown_done;
@@ -106,13 +107,16 @@ module project_datapath #(
       .L_reset(L_reset),
       .L_next_iter(next_iter),
       .L_mode(L_mode),
-      .cel_out_pg(data_out),
+      .old_cel(data_out),
+      .neighbours(neighbour_out),
 
       .L_idle(L_idle),
-      .L_address(L_address),
+      .L_row(L_row),
+      .L_col(L_col),
       .L_new_cel(L_new_cel),
-      .L_LD_cel_g(L_LD_cel_g),
-      .L_LD_cel_pg(L_LD_cel_pg)
+      .L_write_enable(L_write_enable),
+      .L_copying(L_copying),
+      .L_toggle_read(L_toggle_read)
   );
 
   // meer interne wires
@@ -156,19 +160,19 @@ module project_datapath #(
 
   always_comb begin
     if (next_iter_busy) begin
-      read_address_row = L_address[row_bits+col_bits-1:col_bits];
-      read_address_col = L_address[col_bits-1:0];
+      read_address_row = L_row;
+      read_address_col = L_col;
 
-      write_enable = L_LD_cel_g || L_LD_cel_pg;
+      write_enable = L_write_enable;
 
-      write_address_row = L_address[row_bits+col_bits-1:col_bits];
-      write_address_col = L_address[col_bits-1:0];
+      write_address_row = L_row;
+      write_address_col = L_col;
 
-      if (L_LD_cel_pg) data_in = data_out;
+      if (L_copying) data_in = data_out;
       else data_in = L_new_cel;
 
-      active_board_read  = !L_LD_cel_pg;
-      active_board_write = L_LD_cel_pg;
+      active_board_read = !L_copying;
+      active_board_write = L_copying;
 
     end else begin
       read_address_row = vga_row_idx;
