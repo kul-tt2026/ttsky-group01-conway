@@ -31,6 +31,8 @@ SPEED_UP, SPEED_DOWN, RESET, TESTING = 0, 1, 2, 7
 # skipped by verify_PNGs, so this checks the same 5 Conway generations).
 NUM_FRAMES = 6
 
+FRAME = 39.722 * 420000  # ns, one full frame
+
 # Voor de waveform moet je "make WAVES=yes" runnen in test/
 
 
@@ -124,6 +126,7 @@ async def test_project(dut):
     await move_and_settle_ui_in(dut, clear_bits=[CURSOR], set_bits=[RIGHT])
     await move_and_settle_ui_in(dut, clear_bits=[RIGHT], set_bits=[SET])
     await print_board(dut)
+    await Timer(FRAME, unit="ns")  # Wait one frame
 
     # Move to (3, 2) and set
     await move_and_settle_ui_in(dut, clear_bits=[SET], set_bits=[RIGHT])
@@ -131,25 +134,31 @@ async def test_project(dut):
     await move_and_settle_ui_in(dut, clear_bits=[DOWN], set_bits=[SET])
 
     await print_board(dut)
+    await Timer(FRAME, unit="ns")  # Wait one frame
 
     # Move to (3, 3) and set
     await move_and_settle_ui_in(dut, clear_bits=[SET], set_bits=[DOWN])
     await move_and_settle_ui_in(dut, clear_bits=[DOWN], set_bits=[SET])
 
     await print_board(dut)
+    await Timer(FRAME, unit="ns")  # Wait one frame
 
     # Move to (2, 3) and set
     await move_and_settle_ui_in(dut, clear_bits=[SET], set_bits=[LEFT])
     await move_and_settle_ui_in(dut, clear_bits=[LEFT], set_bits=[SET])
 
     await print_board(dut)
+    await Timer(FRAME, unit="ns")  # Wait one frame
 
     # Move to (1, 3) and set
     await move_and_settle_ui_in(dut, clear_bits=[SET], set_bits=[LEFT])
     await move_and_settle_ui_in(dut, clear_bits=[LEFT], set_bits=[SET])
 
     await print_board(dut)
+    await Timer(FRAME, unit="ns")  # Wait one frame
 
+    await Timer(39.722 * 420000, unit="ns")  # Wait one frame
+    
     # Start the frame capture only now: verify_PNGs skips the editing frames
     # (the ones with a blue cursor) anyway, and sampling the VGA bus every
     # clock cycle in Python is by far the slowest part of this test.
