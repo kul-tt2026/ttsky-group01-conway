@@ -9,11 +9,10 @@ If not in visible range, show black.
 --> 10 cursor, blue 000011
 --> 11 not assigned, invalid, red 110000
 
-R, G en B zijn geregistreerd (1 klokcyclus vertraging). hsync en vsync komen
-namelijk ook uit een register in vga_hvsync_generator.sv en lopen dus 1 cyclus
-achter op hpos/vpos. Zonder dit register zou de kleur 1 pixel te vroeg op de
-pinnen staan t.o.v. de sync-signalen, waardoor het beeld 1 pixel naar links
-schuift en de eerste kolom 39 in plaats van 40 pixels breed is.
+R, G, and B are registered (1 clock cycle delay). This is because hsync and vsync also come from a register in
+vga_hvsync_generator.sv, and therefore lag 1 cycle behind hpos/vpos. 
+Without this register, the color would appear on the pins 1 pixel too early relative to the sync signals,
+causing the image to shift 1 pixel to the left and making the first column 39 pixels wide instead of 40.
 
 Created by Mathias Van Nuland
 
@@ -30,6 +29,7 @@ module vga_get_pixel_color #(
     input logic clk,
     input logic reset_n,
     input logic display_on,
+    input logic running,
     input logic [1:0] cell_type,
     output logic [1:0] R,
     output logic [1:0] G,
@@ -44,11 +44,17 @@ module vga_get_pixel_color #(
     if (display_on) begin
       case (cell_type)
         2'b00: begin  // dead
-          R_next = 2'b00;
-          G_next = 2'b00;
-          B_next = 2'b00;
+          if (running) begin  // if running, black
+            R_next = 2'b00;
+            G_next = 2'b00;
+            B_next = 2'b00;
+          end else begin  // else, grey
+            R_next = 2'b10;
+            G_next = 2'b10;
+            B_next = 2'b10;
+          end
         end
-        2'b01: begin  // alive
+        2'b01: begin  // alive, white
           R_next = 2'b11;
           G_next = 2'b11;
           B_next = 2'b11;
@@ -72,8 +78,8 @@ module vga_get_pixel_color #(
     end
   end
 
-  // Uitlijnen met de geregistreerde hsync/vsync, zie commentaar bovenaan
-  always_ff @(posedge clk) begin
+  // Make RGB sync to clock cycles, see comments above.
+  always_ff @(posedge clk or negedge reset_n) begin
     if (!reset_n) begin
       R <= 2'b00;
       G <= 2'b00;

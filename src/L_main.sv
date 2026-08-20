@@ -18,37 +18,40 @@ module L_main #(
     input logic reset_n,
     input logic L_reset, // doet hetzelfde als reset_n. Wel twee cyclussen hoog laten staan: eerst reset je de controller, dan reset de controller het datapad
     input logic L_next_iter, // start de berekening van de volgende iteratie van de simulatie. Is klaar wanneer L_idle weer hoog is
-    input logic cel_out_pg,
+    input mode_pkg::mode_e L_mode, // TORUS of BOUNDED
+    input logic old_cel,
+    input logic [7:0] neighbours,
 
     output logic L_idle,
-    output logic [row_bits + col_bits - 1:0] L_address,
+    output logic [$clog2(row_count) - 1:0] L_row,
+    output logic [$clog2(col_count) - 1:0] L_col,
     output logic L_new_cel,
-    output logic L_LD_cel_g,
-    output logic L_LD_cel_pg
+    output logic L_write_enable,
+    output logic L_copying,
+    output logic L_toggle_read
 );
 
     localparam int row_bits = $clog2(row_count);
     localparam int col_bits = $clog2(col_count);
 
     // interne signalen
-    logic advance_grid, reset_address, advance_sweep, reset_sweep, reset_decider;
-    logic address_max, read_ready;
+    logic advance_grid, reset_address, address_max;
+    mode_pkg::mode_e d_mode;
 
     L_controller u_L_controller (
         .clk(clk),
         .reset_n(reset_n),
         .reset_controller(L_reset),
         .L_next_iter(L_next_iter),
+        .L_mode(L_mode),
         .address_max(address_max),
-        .read_ready(read_ready),
         .L_idle(L_idle),
-        .L_LD_cel_pg(L_LD_cel_pg),
-        .L_LD_cel_g(L_LD_cel_g),
+        .L_write_enable(L_write_enable),
+        .L_copying(L_copying),
+        .L_toggle_read(L_toggle_read),
         .advance_grid(advance_grid),
         .reset_address(reset_address),
-        .advance_sweep(advance_sweep),
-        .reset_sweep(reset_sweep),
-        .reset_decider(reset_decider)
+        .d_mode(d_mode)
     );
 
     L_datapath #(
@@ -59,14 +62,13 @@ module L_main #(
         .reset_n(reset_n),
         .advance_grid(advance_grid),
         .reset_address(reset_address),
-        .advance_sweep(advance_sweep),
-        .reset_sweep(reset_sweep),
-        .reset_decider(reset_decider),
-        .read_ready(read_ready),
+        .d_mode(d_mode),
         .address_max(address_max),
-        .cel_out_pg(cel_out_pg),
+        .old_cel(old_cel),
+        .neighbours(neighbours),
         .L_new_cel(L_new_cel),
-        .L_address(L_address)
+        .L_row(L_row),
+        .L_col(L_col)
     );
 
     

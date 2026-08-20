@@ -15,11 +15,12 @@ module vga #(
     input  logic       clk,     // clock
     input  logic       reset_n, // reset_n - low to reset
 
-    input logic simulation_running,
-    input logic [COL_BITS+ROW_BITS-1:0] cursorpos,
+    input logic cursor_on,
+    input logic running,
+    input logic [$clog2(NUM_COLS)+$clog2(NUM_ROWS)-1:0] cursorpos,
     input logic cell_memory,
-    output logic [COL_BITS-1:0] col_idx,
-    output logic [ROW_BITS-1:0] row_idx,
+    output logic [$clog2(NUM_COLS)-1:0] col_idx,
+    output logic [$clog2(NUM_ROWS)-1:0] row_idx,
     output logic next_iter_allowed
 );
 
@@ -66,7 +67,7 @@ module vga #(
       .NUM_COLS(NUM_COLS),
       .NUM_ROWS(NUM_ROWS)
   ) um_vga_get_cell_type (
-      .simulation_running(simulation_running),
+      .cursor_on(cursor_on),
       .col_idx(col_idx),
       .row_idx(row_idx),
       .cursorpos(cursorpos),
@@ -82,6 +83,7 @@ module vga #(
       .reset_n(reset_n),
       .display_on(display_on),
       .cell_type(cell_type),
+      .running(running),
       .R(R),
       .G(G),
       .B(B)

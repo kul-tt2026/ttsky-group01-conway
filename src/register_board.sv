@@ -1,17 +1,11 @@
-// input 
-// reset_n == global reset
-// data_in == cel black or white (0 or 1)
-// read_address == row and col coordinate for cel that needs to be displayed
-// write_address == row and col coordinate where new value gets saved
-// write_enable == 1 if you want to write to a board
-// active_board_read selects which board you read
-// active_board_write selects which board you write to
-
-// output 
-// data_out == value of cel from read address
-// general: logic can write to a board, when its full active_board bitflips. The board thats just been written changes to read
-// and the old read board can get new data written onto it.
-// testing via cd src, cd register_board, make simulate in terminal 
+/*
+Board0 is het algemene board waar input naar schrijft, vga uit leest en logica naar schrijft en uit leest. Dit board 
+is random acces voor zowel write als read. Board1 wordt door logica gebruikt als bufferboard en is een shift register. 
+Er is een write_enable die hoog moet staan om te kunnen schrijven. Active_board- read en write bepalen in welk board geschreven
+of gelezen wordt. Toggle read shift het register board1 naar links om de volgende cel te kunnen uitlezen (beginnend bij (0,0)). 
+Als write_enable en copy hoog zijn dan wordt het register board1 naar rechts geshift en wordt data_in op de eerste plaats gezet
+(beginnende met de laatste cel).
+*/
 
 /*
 Origineel geschreven door Sander, licht aangepast door Sieben
@@ -31,21 +25,26 @@ module register_board #(
     input logic clk,
     input logic reset_n,
     input logic data_in,
-    input logic [row_bits - 1:0] read_address_row,
-    input logic [col_bits - 1:0] read_address_col,
-    input logic [row_bits - 1:0] write_address_row,
-    input logic [col_bits - 1:0] write_address_col,
+    input logic [$clog2(row_count) - 1:0] read_address_row,
+    input logic [$clog2(col_count) - 1:0] read_address_col,
+    input logic [$clog2(row_count) - 1:0] write_address_row,
+    input logic [$clog2(col_count) - 1:0] write_address_col,
     input logic active_board_read,
+    input logic toggle_read,
     input logic active_board_write,
     input logic write_enable,
-    output logic data_out
+    input logic manual_reset,
+
+    output logic data_out,
+    output logic [7:0] neighbour_out
 );
 
     localparam int row_bits = $clog2(row_count);
     localparam int col_bits = $clog2(col_count);
+    localparam [col_bits-1:0] COL_COUNT = col_bits'(col_count-1);
 
-    reg board0 [row_count - 1:0][col_count - 1:0]; // grid
-    reg board1 [row_count - 1:0][col_count - 1:0]; // previous grid
+    logic board0 [row_count - 1:0][col_count - 1:0]; // grid
+    logic [row_count*col_count-1:0] board1 ; // previous grid
 
     integer row;
     integer col;
@@ -55,22 +54,66 @@ module register_board #(
             for (row=0; row < row_count; row++) begin
                 for (col=0; col < col_count; col++) begin 
                     board0[row][col] <= 1'b0;
-                    board1[row][col] <= 1'b0;
+                    board1[row*col_count + col] <= 1'b0;
+                end
+            end
+        end
+        else if (manual_reset) begin    // reset_n en manual reset moeten apart, anders faalt de gds
+            for (row=0; row < row_count; row++) begin
+                for (col=0; col < col_count; col++) begin 
+                    board0[row][col] <= 1'b0;
+                    board1[row*col_count + col] <= 1'b0;
                 end
             end
         end
         else begin
             if (write_enable) begin
-                if (!active_board_write) 
+                if(active_board_write && ~toggle_read) begin
+                    board1 <= {data_in, board1[row_count*col_count-1:1]};
+                end
+                else begin
                     board0[write_address_row][write_address_col] <= data_in;
-                else
-                    board1[write_address_row][write_address_col] <= data_in;
+                end
+            end
+            if (toggle_read && ~active_board_write) begin
+                board1 <= {board1[0], board1[row_count*col_count-1:1]};
             end
         end
     end
 
     // combinatorisch lezen
-    assign data_out = active_board_read ? board1[read_address_row][read_address_col] : board0[read_address_row][read_address_col];
+    always_comb begin
+        if(~active_board_read) begin
+            data_out = board0[read_address_row][read_address_col];
+            neighbour_out = 0;
+        end
+        else begin
+            data_out = board1[0];
+            neighbour_out = {/*7*/board1[(row_count-1)*col_count-1], /*6*/board1[row_count*col_count-1], /*5*/board1[col_count-1],
+                             /*4*/board1[col_count], /*3*/board1[col_count+1], /*2*/board1[1],
+                             /*1*/board1[(row_count-1)*col_count + 1], /*0*/board1[(row_count-1)*col_count]};
+            // fix voor wrapping: verticale wrapping werkt zowieso, horizontale moet gefixt worden (voor cellen aan de rand)
+            if (read_address_col == '0) begin
+                /*
+                alt_7 = 6
+                alt_6 = 5
+                alt_5 = 2*col_count - 1
+                omdat de positie van de buren onbelangrijk is, is er enkel een alt_7 = 2*col_count - 1 (want de normale 7 is ongeldig)
+                */
+                neighbour_out[7] = /*alt_7*/ board1[2*col_count-1];
+            end                    
+            if (read_address_col == col_bits'(col_count-1)) begin
+                /*
+                alt_3 = 2
+                alt_2 = 1
+                alt_1 = (row_count-2)*col_count + 1
+                voor de zelfde reden als hierboven is er enkel een alt_3 = (row_count-2)*col_count + 1
+                */
+                neighbour_out[3] = /*alt_3*/ board1[(row_count-2)*col_count + 1];
+            end 
+
+        end
+    end
 
 endmodule
 

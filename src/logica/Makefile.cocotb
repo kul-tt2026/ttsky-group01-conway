@@ -13,9 +13,8 @@ SIM_BUILD       = sim_build/L_main
 HERE := $(patsubst %/,%,$(dir $(abspath $(lastword $(MAKEFILE_LIST)))))
 
 
-VERILOG_SOURCES = $(HERE)/L_main.sv $(HERE)/L_controller.sv $(HERE)/L_datapath.sv \
+VERILOG_SOURCES = $(HERE)/L_controller.sv $(HERE)/L_main.sv $(HERE)/L_datapath.sv \
                   $(HERE)/L_decider.sv $(HERE)/L_rowcol_counter.sv \
-                  $(HERE)/L_sweep_counter.sv $(HERE)/L_sweeper.sv \
                   $(HERE)/../register_board/register_board.sv \
                   $(HERE)/tb_L_main.sv
 

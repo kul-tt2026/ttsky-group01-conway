@@ -21,37 +21,37 @@ def includes_color(png_path, color):
         return (color in colors)
 
 
-def png_to_grid(png_path):
+def png_to_grid(png_path, ROWS, COLS):
     with Image.open(png_path) as png:
         arr = np.array(png)
 
-    rows = 12
-    cols = 16
-    square_size = 40
     height = 480
     width = 640
+    cell_height = height // ROWS
+    cell_width = width // COLS
 
-    g = Grid(rows, cols) # geïnitialiseerd op allemaal nullen
 
-    for x in range(0, height, square_size):
-        for y in range(0, width, square_size):
+    g = Grid(ROWS, COLS) # geïnitialiseerd op allemaal nullen
+
+    for x in range(0, height, cell_height):
+        for y in range(0, width, cell_width):
             # extract 16x16 block slice
-            block = arr[x : x + square_size, y : y + square_size]
+            block = arr[x : x + cell_height, y : y + cell_width]
 
             # check if all pixels in the block equal the top-left pixel
             if not np.all(block == block[0, 0]):
-                print(f"WARNING: vierkant lijkt niet-uniform op rij {int(x/square_size)}, kolom {int(y/square_size)}")
+                print(f"WARNING: vierkant lijkt niet-uniform op rij {int(x/cell_height)}, kolom {int(y/cell_width)}")
                 #raise ValueError(f"{png_path}: niet-uniform vierkant op rij {int(x/square_size)}, kolom {int(y/square_size)} (bekijk zelf de png)")
 
             if np.array_equal(block[0, 0], (255, 255, 255)): # wit
-                g.set(int(x/square_size), int(y/square_size), 1)
+                g.set(int(x/cell_height), int(y/cell_width), 1)
             elif not np.array_equal(block[0, 0], (0, 0, 0)): # zwart
-                raise ValueError(f"{png_path}: bevat andere kleuren dan wit of zwart op rij {int(x/square_size)}, kolom {int(y/square_size)} (bekijk zelf de png)")
+                raise ValueError(f"{png_path}: bevat andere kleuren dan wit of zwart op rij {int(x/cell_height)}, kolom {int(y/cell_width)} (bekijk zelf de png)")
 
     return g
 
 
-def verify_PNGs(folder_path):
+def verify_PNGs(folder_path, mode, ROWS, COLS):
     folder_path = Path(folder_path)
     sim_starting = True
     frame_count = 1
@@ -68,8 +68,8 @@ def verify_PNGs(folder_path):
             if not includes_color(png, (0, 0, 255)): # frames met blauw hebben een cursos
                 sim_starting = False
 
-                grid = png_to_grid(png)
-                conway = PyConway(grid)
+                grid = png_to_grid(png, ROWS, COLS)
+                conway = PyConway(grid, mode)
 
         else:
             print(f"frame {frame_count}")
@@ -77,7 +77,7 @@ def verify_PNGs(folder_path):
 
             conway.advance()
 
-            current_grid = png_to_grid(png)
+            current_grid = png_to_grid(png, ROWS, COLS)
 
             if not current_grid.equal(conway.get_grid()):
                 print("gekregen grid")
@@ -92,4 +92,4 @@ def verify_PNGs(folder_path):
 
 # danku Claude
 if __name__ == "__main__":
-    verify_PNGs("output")
+    verify_PNGs("output", 0, 12, 16)

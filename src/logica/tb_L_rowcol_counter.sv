@@ -13,7 +13,7 @@ module tb_L_rowcol_counter ();
     localparam int COLS       = 3;
     localparam int CLK_PERIOD = 10;   // ns
 
-    logic clk, reset_n, reset_address, advance_grid ;
+    logic clk, reset_n, advance_grid, reset_address;
     logic [$clog2(ROWS)-1:0] row;
     logic [$clog2(COLS)-1:0] col;
     logic row_0, col_0, row_max, col_max, address_max;
@@ -101,7 +101,7 @@ module tb_L_rowcol_counter ();
 
         reset_address = 1'b1;
         step(1);
-        check_rc(0, 0,"reset_address werkt niet");
+        check_rc(0, 0,"reset_address = 01 werkt niet");
        
         reset_address = 1'b0;
         step(9);
@@ -112,6 +112,7 @@ module tb_L_rowcol_counter ();
         check_rc(3, 2, "advance_grid  werkt niet (4)");
         check(row_max && col_max && address_max, "row_max/col_max/address_max werken niet (2)");
 
+       
         // Einde
         if (errors == 0) begin
             $display("=== PASS ===");

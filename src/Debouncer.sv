@@ -1,5 +1,5 @@
 `timescale 1ns/1ps
-module Debouncer #(parameter MAX = 19'd499999) (
+module Debouncer #(parameter MAX = 18'd251750) (
     input clk,
     input reset_n,
     input noisy_in,

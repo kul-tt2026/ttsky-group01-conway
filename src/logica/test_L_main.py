@@ -20,6 +20,7 @@ async def test_project(dut):
     dut.L_reset.value = 0
     dut.L_next_iter.value = 0
     dut.reset_n.value = 0
+    dut.L_mode.value = 0
     await ClockCycles(dut.clk, 10)
     dut.reset_n.value = 1
     await ClockCycles(dut.clk, 5)
@@ -29,10 +30,68 @@ async def test_project(dut):
 
     def set_value(row, col, value):
         pyGrid.set(row, col, value)
-        dut.address_row.value = row
-        dut.address_col.value = col
-        dut.data_in.value = value
-        dut.write_enable.value = 1
+        dut.init_row.value = row
+        dut.init_col.value = col
+        dut.init_write_data.value = value
+
+    # tetrisvorm
+    #     X
+    #   X X X  
+    set_value(3,3,1)
+    await ClockCycles(dut.clk, 1)
+    set_value(3,4,1)
+    await ClockCycles(dut.clk, 1)
+    set_value(3,5,1)
+    await ClockCycles(dut.clk, 1)
+    set_value(2,4,1)
+    await ClockCycles(dut.clk, 1)
+
+
+    dut.init.value = 0
+    dut._log.info("Simulatie laten runnen")
+    pySim = PyConway(pyGrid, 0)
+
+    def check_grids():
+        for row in range(ROWS):
+            for col in range(COLS):
+                py = pySim.get_grid().get(row, col)
+                sv = dut.u_register_board.board0.value[row*COLS + col]
+                if py != int(sv): pySim.get_grid().print()
+                assert py == int(sv), f"ERROR: iteratie {i}, rij {row}, kolom {col}, python had {py}, verilog {sv}"
+
+    for i in range(20):
+        dut.L_next_iter.value = 1
+        await ClockCycles(dut.clk, 5)
+        dut.L_next_iter.value = 0
+
+        await dut.L_idle.rising_edge
+        pySim.advance()
+
+        check_grids()
+
+
+    # TWEEDE TEST: BOUNDED
+
+    pyGrid = Grid(ROWS, COLS)
+    
+    # Reset
+    dut._log.info("Reset")
+    dut.L_reset.value = 0
+    dut.L_next_iter.value = 0
+    dut.reset_n.value = 0
+    dut.L_mode.value = 1
+    await ClockCycles(dut.clk, 10)
+    dut.reset_n.value = 1
+    await ClockCycles(dut.clk, 5)
+
+    dut._log.info("Tweede situatie klaarzetten")
+    dut.init.value = 1
+
+    def set_value(row, col, value):
+        pyGrid.set(row, col, value)
+        dut.init_row.value = row
+        dut.init_col.value = col
+        dut.init_write_data.value = value
 
     # tetrisvorm
     #     X
@@ -49,16 +108,9 @@ async def test_project(dut):
 
     dut.init.value = 0
     dut._log.info("Simulatie laten runnen")
-    pySim = PyConway(pyGrid)
+    pySim = PyConway(pyGrid,mode=1)
 
-    def check_grids():
-        for row in range(ROWS):
-            for col in range(COLS):
-                py = pySim.get_grid().get(row, col)
-                sv = dut.u_register_board.board0.value[row*COLS + col]
-                assert py == int(sv), f"ERROR: iteratie {i}, rij {row}, kolom {col}, python had {py}, verilog {sv}"
-
-    for i in range(10):
+    for i in range(20):
         dut.L_next_iter.value = 1
         await ClockCycles(dut.clk, 5)
         dut.L_next_iter.value = 0
@@ -67,6 +119,4 @@ async def test_project(dut):
         pySim.advance()
 
         check_grids()
-
-    
 

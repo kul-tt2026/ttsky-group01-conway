@@ -14,10 +14,10 @@ module L_rowcol_counter #(
     input logic clk,
     input logic reset_n,        // active low:  reset bij 0
     input logic reset_address,  // active high: reset bij 1
-    input logic advance_grid,
+    input logic advance_grid,   
 
-    output logic [row_bits-1:0] row,
-    output logic [col_bits-1:0] col,
+    output logic [$clog2(row_count)-1:0] row,
+    output logic [$clog2(col_count)-1:0] col,
     output logic row_0,
     output logic col_0,
     output logic row_max,
@@ -52,7 +52,6 @@ module L_rowcol_counter #(
             end
         end
     end
-
     assign row_0 = (row == '0);
     assign col_0 = (col == '0);
 

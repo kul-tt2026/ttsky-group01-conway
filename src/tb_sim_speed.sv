@@ -80,7 +80,13 @@ module tb_sim_speed ();
         check(speed === FOUR_HZ, "increase werkt niet goed (4)");
 
         step(1);
-        check(speed === FOUR_HZ, "increase werkt niet goed (5)");
+        check(speed === EIGHT_HZ, "increase werkt niet goed (5)");
+
+        step(1);
+        check(speed === TWENTY_HZ, "increase werkt niet goed (6)");
+
+        step(1);
+        check(speed === TWENTY_HZ, "increase werkt niet goed (7)");
 
         increase = 1'b0;
 
@@ -89,7 +95,7 @@ module tb_sim_speed ();
         decrease = 1'b1;
 
         step(2);
-        check(speed === ONE_HZ, "decrease werkt niet goed");
+        check(speed === FOUR_HZ, "decrease werkt niet goed");
 
         decrease = 1'b0;
         reset_speed = 1'b1;
