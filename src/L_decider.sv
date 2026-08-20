@@ -42,7 +42,13 @@ module L_decider (
             
         end
         corrected_neighbours = neighbours & neighbour_mask;
-        neighbours_count = $countones(corrected_neighbours);
+
+        // neighbours_count = $countones(corrected_neighbours); // -> this gives error?
+        always_comb begin
+        neighbour_count = 0;
+        for (int i = 0; i < 8; i++)
+            neighbour_count += neighbour_bits[i];
+        end
 
         if (cel) begin  // cel zelf leeft
             case (neighbours_count)
