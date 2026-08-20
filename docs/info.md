@@ -50,9 +50,9 @@ The `vga_hvsync_generator` not only generates `hsync` and `vsync` signals, but a
 
 The `vga_get_cell_idx` module calculates the coordinates of the current cell in the grid, based of the position of the pixel on the screen.
 
-The index that `vga_get_cell_idx` generates, is used in the `vga_get_cell_type` module to determine the cell type. The cell type is either dead, alive or the cursor. The cursor is only shown when the user is editing the grid and thus when the simulation is not running (`simulation_running`). If that is the case, the cursor position will take precendent over the cell type pulled from memory (board0).
+The index that `vga_get_cell_idx` generates, is used in the `vga_get_cell_type` module to determine the cell type. The cell type is either dead, alive or the cursor. The cursor is only shown when the user is editing the grid (`cursor_on`). If that is the case, the cursor position will take precendent over the cell type pulled from memory (board0).
 
-Based on the cell type, `vga_get_pixel_color` calculates the correct pixel color.
+Based on the cell type and whether the simulation is running, `vga_get_pixel_color` calculates the correct pixel color.
 
 | Description        | cell_type (binary) | R   | G   | B   | Color |
 | ------------------ | ------------------ | --- | --- | --- | ----- |
@@ -63,7 +63,7 @@ Based on the cell type, `vga_get_pixel_color` calculates the correct pixel color
 
 When testing, sylefeb's _[TinyTapeout VGA trace visualizer](https://github.com/sylefeb/tt-vgaviz)_ proved to be very useful in visualising the VGA output from an `.fst` file.
 
-The repository _[cocotb-vga](https://github.com/kul-tt2026/cocotb-vga)_ from kul-tt2026 also proved invaluable when writing test benches.
+The repository _[cocotb-vga](https://github.com/kul-tt2026/cocotb-vga)_ from kul-tt2026 also proved invaluable when writing test benches for the entire project to visualise the VGA screen.
 
 The VGA playground from Tiny Tapeout was incredible, because it could simulate in seconds what cocotb-vga took minutes. _[Click here for the link](https://vga-playground.com/?repo=https://github.com/kul-tt2026/ttsky-group01-conway&ref=vga-playground)_.
 
