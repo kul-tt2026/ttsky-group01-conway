@@ -74,9 +74,14 @@ module project_datapath #(
   logic [col_bits-1:0] read_address_col, write_address_col, vga_col_idx;
   logic [row_bits+col_bits-1:0] cursorpos;
   logic [7:0] neighbour_out;
-  mode_pkg::mode_e L_mode = mode_pkg::TORUS; // TODO: uiteindelijk moet input dit aansturen
-
+  mode_pkg::mode_e L_mode;
+  
   assign next_iter = next_iter_allowed && countdown_done;
+
+  always_comb begin
+    if (bounded_board)  L_mode = mode_pkg::BOUNDED;
+    else                L_mode = mode_pkg::TORUS;
+  end
 
   // Latch input writes so they only get applied during vertical blanking
   // (next_iter_allowed), preventing the board from changing mid-scan.
@@ -157,7 +162,7 @@ module project_datapath #(
   );
 
   assign cursorpos = {input_write_address_col, input_write_address_row};  // vga gebruikt {col, row}
-
+  
   always_comb begin
     if (next_iter_busy) begin
       read_address_row = L_row;

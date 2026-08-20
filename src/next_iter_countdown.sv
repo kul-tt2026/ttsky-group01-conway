@@ -46,6 +46,8 @@ module next_iter_countdown #(
             sim_speed_pkg::ONE_HZ: countdown_done = (count >= (counter_bits)'(clock_cycles_per_second) );
             sim_speed_pkg::TWO_HZ: countdown_done = (count >= (counter_bits)'(clock_cycles_per_second / 2) );
             sim_speed_pkg::FOUR_HZ: countdown_done = (count >= (counter_bits)'(clock_cycles_per_second / 4) );
+            sim_speed_pkg::EIGHT_HZ: countdown_done = (count >= (counter_bits)'(clock_cycles_per_second / 8) );
+            sim_speed_pkg::TWENTY_HZ: countdown_done = (count >= (counter_bits)'(clock_cycles_per_second / 20) );
             default: countdown_done = (count >= (counter_bits)'(clock_cycles_per_second * 4) ); // QUARTER_HZ
         endcase
     end

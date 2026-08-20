@@ -7,10 +7,10 @@ module tb_next_iter_countdown ();
     
     localparam int CLK_PERIOD = 10;   // ns
 
-    localparam int CLOCK_CYCLES_PER_SECOND = 16; // Hz
+    localparam int CLOCK_CYCLES_PER_SECOND = 200; // Hz
 
 
-    logic clk, reset_n, reset_countdown;
+    logic clk, reset_n, reset_countdown, testing;
     speed_e speed;
     logic countdown_done;
 
@@ -24,7 +24,8 @@ module tb_next_iter_countdown ();
         .reset_n(reset_n),
         .reset(reset_countdown),
         .speed(speed),
-        .countdown_done(countdown_done)
+        .countdown_done(countdown_done),
+        .testing(testing)
     );
 
     // Klok
@@ -39,7 +40,7 @@ module tb_next_iter_countdown ();
 
     // Watchdog
     initial begin
-        #(CLK_PERIOD * 1000);
+        #(CLK_PERIOD * 10000);
         $error("TIMEOUT: testbench is niet klaargeraakt");
         $fatal(1, "TIMEOUT: testbench is niet klaargeraakt");
     end
@@ -61,6 +62,7 @@ module tb_next_iter_countdown ();
         // Initiële waardes
         reset_n = '0;
         reset_countdown = '0;
+        testing = '0;
         speed = QUARTER_HZ;
 
         step(2);        
@@ -108,6 +110,35 @@ module tb_next_iter_countdown ();
         speed = FOUR_HZ;
         step(CLOCK_CYCLES_PER_SECOND / 4);
         check(countdown_done === 1'b1, "countdown_done werkt niet bij FOUR HZ");
+
+        reset_countdown = 1'b1;
+        step(1);
+        check(countdown_done === 1'b0, "reset_countdown werkt niet (5)");
+        reset_countdown = 1'b0;
+
+        speed = EIGHT_HZ;
+        step(CLOCK_CYCLES_PER_SECOND / 8);
+        check(countdown_done === 1'b1, "countdown_done werkt niet bij EIGHT HZ");
+
+        reset_countdown = 1'b1;
+        step(1);
+        check(countdown_done === 1'b0, "reset_countdown werkt niet (6)");
+        reset_countdown = 1'b0;
+
+        speed = TWENTY_HZ;
+        step(CLOCK_CYCLES_PER_SECOND / 4);
+        check(countdown_done === 1'b1, "countdown_done werkt niet bij TWENTY HZ");
+
+        reset_countdown = 1'b1;
+        step(1);
+        check(countdown_done === 1'b0, "reset_countdown werkt niet (7)");
+        reset_countdown = 1'b0;
+
+        speed = QUARTER_HZ;
+        testing = 1'b1;
+        step(CLOCK_CYCLES_PER_SECOND / 100);
+        check(countdown_done === 1'b1, "countdown_done werkt niet bij HEX HZ");
+        reset_countdown = 1'b0;
 
 
         // Einde

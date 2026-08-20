@@ -12,10 +12,12 @@ package sim_speed_pkg;
         HALF_HZ    = 3'b010,    
         ONE_HZ     = 3'b011,
         TWO_HZ     = 3'b100,
-        FOUR_HZ    = 3'b101
+        FOUR_HZ    = 3'b101,
+        EIGHT_HZ   = 3'b110,
+        TWENTY_HZ  = 3'b111  // aantal klokcycli per seconde is niet deelbaar door 16
     } speed_e;
 endpackage
-// TODO EIGHT & SIXTEEN HZ toevoegen
+
 
 module sim_speed (
     input logic clk,
@@ -33,7 +35,7 @@ module sim_speed (
         else if(reset) begin
              speed <= sim_speed_pkg::QUARTER_HZ;
         end   
-        else if(increase && speed != sim_speed_pkg::FOUR_HZ) begin
+        else if(increase && speed != sim_speed_pkg::TWENTY_HZ) begin
             speed <= sim_speed_pkg::speed_e'(speed + 3'd1);
         end
         else if(decrease && speed != sim_speed_pkg::QUARTER_HZ) begin
