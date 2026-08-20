@@ -224,10 +224,6 @@ module Input #(
     end else begin
       manual_reset <= reset_rise;
 
-      if (cursor_on) begin
-        write_value <= set_rise;
-      end
-
       if (bounded_board_rise) begin
         bounded_board <= ~bounded_board;
       end
@@ -240,35 +236,39 @@ module Input #(
         cursor_on <= ~cursor_on;
       end
 
-      if (up_rise) begin
-        if (write_address_row == 0) begin
-          write_address_row <= LAST_ROW;
-        end else begin
-          write_address_row <= write_address_row - 1;
-        end
-      end
+      if (cursor_on) begin  // only write or move if the cursor is on
+        write_value <= set_rise;
 
-      if (down_rise) begin
-        if (write_address_row == LAST_ROW) begin
-          write_address_row <= 0;
-        end else begin
-          write_address_row <= write_address_row + 1;
+        if (up_rise) begin
+          if (write_address_row == 0) begin
+            write_address_row <= LAST_ROW;
+          end else begin
+            write_address_row <= write_address_row - 1;
+          end
         end
-      end
 
-      if (right_rise) begin
-        if (write_address_col == LAST_COL) begin
-          write_address_col <= 0;
-        end else begin
-          write_address_col <= write_address_col + 1;
+        if (down_rise) begin
+          if (write_address_row == LAST_ROW) begin
+            write_address_row <= 0;
+          end else begin
+            write_address_row <= write_address_row + 1;
+          end
         end
-      end
 
-      if (left_rise) begin
-        if (write_address_col == 0) begin
-          write_address_col <= LAST_COL;
-        end else begin
-          write_address_col <= write_address_col - 1;
+        if (right_rise) begin
+          if (write_address_col == LAST_COL) begin
+            write_address_col <= 0;
+          end else begin
+            write_address_col <= write_address_col + 1;
+          end
+        end
+
+        if (left_rise) begin
+          if (write_address_col == 0) begin
+            write_address_col <= LAST_COL;
+          end else begin
+            write_address_col <= write_address_col - 1;
+          end
         end
       end
     end
