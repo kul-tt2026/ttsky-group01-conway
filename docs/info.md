@@ -57,16 +57,18 @@ The `vga_get_cell_idx` module calculates the coordinates of the current cell in 
 
 The cell index that vga_get_cell_idx generates is used in the vga_get_cell_type module to determine the cell type. Unlike a single mutually-exclusive state, cell_type is made up of two independent bits: bit 0 reflects whether the cell is alive or dead (pulled from memory, board0), and bit 1 indicates whether the cursor is currently positioned on that cell. The cursor is only active when the user is editing the grid (cursor_on); when it overlaps a cell, that bit is set regardless of whether the underlying cell is alive or dead.
 
-Based on the cell type, the simulation running state, and the pixel's offset within its cell, `vga_get_pixel_color` calculates the correct output color. When the cursor bit is set, the module only shows blue for pixels that fall inside a diamond-shaped icon (computed from `pixel_col_offset`/`pixel_row_offset`); pixels outside the diamond fall through to the normal alive/dead coloring for that cell.
+Based on the cell type, the simulation running state, and the pixel's offset within its cell, `vga_get_pixel_color` calculates the correct output color. When the cursor bit is set, the module only shows blue for pixels that fall inside a diamond-shaped icon (computed from `pixel_col_offset`/`pixel_row_offset`); pixels outside the diamond fall through to the normal alive/dead coloring for that cell. Note that dead cells are only shown as black while the simulation is running; when `running` is false, dead cells are shown as grey instead so a paused/stopped state is visually distinguishable.
 
-| Description          | cell_type (binary) | Pixel inside cursor icon | R    | G    | B    | Color |
-| -------------------- | ------------------ | ------------------------ | ---- | ---- | ---- | ----- |
-| dead                 | `00`               | —                        | `00` | `00` | `00` | black |
-| alive                | `01`               | —                        | `11` | `11` | `11` | white |
-| cursor on dead cell  | `10`               | yes ✅                   | `00` | `00` | `11` | blue  |
-| cursor on dead cell  | `10`               | no ❌                    | `00` | `00` | `00` | black |
-| cursor on alive cell | `11`               | yes ✅                   | `00` | `00` | `11` | blue  |
-| cursor on alive cell | `11`               | no ❌                    | `11` | `11` | `11` | white |
+| Description          | cell_type (binary) | Pixel inside cursor icon | running | R    | G    | B    | Color |
+| -------------------- | ------------------ | ------------------------ | ------- | ---- | ---- | ---- | ----- |
+| dead                 | `00`               | —                        | `1`     | `00` | `00` | `00` | black |
+| dead                 | `00`               | —                        | `0`     | `10` | `10` | `10` | grey  |
+| alive                | `01`               | —                        | —       | `11` | `11` | `11` | white |
+| cursor on dead cell  | `10`               | yes ✅                   | —       | `00` | `00` | `11` | blue  |
+| cursor on dead cell  | `10`               | no ❌                    | `1`     | `00` | `00` | `00` | black |
+| cursor on dead cell  | `10`               | no ❌                    | `0`     | `10` | `10` | `10` | grey  |
+| cursor on alive cell | `11`               | yes ✅                   | —       | `00` | `00` | `11` | blue  |
+| cursor on alive cell | `11`               | no ❌                    | —       | `11` | `11` | `11` | white |
 
 When testing, sylefeb's _[TinyTapeout VGA trace visualizer](https://github.com/sylefeb/tt-vgaviz)_ proved to be very useful in visualising the VGA output from an `.fst` file.
 
