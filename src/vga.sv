@@ -19,13 +19,15 @@ module vga #(
     input logic running,
     input logic [$clog2(NUM_COLS)+$clog2(NUM_ROWS)-1:0] cursorpos,
     input logic cell_memory,
+
     output logic [$clog2(NUM_COLS)-1:0] col_idx,
     output logic [$clog2(NUM_ROWS)-1:0] row_idx,
     output logic next_iter_allowed
 );
-
-  localparam int COL_BITS = $clog2(NUM_COLS);
-  localparam int ROW_BITS = $clog2(NUM_ROWS);
+  localparam int H_DISPLAY = 640;
+  localparam int V_DISPLAY = 480;
+  localparam int CELL_WIDTH = H_DISPLAY / NUM_COLS;
+  localparam int CELL_HEIGHT = V_DISPLAY / NUM_ROWS;
 
   // VGA signals
   logic hsync;
@@ -37,6 +39,8 @@ module vga #(
   logic [9:0] pix_x;
   logic [9:0] pix_y;
   logic [1:0] cell_type;
+  logic [$clog2(CELL_WIDTH)-1:0] pixel_col_offset;
+  logic [$clog2(CELL_HEIGHT)-1:0] pixel_row_offset;
 
   // TinyVGA PMOD
   assign uo_out = {hsync, B[0], G[0], R[0], vsync, B[1], G[1], R[1]};
@@ -60,7 +64,9 @@ module vga #(
       .vpos(pix_y),
       .display_on(display_on),
       .col_idx(col_idx),
-      .row_idx(row_idx)
+      .row_idx(row_idx),
+      .pixel_col_offset(pixel_col_offset),
+      .pixel_row_offset(pixel_row_offset)
   );
 
   vga_get_cell_type #(
@@ -83,6 +89,8 @@ module vga #(
       .reset_n(reset_n),
       .display_on(display_on),
       .cell_type(cell_type),
+      .pixel_col_offset(pixel_col_offset),
+      .pixel_row_offset(pixel_row_offset),
       .running(running),
       .R(R),
       .G(G),

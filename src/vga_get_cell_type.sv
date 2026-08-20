@@ -12,8 +12,8 @@ output:
 - cell_type: 2 bits
 --> 00 dead
 --> 01 alive
---> 10 cursor
---> 11 not assigned, invalid
+--> 10 cursor on dead cell
+--> 11 cursor on living cell
 
 Created by Mathias Van Nuland
 
@@ -38,7 +38,7 @@ module vga_get_cell_type #(
 
   always_comb begin
     if (cursor_on && (cursorpos == {col_idx, row_idx})) begin
-      cell_type = 2'b10;  // cursor
+      cell_type = {1'b1, cell_memory};  // 10 cursor on dead, 11 cursor on living cell
     end else begin
       cell_type = {1'b0, cell_memory};  // 00=dead, 01=alive
     end

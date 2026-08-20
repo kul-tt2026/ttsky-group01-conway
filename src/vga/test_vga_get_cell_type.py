@@ -5,11 +5,11 @@ from cocotb.triggers import Timer
 @cocotb.test()
 async def exhaustive_cell_type(dut):
     """Exhaustively check vga_get_cell_type for every legal input
-    combination, derived entirely from the DUT's own parameters."""
+    combination. cell_type[1]=cursor_on, cell_type[0]=cell_memory,
+    independent bits — cursor overlay no longer masks cell state."""
 
     num_cols = int(dut.NUM_COLS.value)
     num_rows = int(dut.NUM_ROWS.value)
-    col_bits = int(dut.COL_BITS.value)
     row_bits = int(dut.ROW_BITS.value)
 
     checked = 0
@@ -34,15 +34,15 @@ async def exhaustive_cell_type(dut):
                             )
                             expect_cursor = curs_on and cursor_match
 
-                            expected = 0b10 if expect_cursor else ((0 << 1) | cell_mem)
+                            expected = (int(expect_cursor) << 1) | cell_mem
 
                             actual = int(dut.cell_type.value)
                             assert actual == expected, (
-                                f"Mismatch: sim_running={curs_on}, "
+                                f"Mismatch: cursor_on={curs_on}, "
                                 f"col_idx={col_idx}, row_idx={row_idx}, "
                                 f"cursor=({cursor_col},{cursor_row}), "
-                                f"cell_mem={cell_mem} -> got {actual}, "
-                                f"expected {expected}"
+                                f"cell_mem={cell_mem} -> got {actual:#04b}, "
+                                f"expected {expected:#04b}"
                             )
                             checked += 1
 

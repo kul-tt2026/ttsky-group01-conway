@@ -46,7 +46,9 @@ async def reset(dut):
     await Timer(100, unit="ns")
 
 
-async def move_and_settle_ui_in(dut, clear_bits, set_bits, hold_ns=10000, settle_ns=10000):
+async def move_and_settle_ui_in(
+    dut, clear_bits, set_bits, hold_ns=10000, settle_ns=10000
+):
     """Clear old button bits, wait one settle period, then set new bits,
     then hold for the full press duration. Guarantees no same-timestamp
     overlap between releasing and pressing buttons."""
@@ -62,7 +64,10 @@ async def move_and_settle_ui_in(dut, clear_bits, set_bits, hold_ns=10000, settle
     dut.ui_in.value = cur
     await Timer(hold_ns, unit="ns")
 
-async def move_and_settle_uio_in(dut, clear_bits, set_bits, hold_ns=10000, settle_ns=10000):
+
+async def move_and_settle_uio_in(
+    dut, clear_bits, set_bits, hold_ns=10000, settle_ns=10000
+):
     """Clear old button bits, wait one settle period, then set new bits,
     then hold for the full press duration. Guarantees no same-timestamp
     overlap between releasing and pressing buttons."""
@@ -119,11 +124,12 @@ async def test_project(dut):
     #   X X X
     # Cells (col, row) relative to anchor (1,1): (2,1), (3,2), (1,3), (2,3), (3,3)
 
-    # # Move to (1, 1)
-    # await move_and_settle(dut, clear_bits=[CURSOR], set_bits=[RIGHT, DOWN])
+    # Move to (1, 1)
+    await move_and_settle_ui_in(dut, clear_bits=[], set_bits=[CURSOR])
+    await move_and_settle_ui_in(dut, clear_bits=[CURSOR], set_bits=[RIGHT, DOWN])
 
     # Move to (2, 1) and set
-    await move_and_settle_ui_in(dut, clear_bits=[CURSOR], set_bits=[RIGHT])
+    await move_and_settle_ui_in(dut, clear_bits=[RIGHT, DOWN], set_bits=[RIGHT])
     await move_and_settle_ui_in(dut, clear_bits=[RIGHT], set_bits=[SET])
     await print_board(dut)
     await Timer(FRAME, unit="ns")  # Wait one frame
@@ -157,8 +163,8 @@ async def test_project(dut):
     await print_board(dut)
     await Timer(FRAME, unit="ns")  # Wait one frame
 
-    await Timer(39.722 * 420000, unit="ns")  # Wait one frame
-    
+    await Timer(FRAME, unit="ns")  # Wait one frame
+
     # Start the frame capture only now: verify_PNGs skips the editing frames
     # (the ones with a blue cursor) anyway, and sampling the VGA bus every
     # clock cycle in Python is by far the slowest part of this test.
@@ -184,5 +190,7 @@ async def test_project(dut):
     # Algoritmische verificatie: zie andere file
     # gooit zelf errors indien nodig
     # De parameters voor ROWS en COLS werken niet in de GL simulatie
-    if not GL:  verify_PNGs("output",mode=1,ROWS=ROWS,COLS=COLS)
-    else:       verify_PNGs("output",mode=1,ROWS=12,COLS=16)
+    if not GL:
+        verify_PNGs("output", mode=1, ROWS=ROWS, COLS=COLS)
+    else:
+        verify_PNGs("output", mode=1, ROWS=12, COLS=16)

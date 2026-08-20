@@ -75,12 +75,12 @@ module project_datapath #(
   logic [row_bits+col_bits-1:0] cursorpos;
   logic [7:0] neighbour_out;
   mode_pkg::mode_e L_mode;
-  
+
   assign next_iter = next_iter_allowed && countdown_done;
 
   always_comb begin
-    if (bounded_board)  L_mode = mode_pkg::BOUNDED;
-    else                L_mode = mode_pkg::TORUS;
+    if (bounded_board) L_mode = mode_pkg::BOUNDED;
+    else L_mode = mode_pkg::TORUS;
   end
 
   // Latch input writes so they only get applied during vertical blanking
@@ -164,8 +164,7 @@ module project_datapath #(
       .cursor_on(cursor_on)
   );
 
-  assign cursorpos = {input_write_address_col, input_write_address_row};  // vga gebruikt {col, row}
-  
+
   always_comb begin
     if (next_iter_busy) begin
       read_address_row = L_row;
@@ -201,7 +200,7 @@ module project_datapath #(
       toggle_read = 1'b0;
     end
   end
-  
+
   register_board #(
       .row_count(row_count),
       .col_count(col_count)
@@ -222,6 +221,8 @@ module project_datapath #(
 
       .data_out(data_out)
   );
+
+  assign cursorpos = {input_write_address_col, input_write_address_row};  // vga gebruikt {col, row}
   // Synchronize running and cursor_on to the display: only update these
   // copies during vertical blanking (next_iter_allowed), so VGA always sees
   // a single consistent value for the whole frame. Without this, a mid-frame
