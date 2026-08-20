@@ -93,6 +93,9 @@ module project_datapath #(
   always_ff @(posedge clk or negedge reset_n) begin
     if (!reset_n) begin
       pending_write <= 1'b0;
+      pending_write_row <= '0;
+      pending_write_col <= '0;
+      pending_write_value <= '0;
     end else if (input_write_value) begin
       pending_write       <= 1'b1;
       pending_write_row   <= input_write_address_row;

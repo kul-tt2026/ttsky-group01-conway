@@ -217,9 +217,10 @@ module Input #(
     if (!reset_n) begin
       write_address_col <= 0;
       write_address_row <= 0;
-      write_value <= 0;
-      cursor_on <= 0;
-      bounded_board <= 0;
+      write_value       <= 0;
+      cursor_on         <= 0;
+      bounded_board     <= 0;
+      manual_reset      <= 1'b0;
     end 
     else begin 
       manual_reset <= reset_rise;
