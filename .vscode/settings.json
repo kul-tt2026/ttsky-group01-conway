@@ -1,5 +1,5 @@
 {
   "verilog.linting.linter": "verilator",
-  "verilog.linting.verilator.arguments": "src/sim_speed.sv src/logica/L_controller.sv -Isrc -y src/logica -y src/register_board -y src/vga -y src/Input +libext+.sv",
+  "verilog.linting.verilator.arguments": "src/sim_speed.sv src/L_controller.sv -Isrc -y src +libext+.sv",
   "verilog.formatting.verilogHDL.formatter": "verible-verilog-format"
 }
