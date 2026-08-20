@@ -48,7 +48,7 @@ pinout:
   ui[4]: "button_set"
   ui[5]: "button_start_stop"
   ui[6]: "button_cursor_on_off"
-  ui[7]: "testing" # makes the simulation update once per frame, useful in tests
+  ui[7]: "button_bounded_board" # switch between 'TORUS' and 'BOUNDED' modes 
 
   # Outputs
   uo[0]: "R1"
@@ -60,15 +60,15 @@ pinout:
   uo[6]: "B0"
   uo[7]: "hsync"
 
-  # Bidirectional pins
-  uio[0]: ""
-  uio[1]: ""
-  uio[2]: ""
+  # Bidirectional pins (all input)
+  uio[0]: "button_speed_sim_up"
+  uio[1]: "button_speed_sim_down"
+  uio[2]: "button_reset"
   uio[3]: ""
   uio[4]: ""
   uio[5]: ""
   uio[6]: ""
-  uio[7]: ""
+  uio[7]: "testing" # makes the simulation update once per frame, useful in tests
 
 # Do not change!
 yaml_version: 6
