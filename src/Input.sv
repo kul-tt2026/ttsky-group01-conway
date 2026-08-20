@@ -221,12 +221,15 @@ module Input #(
       cursor_on         <= 0;
       bounded_board     <= 0;
       manual_reset      <= 1'b0;
-    end 
-    else begin 
+    end else begin
       manual_reset <= reset_rise;
-      write_value <= set_rise;
+
+      if (cursor_on) begin
+        write_value <= set_rise;
+      end
+
       if (bounded_board_rise) begin
-          bounded_board <= ~bounded_board;
+        bounded_board <= ~bounded_board;
       end
 
       if (running) begin  // Turn cursor off automatically when simulation is running
@@ -236,7 +239,7 @@ module Input #(
       if (cursor_on_off_rise && !running) begin  // Only turn on cursor when simulation is paused
         cursor_on <= ~cursor_on;
       end
-      
+
       if (up_rise) begin
         if (write_address_row == 0) begin
           write_address_row <= LAST_ROW;

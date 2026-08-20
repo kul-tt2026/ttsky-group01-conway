@@ -18,6 +18,7 @@ This project simulates [Conway's Game of Life](https://en.wikipedia.org/wiki/Con
 - 16x12 grid, 40px cell size
 - User editable grid
 - User changeable simulation speed
+- Two modes: 'torus' and 'bounded'
 - Pause/play button
 - VGA screen
 
@@ -28,6 +29,14 @@ There are four button inputs for moving the cursor up, down, left, and right. Th
 ### Memory
 
 ### Logic
+
+The logic module kicks into gear when vga is in the long vsync period and the `next_iter_countdown` module indicates enough time has passed since the previous iteration. This amount of time depends on the simulation speed.
+In an iteration, there are two phases. `L_controller` keeps track of these. First is the `COPY` phase, where every cell from `register_board`'s `board0`, which is random access, is copied to `board1`, which is a shift register and therefore slightly more area efficient. The current `row` and `col` come from the `L_rowcol_counter` module, which advances every clockcycle.
+
+In the second phase, the next state of the grid is calculated based on `board1` and written to `board0`. There are two variants of this phase, `TORUS` and `BOUNDED`. These refer to the two different ways to handle the edge of the grid. In `BOUNDED`, cels outside the grid are taken to be dead. In `TORUS`, the grid wraps around like a torus, so that for example above the top of the grid is the bottom of the grid.
+Just like in the `COPY` phase, `L_rowcol_counter` will go over every cell. The `L_decider` module takes in the value of the current cell and its neighbours, and outputs `L_new_cel` based on the rules of Conway's Game of Life: a dead cell with three living neighbours comes alive, an alive cell with two or three alive neighbours stays alive, all other cell die or remain dead.
+
+![Logica Architecture](/src/logica/architectuur%20%20logica%20v4.png)
 
 ### VGA
 
