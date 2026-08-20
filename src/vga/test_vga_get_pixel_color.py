@@ -2,163 +2,143 @@ import cocotb
 from cocotb.clock import Clock
 from cocotb.triggers import RisingEdge, Timer
 
-# Expected color mapping when display_on = 1 and running = 1, derived from the module's spec
-EXPECTED_COLORS = {
-    0b00: (0b00, 0b00, 0b00),  # dead -> black
-    0b01: (0b11, 0b11, 0b11),  # alive -> white
-    0b10: (0b00, 0b00, 0b11),  # cursor -> blue
-    0b11: (0b11, 0b00, 0b00),  # default/invalid -> red
-}
+CELL_SIZE = 40
 
 
-# Dead cell color depends on running: black when running, grey when not running (paused).
-# All other cell types are unaffected by running.
-DEAD_COLOR_BY_RUNNING = {
-    1: (0b00, 0b00, 0b00),  # running -> black
-    0: (0b10, 0b10, 0b10),  # not running (paused) -> grey
-}
+def icon_bit(row, col):
+    """Replicates the filled-diamond icon bitmap from the RTL."""
+    center = (CELL_SIZE - 1) / 2
+    half = CELL_SIZE / 2
+    dx = abs(col - center)
+    dy = abs(row - center)
+    return 1 if dx + dy <= half else 0
 
 
-def expected_color(display_on, cell_type, running):
+def expected_color(display_on, cursor_on, cell_alive, running, row_off, col_off):
     if not display_on:
         return (0, 0, 0)
-    if cell_type == 0b00:
-        return DEAD_COLOR_BY_RUNNING[running]
-    return EXPECTED_COLORS[cell_type]
+
+    if cursor_on and icon_bit(row_off, col_off):
+        return (0b00, 0b00, 0b11)  # inside diamond -> blue, regardless of cell state
+
+    if cell_alive:
+        return (0b11, 0b11, 0b11)  # alive -> white
+
+    # dead, no diamond pixel here
+    return (0b00, 0b00, 0b00) if running else (0b10, 0b10, 0b10)
 
 
 @cocotb.test()
-async def exhaustive_pixel_color(dut):
-    """Exhaustively check vga_get_pixel_color for every legal
-    (display_on, cell_type, running) combination. R/G/B are registered, so the
-    color shows up one clock edge after the inputs are applied."""
+async def pixel_color_grid_sample(dut):
+    """Check color at representative pixel offsets (corners, center,
+    diamond edge, outside diamond) for every (cursor_on, cell_alive,
+    running, display_on) combination. Full 40x40 offset sweep would be
+    6400 combinations per state; this samples key points instead."""
 
     cocotb.start_soon(Clock(dut.clk, 10, unit="ns").start())
     dut.reset_n.value = 0
     dut.display_on.value = 0
     dut.cell_type.value = 0
     dut.running.value = 1
+    dut.pixel_col_offset.value = 0
+    dut.pixel_row_offset.value = 0
     await RisingEdge(dut.clk)
     dut.reset_n.value = 1
+
+    sample_offsets = [
+        (0, 0),  # corner, outside diamond
+        (19, 19),  # near center, inside diamond
+        (20, 20),  # near center, inside diamond
+        (0, 19),  # top edge, inside diamond tip
+        (19, 0),  # left edge, inside diamond tip
+        (39, 39),  # opposite corner, outside diamond
+        (5, 5),  # off-diamond region
+    ]
 
     checked = 0
-
     for display_on in (0, 1):
-        for cell_type in range(4):  # cell_type is 2 bits wide -> 0..3
-            for running in (0, 1):
+        for cursor_on in (0, 1):
+            for cell_alive in (0, 1):
+                for running in (0, 1):
+                    for row_off, col_off in sample_offsets:
+                        cell_type = (cursor_on << 1) | cell_alive
 
-                dut.display_on.value = display_on
-                dut.cell_type.value = cell_type
-                dut.running.value = running
+                        dut.display_on.value = display_on
+                        dut.cell_type.value = cell_type
+                        dut.running.value = running
+                        dut.pixel_row_offset.value = row_off
+                        dut.pixel_col_offset.value = col_off
 
-                await RisingEdge(dut.clk)  # inputs worden ingeklokt
-                await Timer(1, unit="ns")  # laat de outputs settelen
+                        await RisingEdge(dut.clk)
+                        await Timer(1, unit="ns")
 
-                expected_r, expected_g, expected_b = expected_color(
-                    display_on, cell_type, running
-                )
+                        exp_r, exp_g, exp_b = expected_color(
+                            display_on, cursor_on, cell_alive, running, row_off, col_off
+                        )
+                        act_r = int(dut.R.value)
+                        act_g = int(dut.G.value)
+                        act_b = int(dut.B.value)
 
-                actual_r = int(dut.R.value)
-                actual_g = int(dut.G.value)
-                actual_b = int(dut.B.value)
+                        assert (act_r, act_g, act_b) == (exp_r, exp_g, exp_b), (
+                            f"Mismatch: display_on={display_on}, cursor_on={cursor_on}, "
+                            f"cell_alive={cell_alive}, running={running}, "
+                            f"offset=(row={row_off},col={col_off}) -> "
+                            f"got R={act_r:#04b} G={act_g:#04b} B={act_b:#04b}, "
+                            f"expected R={exp_r:#04b} G={exp_g:#04b} B={exp_b:#04b}"
+                        )
+                        checked += 1
 
-                assert (actual_r, actual_g, actual_b) == (
-                    expected_r,
-                    expected_g,
-                    expected_b,
-                ), (
-                    f"Mismatch: display_on={display_on}, cell_type={cell_type:#04b}, "
-                    f"running={running} -> got R={actual_r:#04b} G={actual_g:#04b} B={actual_b:#04b}, "
-                    f"expected R={expected_r:#04b} G={expected_g:#04b} B={expected_b:#04b}"
-                )
-                checked += 1
-
-    dut._log.info(f"Exhaustively checked {checked} combinations")
+    dut._log.info(f"Checked {checked} combinations")
 
 
 @cocotb.test()
-async def running_only_affects_dead_cells(dut):
-    """Running should only change the color of dead cells (black <-> grey).
-    Alive cells, cursor and invalid should remain unchanged, regardless of the value of running.
-    """
+async def diamond_shape_full_sweep(dut):
+    """Full 40x40 pixel sweep with cursor_on=1, cell_alive=0, running=1,
+    verifying the diamond boundary matches the RTL icon exactly."""
 
     cocotb.start_soon(Clock(dut.clk, 10, unit="ns").start())
     dut.reset_n.value = 0
     dut.display_on.value = 1
-    dut.cell_type.value = 0
+    dut.cell_type.value = 0b10  # cursor on, dead cell
     dut.running.value = 1
     await RisingEdge(dut.clk)
     dut.reset_n.value = 1
 
-    for cell_type in (0b01, 0b10, 0b11):  # alive, cursor, invalid
-        dut.cell_type.value = cell_type
+    mismatches = 0
+    for row_off in range(CELL_SIZE):
+        for col_off in range(CELL_SIZE):
+            dut.pixel_row_offset.value = row_off
+            dut.pixel_col_offset.value = col_off
+            await RisingEdge(dut.clk)
+            await Timer(1, unit="ns")
 
-        dut.running.value = 1
-        await RisingEdge(dut.clk)
-        await Timer(1, unit="ns")
-        color_running = (int(dut.R.value), int(dut.G.value), int(dut.B.value))
+            inside = icon_bit(row_off, col_off)
+            expected = (0b00, 0b00, 0b11) if inside else (0b00, 0b00, 0b00)
+            actual = (int(dut.R.value), int(dut.G.value), int(dut.B.value))
+            if actual != expected:
+                dut._log.error(
+                    f"row={row_off}, col={col_off}: inside_diamond={inside}, "
+                    f"got {actual}, expected {expected}"
+                )
+                mismatches += 1
 
-        dut.running.value = 0
-        await RisingEdge(dut.clk)
-        await Timer(1, unit="ns")
-        color_paused = (int(dut.R.value), int(dut.G.value), int(dut.B.value))
-
-        assert color_running == color_paused == EXPECTED_COLORS[cell_type], (
-            f"cell_type={cell_type:#04b}: running changed the color unexpectedly "
-            f"(running={color_running}, paused={color_paused}, "
-            f"expected={EXPECTED_COLORS[cell_type]})"
-        )
-
-
-@cocotb.test()
-async def dead_cell_running_toggle(dut):
-    """Dead cell should switch between black (running=1) and grey (running=0)."""
-
-    cocotb.start_soon(Clock(dut.clk, 10, unit="ns").start())
-    dut.reset_n.value = 0
-    dut.display_on.value = 1
-    dut.cell_type.value = 0b00
-    dut.running.value = 1
-    await RisingEdge(dut.clk)
-    dut.reset_n.value = 1
-
-    await RisingEdge(dut.clk)
-    await Timer(1, unit="ns")
-    assert (int(dut.R.value), int(dut.G.value), int(dut.B.value)) == (
-        0b00,
-        0b00,
-        0b00,
-    ), "Dead cell should be black when running=1"
-
-    dut.running.value = 0
-    await RisingEdge(dut.clk)
-    await Timer(1, unit="ns")
-    assert (int(dut.R.value), int(dut.G.value), int(dut.B.value)) == (
-        0b10,
-        0b10,
-        0b10,
-    ), "Dead cell should be grey when running=0"
-
-    dut.running.value = 1
-    await RisingEdge(dut.clk)
-    await Timer(1, unit="ns")
-    assert (int(dut.R.value), int(dut.G.value), int(dut.B.value)) == (
-        0b00,
-        0b00,
-        0b00,
-    ), "Dead cell should go back to black when running=1 again"
+    assert (
+        mismatches == 0
+    ), f"{mismatches} pixel(s) did not match expected diamond shape"
 
 
 @cocotb.test()
 async def reset_clears_color(dut):
-    """Reset should make unselected pixels black"""
+    """Reset should make unselected pixels black."""
 
     cocotb.start_soon(Clock(dut.clk, 10, unit="ns").start())
 
     dut.reset_n.value = 1
     dut.display_on.value = 1
-    dut.cell_type.value = 0b01  # wit
+    dut.cell_type.value = 0b01  # alive
     dut.running.value = 1
+    dut.pixel_row_offset.value = 0
+    dut.pixel_col_offset.value = 0
     await RisingEdge(dut.clk)
     await Timer(1, unit="ns")
     assert (int(dut.R.value), int(dut.G.value), int(dut.B.value)) == (0b11, 0b11, 0b11)

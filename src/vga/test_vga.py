@@ -96,3 +96,30 @@ async def cell_type_pipeline_consistency(dut):
         assert (
             row_idx_top == row_idx_sub
         ), f"row_idx wiring mismatch: top={row_idx_top}, submodule={row_idx_sub}"
+
+
+@cocotb.test()
+async def pixel_offset_pipeline_consistency(dut):
+    """Cross-check that pixel_col_offset/pixel_row_offset computed by
+    vga_get_cell_idx are correctly forwarded into vga_get_pixel_color."""
+
+    cocotb.start_soon(Clock(dut.clk, 10, unit="ns").start())
+    await reset_dut(dut)
+
+    for _ in range(50):
+        await RisingEdge(dut.clk)
+        await Timer(1, unit="ns")
+
+        col_off_sub_idx = int(dut.um_vga_get_cell_idx.pixel_col_offset.value)
+        row_off_sub_idx = int(dut.um_vga_get_cell_idx.pixel_row_offset.value)
+        col_off_sub_color = int(dut.um_vga_get_pixel_color.pixel_col_offset.value)
+        row_off_sub_color = int(dut.um_vga_get_pixel_color.pixel_row_offset.value)
+
+        assert col_off_sub_idx == col_off_sub_color, (
+            f"pixel_col_offset wiring mismatch: "
+            f"cell_idx={col_off_sub_idx}, pixel_color={col_off_sub_color}"
+        )
+        assert row_off_sub_idx == row_off_sub_color, (
+            f"pixel_row_offset wiring mismatch: "
+            f"cell_idx={row_off_sub_idx}, pixel_color={row_off_sub_color}"
+        )

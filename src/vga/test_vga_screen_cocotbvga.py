@@ -77,10 +77,7 @@ def pattern_horizontal_lines(col, row):
 
 
 def pattern_border(col, row):
-    on_edge = (
-        col == 0 or col == NUM_COLS - 1
-        or row == 0 or row == NUM_ROWS - 1
-    )
+    on_edge = col == 0 or col == NUM_COLS - 1 or row == 0 or row == NUM_ROWS - 1
     return 1 if on_edge else 0
 
 
@@ -122,7 +119,7 @@ def read_memory(col, row, frame):
 async def reset_dut(dut):
     """Reset the DUT. reset_n is active-low."""
     dut.reset_n.value = 0
-    dut.simulation_running.value = 1
+    dut.running.value = 1
     dut.cursorpos.value = 0
     dut.cell_memory.value = 0
     for _ in range(5):
@@ -160,8 +157,11 @@ async def test_vga_screen(dut):
     driver_task = cocotb.start_soon(drive_memory(dut))
 
     cap = VGACapture(
-        dut.clk, TinyVGA(dut.uo_out), VGA_640x480_60,
-        out_dir="output", name="vga_screen"
+        dut.clk,
+        TinyVGA(dut.uo_out),
+        VGA_640x480_60,
+        out_dir="output",
+        name="vga_screen",
     ).start()
 
     frames = await cap.wait_for_frames(NUM_FRAMES)
