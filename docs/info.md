@@ -7,8 +7,6 @@ You can also include images in this folder and reference them in the markdown. E
 512 kb in size, and the combined size of all images must be less than 1 MB.
 -->
 
-# Interactive Conway's Game of Life
-
 Note: links are embedded in the pdf and are in cursive.
 
 ## Description
@@ -17,12 +15,13 @@ This project simulates _[Conway's Game of Life](https://en.wikipedia.org/wiki/Co
 
 ## Features
 
-- 16x12 grid, 40px cell size
-- User editable grid
+- 16x12 grid, 40 pixel cell size
+- User editable grid with movable cursor
 - User changeable simulation speed
 - Two modes: 'torus' and 'bounded'
 - Pause/play button
-- VGA screen
+- Debounced input handling
+- VGA screen 640x480@60Hz
 
 ## How it works
 
@@ -50,16 +49,16 @@ The `vga_hvsync_generator` not only generates `hsync` and `vsync` signals, but a
 
 The `vga_get_cell_idx` module calculates the coordinates of the current cell in the grid, based of the position of the pixel on the screen.
 
-The index that `vga_get_cell_idx` generates, is used in the `vga_get_cell_type` module to determine the cell type. The cell type is either dead, alive or the cursor. The cursor is only shown when the user is editing the grid (`cursor_on`). If that is the case, the cursor position will take precendent over the cell type pulled from memory (board0).
+The index that `vga_get_cell_idx` generates, is used in the `vga_get_cell_type` module to determine the cell type. The cell type is either dead, alive or the cursor. The cursor is only shown when the user is editing the grid (`cursor_on`). If that is the case, the cursor position will take precendent over the cell type pulled from memory (`board0`).
 
 Based on the cell type and whether the simulation is running, `vga_get_pixel_color` calculates the correct pixel color.
 
-| Description        | cell_type (binary) | R   | G   | B   | Color |
-| ------------------ | ------------------ | --- | --- | --- | ----- |
-| dead               | `00`               | 00  | 00  | 00  | black |
-| alive              | `01`               | 11  | 11  | 11  | white |
-| cursor             | `10`               | 00  | 00  | 11  | blue  |
-| not valid / unused | `11`               | 11  | 00  | 00  | red   |
+| Description        | cell_type (binary) | R    | G    | B    | Color |
+| ------------------ | ------------------ | ---- | ---- | ---- | ----- |
+| dead               | `00`               | `00` | `00` | `00` | black |
+| alive              | `01`               | `11` | `11` | `11` | white |
+| cursor             | `10`               | `00` | `00` | `11` | blue  |
+| not valid / unused | `11`               | `11` | `00` | `00` | red   |
 
 When testing, sylefeb's _[TinyTapeout VGA trace visualizer](https://github.com/sylefeb/tt-vgaviz)_ proved to be very useful in visualising the VGA output from an `.fst` file.
 
@@ -73,5 +72,5 @@ Plug in the VGA Pmod connector and let Conway's Game of Life come to life! Use t
 
 ## External hardware
 
-- _[Tiny Tapeout VGA Pmod connector](https://tinytapeout.com/specs/pinouts/#vga-output)_.
+- _[Tiny Tapeout VGA Pmod connector](https://tinytapeout.com/specs/pinouts/#vga-output)_
 - Buttons

@@ -3,8 +3,8 @@ project:
   title: "Interactive Conway's Game of Life" # Project title
   author: "Mathias Van Nuland, Sander Vanlessen, Sieben De Witte" # Your name
   discord: "mathiasvan" # Your discord username, for communication and automatically assigning you a Tapeout role (optional)
-  description: "Simulate Conway's Game of Life" # One line description of what your project does
-  language: "Verilog" # other examples include SystemVerilog, Amaranth, VHDL, etc
+  description: "Interactive VGA Conway's Game of Life on Tiny Tapeout with toggleable bounded/toroidal modes and cursor-based cell editing." # One line description of what your project does
+  language: "SystemVerilog" # other examples include SystemVerilog, Amaranth, VHDL, etc
   clock_hz: 25175000 # Clock frequency in Hz (or 0 if not applicable)
 
   # How many tiles your design occupies? A single tile is about 167x108 uM.
@@ -27,7 +27,7 @@ project:
     - "vga/vga_get_cell_type.sv"
     - "vga/vga_get_pixel_color.sv"
     - "vga/vga_hvsync_generator.sv"
-    - "vga/vga.sv"    
+    - "vga/vga.sv"
     - "logica/L_datapath.sv"
     - "logica/L_decider.sv"
     - "logica/L_main.sv"
