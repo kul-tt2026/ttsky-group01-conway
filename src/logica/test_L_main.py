@@ -8,8 +8,8 @@ from pyConway import Grid, PyConway
 async def test_project(dut):
     dut._log.info("Start")
 
-    ROWS = 8
-    COLS = 8
+    ROWS = 12
+    COLS = 16
 
     # Python
     pyGrid = Grid(ROWS, COLS)
@@ -34,7 +34,7 @@ async def test_project(dut):
         dut.init_col.value = col
         dut.init_write_data.value = value
 
-    # tetrisvorm
+    # twee tetrisvormen
     #     X
     #   X X X  
     set_value(3,3,1)
@@ -44,6 +44,15 @@ async def test_project(dut):
     set_value(3,5,1)
     await ClockCycles(dut.clk, 1)
     set_value(2,4,1)
+    await ClockCycles(dut.clk, 1)
+
+    set_value(11,12,1)
+    await ClockCycles(dut.clk, 1)
+    set_value(11,13,1)
+    await ClockCycles(dut.clk, 1)
+    set_value(11,14,1)
+    await ClockCycles(dut.clk, 1)
+    set_value(10,13,1)
     await ClockCycles(dut.clk, 1)
 
 
@@ -93,7 +102,7 @@ async def test_project(dut):
         dut.init_col.value = col
         dut.init_write_data.value = value
 
-    # tetrisvorm
+    # Twee tetrisvormen
     #     X
     #   X X X
     set_value(3,3,1)
@@ -103,6 +112,15 @@ async def test_project(dut):
     set_value(3,5,1)
     await ClockCycles(dut.clk, 1)
     set_value(2,4,1)
+    await ClockCycles(dut.clk, 1)
+
+    set_value(11,12,1)
+    await ClockCycles(dut.clk, 1)
+    set_value(11,13,1)
+    await ClockCycles(dut.clk, 1)
+    set_value(11,14,1)
+    await ClockCycles(dut.clk, 1)
+    set_value(10,13,1)
     await ClockCycles(dut.clk, 1)
 
 
@@ -117,6 +135,6 @@ async def test_project(dut):
 
         await dut.L_idle.rising_edge
         pySim.advance()
-
+        
         check_grids()
 

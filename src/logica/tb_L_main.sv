@@ -10,8 +10,8 @@ Wordt voornamelijk uitgevoerd in python, zie test_L_main.py
 module tb_L_main ();
     
     localparam int CLK_PERIOD = 10;   // ns
-    localparam int ROWS       = 8;
-    localparam int COLS       = 8;
+    localparam int ROWS       = 12;
+    localparam int COLS       = 16;
 
     localparam int row_bits = $clog2(ROWS);
     localparam int col_bits = $clog2(COLS);
