@@ -31,13 +31,12 @@ module tt_um_conwaysgameoflife (
       button_right,
       button_set,
       button_start_stop,
-      testing_n,
       testing,
       button_cursor_on_off,
       button_speed_sim_up,
       button_speed_sim_down,
       button_bounded_board,
-      button_reset_n;
+      button_reset;
 
   assign button_up = ui_in[0];
   assign button_down = ui_in[1];
@@ -49,11 +48,9 @@ module tt_um_conwaysgameoflife (
   assign button_bounded_board = ui_in[7];
   assign button_speed_sim_up = uio_in[0];
   assign button_speed_sim_down = uio_in[1];
-  assign button_reset_n = uio_in[2];
-  assign testing_n = uio_in[7]; // Als dit laag is gaat logica elke frame updaten (zodat logica ook in de gate-level simulatie getest kan worden)
-                                // reset en testing actief laag, dit verminderd het risico op accidentele activaties
-  assign testing = !testing_n;
-
+  assign button_reset = uio_in[2];
+  assign testing = uio_in[7]; // Als dit laag is gaat logica elke frame updaten (zodat logica ook in de gate-level simulatie getest kan worden)
+                                
   // Intere wires
   logic next_iter, L_idle, L_reset, nic_reset, reset_speed, running, next_iter_busy, start_stop_rise, manual_reset;
 
@@ -95,7 +92,7 @@ module tt_um_conwaysgameoflife (
       .button_bounded_board(button_bounded_board),
       .button_speed_sim_up(button_speed_sim_up),
       .button_speed_sim_down(button_speed_sim_down),
-      .button_reset(!button_reset_n), // Input werkt met een active high versie, dus een ! voor de active low
+      .button_reset(button_reset),
 
       .uo_out (uo_out),
       .testing(testing),
