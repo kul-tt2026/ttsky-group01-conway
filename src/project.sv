@@ -5,9 +5,7 @@
 
 `default_nettype none
 
-module tt_um_conwaysgameoflife #(
-    parameter bit TESTING = 0   // If this is 1, the logic will update every frame (60Hz), which makes the project easier to test
-) (
+module tt_um_conwaysgameoflife (
     input  wire [7:0] ui_in,    // Dedicated inputs
     output wire [7:0] uo_out,   // Dedicated outputs
     input  wire [7:0] uio_in,   // IOs: Input path
@@ -25,9 +23,6 @@ module tt_um_conwaysgameoflife #(
   localparam int ROWS = 12;
   localparam int COLS = 16;
 
-  localparam int row_bits = $clog2(ROWS);
-  localparam int col_bits = $clog2(COLS);
-
   // inputknoppen
   logic
       button_up,
@@ -36,12 +31,13 @@ module tt_um_conwaysgameoflife #(
       button_right,
       button_set,
       button_start_stop,
+      testing_n,
       testing,
       button_cursor_on_off,
       button_speed_sim_up,
       button_speed_sim_down,
       button_bounded_board,
-      button_reset;
+      button_reset_n;
 
   assign button_up = ui_in[0];
   assign button_down = ui_in[1];
@@ -53,8 +49,10 @@ module tt_um_conwaysgameoflife #(
   assign button_bounded_board = ui_in[7];
   assign button_speed_sim_up = uio_in[0];
   assign button_speed_sim_down = uio_in[1];
-  assign button_reset = uio_in[2];
-  assign testing = uio_in[7]; // Als dit hoog is gaat logica elke frame updaten (zodat logica ook in de gate-level simulatie getest kan worden)
+  assign button_reset_n = uio_in[2];
+  assign testing_n = uio_in[7]; // Als dit laag is gaat logica elke frame updaten (zodat logica ook in de gate-level simulatie getest kan worden)
+                                // reset en testing actief laag, dit verminderd het risico op accidentele activaties
+  assign testing = !testing_n;
 
   // Intere wires
   logic next_iter, L_idle, L_reset, nic_reset, reset_speed, running, next_iter_busy, start_stop_rise, manual_reset;
@@ -97,7 +95,7 @@ module tt_um_conwaysgameoflife #(
       .button_bounded_board(button_bounded_board),
       .button_speed_sim_up(button_speed_sim_up),
       .button_speed_sim_down(button_speed_sim_down),
-      .button_reset(button_reset),
+      .button_reset(!button_reset_n), // Input werkt met een active high versie, dus een ! voor de active low
 
       .uo_out (uo_out),
       .testing(testing),

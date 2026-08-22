@@ -39,7 +39,7 @@ module project_datapath #(
 
   // Interne wires
   sim_speed_pkg::speed_e speed;
-  logic reset_countdown, countdown_done;
+  logic reset_countdown, countdown_done, speed_sim_decrease, speed_sim_increase;
 
   sim_speed u_sim_speed (
       .clk(clk),
@@ -65,7 +65,7 @@ module project_datapath #(
 
   // nog interne wires
   logic L_new_cel, L_write_enable, L_toggle_read, L_copying;
-  logic bounded_board, speed_sim_decrease, speed_sim_increase;
+  logic bounded_board;
   logic [row_bits - 1:0] L_row;
   logic [col_bits - 1:0] L_col;
   logic next_iter_allowed;

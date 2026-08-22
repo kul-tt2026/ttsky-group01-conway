@@ -1,6 +1,6 @@
 # Deel Sieben, logica
 # Elegentere syntax van Claude Opus 5
-# simuleer iets door bv. "make simulate L_sweeper" (in src/logica)
+# simuleer iets door bv. "make simulate L_controller" (in src/logica)
 # verwijder temp output via "make clean" (in src/logica)
 
 IVERILOG = iverilog

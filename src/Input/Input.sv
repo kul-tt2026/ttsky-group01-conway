@@ -236,8 +236,9 @@ module Input #(
         cursor_on <= ~cursor_on;
       end
 
+
+      write_value <= set_rise && cursor_on; // Claude raadde aan om dit zo uit de if te halen, zou er een waarde kunnen blijven zitten als set_rise hoog is net voor cursor_on laag gaat
       if (cursor_on) begin  // only write or move if the cursor is on
-        write_value <= set_rise;
 
         if (up_rise) begin
           if (write_address_row == 0) begin

@@ -190,7 +190,8 @@ async def test_project(dut):
     # Algoritmische verificatie: zie andere file
     # gooit zelf errors indien nodig
     # De parameters voor ROWS en COLS werken niet in de GL simulatie
+    # mode 0 is TORUS, 1 BOUNDED
     if not GL:
-        verify_PNGs("output", mode=1, ROWS=ROWS, COLS=COLS)
+        verify_PNGs("output", mode=0, ROWS=ROWS, COLS=COLS)
     else:
-        verify_PNGs("output", mode=1, ROWS=12, COLS=16)
+        verify_PNGs("output", mode=0, ROWS=12, COLS=16)

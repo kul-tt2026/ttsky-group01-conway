@@ -5,9 +5,8 @@
 Deel Logica, Sieben
 Deze file brengt alles samen van Logica
 Er is geen testbench tb_L_controller, deze wordt samen met het geheugen getest
-Per iteratie heeft deze 12×row_count×col_count klokcycli nodig.
-Voor 16x16 is dat 3072 klokcycli
-Indien nodig kan ik nog proberen om daar 25% af te doen, maar dat lijkt me helemaal niet nodig
+Per iteratie heeft deze 2×row_count×col_count klokcycli nodig.
+Voor 12x16 is dat 384 klokcycli
 */
 
 module L_main #(

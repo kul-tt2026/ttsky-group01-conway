@@ -48,7 +48,7 @@ always_ff @( posedge clk or negedge reset_n ) begin : next_state_logic
     else case (state)
         IDLE: if(L_next_iter) state <= COPY;
         COPY: if(address_max) begin
-            if(L_mode === mode_pkg::TORUS) state <= TORUS;
+            if(L_mode == mode_pkg::TORUS) state <= TORUS;
             else state <= BOUNDED;
         end
         BOUNDED: if(address_max) state <= IDLE;

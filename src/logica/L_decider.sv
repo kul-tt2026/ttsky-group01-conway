@@ -3,12 +3,7 @@
 
 /*
 Deel Logica, Sieben
-L_decider krijgt negen klokcycli lang een nieuwe cel te zien, volgens de conventie:
-    8 1 2
-    7 0 3
-    6 5 4
-Op de tiende klokcyclus krijgt die 'read_ready' binnen, en zal de beslissing voor
-de nieuwe cel 0 die via 'L_new_cel' naar buiten gaat geïmplementeerd worden
+L_decider krijgt een cel en de 8 buren mee, en moet volgens van Conway's Game of Life de nieuwe status van de cel meegeven
 */
 
 module L_decider (
