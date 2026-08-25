@@ -88,19 +88,16 @@ module project_datapath #(
   logic pending_write;
   logic [row_bits-1:0] pending_write_row;
   logic [col_bits-1:0] pending_write_col;
-  logic pending_write_value;
 
   always_ff @(posedge clk or negedge reset_n) begin
     if (!reset_n) begin
       pending_write <= 1'b0;
       pending_write_row <= '0;
       pending_write_col <= '0;
-      pending_write_value <= '0;
-    end else if (input_write_value) begin
+    end else if (set_rise) begin
       pending_write       <= 1'b1;
       pending_write_row   <= input_write_address_row;
       pending_write_col   <= input_write_address_col;
-      pending_write_value <= input_write_value;
     end else if (pending_write && next_iter_allowed && !next_iter_busy) begin
       pending_write <= 1'b0;  // applied, clear the pending flag
     end
@@ -130,7 +127,7 @@ module project_datapath #(
   // meer interne wires
   logic [row_bits-1:0] input_write_address_row;
   logic [col_bits-1:0] input_write_address_col;
-  logic input_write_value;
+  logic set_rise;
   logic cursor_on;
 
   Input #(
@@ -153,10 +150,10 @@ module project_datapath #(
       .button_reset(button_reset),
       .manual_reset(manual_reset),
       .running(running),
+      .set_rise(set_rise),
 
       .write_address_row(input_write_address_row),
       .write_address_col(input_write_address_col),
-      .write_value(input_write_value),
       .start_stop_rise(start_stop_rise),
       .bounded_board(bounded_board),
       .speed_sim_down_rise(speed_sim_decrease),
@@ -184,15 +181,21 @@ module project_datapath #(
       toggle_read = L_toggle_read;
 
     end else begin
-      read_address_row = vga_row_idx;
-      read_address_col = vga_col_idx;
+      if (next_iter_allowed) begin
+          read_address_col = pending_write_col;
+          read_address_row = pending_write_row;
+      end
+      else begin
+          read_address_row = vga_row_idx;
+          read_address_col = vga_col_idx;
+      end
 
       write_enable = pending_write && next_iter_allowed;
 
       write_address_row = pending_write_row;
       write_address_col = pending_write_col;
 
-      data_in = pending_write_value;
+      data_in = ~data_out;
 
       active_board_read = 1'b0;
       active_board_write = 1'b0;

@@ -129,10 +129,23 @@ async def test_project(dut):
     await move_and_settle_ui_in(dut, clear_bits=[CURSOR], set_bits=[RIGHT, DOWN])
 
     # Move to (2, 1) and set
+    print("set")
     await move_and_settle_ui_in(dut, clear_bits=[RIGHT, DOWN], set_bits=[RIGHT])
     await move_and_settle_ui_in(dut, clear_bits=[RIGHT], set_bits=[SET])
-    await print_board(dut)
     await Timer(FRAME, unit="ns")  # Wait one frame
+    await print_board(dut)
+
+    print("unset")
+    await move_and_settle_ui_in(dut, clear_bits=[SET], set_bits=[])
+    await move_and_settle_ui_in(dut, clear_bits=[], set_bits=[SET])
+    await Timer(FRAME, unit="ns")  # Wait one frame
+    await print_board(dut)
+
+    print("set")
+    await move_and_settle_ui_in(dut, clear_bits=[SET], set_bits=[])
+    await move_and_settle_ui_in(dut, clear_bits=[], set_bits=[SET])
+    await Timer(FRAME, unit="ns")  # Wait one frame
+    await print_board(dut)
 
     # Move to (3, 2) and set
     await move_and_settle_ui_in(dut, clear_bits=[SET], set_bits=[RIGHT])

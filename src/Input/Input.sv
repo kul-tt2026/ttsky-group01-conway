@@ -18,9 +18,11 @@ module Input #(
     input logic button_speed_sim_down,
     input logic button_reset,
     input logic running,
+    input logic cell_state,
+
+    output logic set_rise,
     output logic [$clog2(COL_COUNT)-1:0] write_address_col,
     output logic [$clog2(ROW_COUNT)-1:0] write_address_row,
-    output logic write_value,
     output logic start_stop_rise,
     output logic speed_sim_up_rise,
     output logic speed_sim_down_rise,
@@ -45,7 +47,6 @@ module Input #(
   logic down_rise;
   logic left_rise;
   logic right_rise;
-  logic set_rise;
   logic cursor_on_off_rise;
   logic bounded_board_rise;
   logic reset_rise;
@@ -217,7 +218,6 @@ module Input #(
     if (!reset_n) begin
       write_address_col <= 0;
       write_address_row <= 0;
-      write_value       <= 0;
       cursor_on         <= 0;
       bounded_board     <= 0;
       manual_reset      <= 1'b0;
@@ -236,8 +236,6 @@ module Input #(
         cursor_on <= ~cursor_on;
       end
 
-
-      write_value <= set_rise && cursor_on; // Claude raadde aan om dit zo uit de if te halen, zou er een waarde kunnen blijven zitten als set_rise hoog is net voor cursor_on laag gaat
       if (cursor_on) begin  // only write or move if the cursor is on
 
         if (up_rise) begin
