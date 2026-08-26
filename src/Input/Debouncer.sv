@@ -1,8 +1,9 @@
 `timescale 1ns/1ps
-module Debouncer #(parameter MAX = 18'd251750) (
+module Debouncer (
     input clk,
     input reset_n,
     input noisy_in,
+    input [17:0] debounce_max,
     output reg clean_signal
 );
 
@@ -18,7 +19,7 @@ always @(posedge clk or negedge reset_n) begin
     end
 end 
 
-reg [18:0] counter;
+reg [17:0] counter;
 
 always @(posedge clk or negedge reset_n) begin 
     if(!reset_n) begin 
@@ -28,7 +29,7 @@ always @(posedge clk or negedge reset_n) begin
     else begin
         if (sync1 != clean_signal) begin
             counter <= counter + 1;
-            if (counter == MAX-1) begin
+            if (counter >= debounce_max-1) begin
                 clean_signal <= sync1;
             end
         end

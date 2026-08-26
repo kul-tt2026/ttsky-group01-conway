@@ -132,9 +132,9 @@ module project_datapath #(
 
   Input #(
       .ROW_COUNT(row_count),
-      .COL_COUNT(col_count),
-      .DEBOUNCE_MAX(10)  // TODO testing only
-  ) u_input (
+      .COL_COUNT(col_count)
+      ) 
+      u_input (
       .clk(clk),
       .reset_n(reset_n),
       .button_up(button_up),
@@ -151,6 +151,7 @@ module project_datapath #(
       .manual_reset(manual_reset),
       .running(running),
       .set_rise(set_rise),
+      .testing(testing),
 
       .write_address_row(input_write_address_row),
       .write_address_col(input_write_address_col),

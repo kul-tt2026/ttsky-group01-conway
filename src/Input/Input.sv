@@ -1,8 +1,7 @@
 `timescale 1ns / 1ps
 module Input #(
     parameter COL_COUNT = 8,
-    parameter ROW_COUNT = 8,
-    parameter DEBOUNCE_MAX = 18'd251750
+    parameter ROW_COUNT = 8
 ) (
     input logic clk,
     input logic reset_n,
@@ -19,6 +18,7 @@ module Input #(
     input logic button_reset,
     input logic running,
     input logic cell_state,
+    input logic testing,
 
     output logic set_rise,
     output logic [$clog2(COL_COUNT)-1:0] write_address_col,
@@ -50,6 +50,7 @@ module Input #(
   logic cursor_on_off_rise;
   logic bounded_board_rise;
   logic reset_rise;
+  logic [17:0] debounce_max;
 
   localparam ROW_BITS = $clog2(ROW_COUNT);
   localparam COL_BITS = $clog2(COL_COUNT);
@@ -57,76 +58,88 @@ module Input #(
   localparam [ROW_BITS-1:0] LAST_ROW = ROW_BITS'(ROW_COUNT - 1);
   localparam [COL_BITS-1:0] LAST_COL = COL_BITS'(COL_COUNT - 1);
 
+  assign debounce_max = testing ? 18'd10 : 18'd251750;
 
-  Debouncer #(DEBOUNCE_MAX) up_D (
+  Debouncer  up_D (
       .clk(clk),
       .reset_n(reset_n),
       .noisy_in(button_up),
+      .debounce_max(debounce_max),
       .clean_signal(clean_up)
   );
 
-  Debouncer #(DEBOUNCE_MAX) down_D (
+  Debouncer  down_D (
       .clk(clk),
       .reset_n(reset_n),
       .noisy_in(button_down),
+      .debounce_max(debounce_max),
       .clean_signal(clean_down)
   );
 
-  Debouncer #(DEBOUNCE_MAX) left_D (
+  Debouncer  left_D (
       .clk(clk),
       .reset_n(reset_n),
       .noisy_in(button_left),
+      .debounce_max(debounce_max),
       .clean_signal(clean_left)
   );
 
-  Debouncer #(DEBOUNCE_MAX) right_D (
+  Debouncer  right_D (
       .clk(clk),
       .reset_n(reset_n),
       .noisy_in(button_right),
+      .debounce_max(debounce_max),
       .clean_signal(clean_right)
   );
 
-  Debouncer #(DEBOUNCE_MAX) set_D (
+  Debouncer  set_D (
       .clk(clk),
       .reset_n(reset_n),
       .noisy_in(button_set),
+      .debounce_max(debounce_max),
       .clean_signal(clean_set)
   );
 
-  Debouncer #(DEBOUNCE_MAX) start_stop_D (
+  Debouncer  start_stop_D (
       .clk(clk),
       .reset_n(reset_n),
       .noisy_in(button_start_stop),
+      .debounce_max(debounce_max),
       .clean_signal(clean_start_stop)
   );
-  Debouncer #(DEBOUNCE_MAX) cursor_on_off_D (
+  Debouncer  cursor_on_off_D (
       .clk(clk),
       .reset_n(reset_n),
       .noisy_in(button_cursor_on_off),
+      .debounce_max(debounce_max),
       .clean_signal(clean_cursor_on_off)
   );
-  Debouncer #(DEBOUNCE_MAX) bounded_board_D (
+  Debouncer  bounded_board_D (
       .clk(clk),
       .reset_n(reset_n),
       .noisy_in(button_bounded_board),
+      .debounce_max(debounce_max),
       .clean_signal(clean_bounded_board)
   );
-  Debouncer #(DEBOUNCE_MAX) speed_sim_up_D (
+  Debouncer  speed_sim_up_D (
       .clk(clk),
       .reset_n(reset_n),
       .noisy_in(button_speed_sim_up),
+      .debounce_max(debounce_max),
       .clean_signal(clean_speed_sim_up)
   );
-  Debouncer #(DEBOUNCE_MAX) speed_sim_down_D (
+  Debouncer  speed_sim_down_D (
       .clk(clk),
       .reset_n(reset_n),
       .noisy_in(button_speed_sim_down),
+      .debounce_max(debounce_max),
       .clean_signal(clean_speed_sim_down)
   );
-  Debouncer #(DEBOUNCE_MAX) reset_n_D (
+  Debouncer  reset_n_D (
       .clk(clk),
       .reset_n(reset_n),
       .noisy_in(button_reset),
+      .debounce_max(debounce_max),
       .clean_signal(clean_reset)
   );
 
