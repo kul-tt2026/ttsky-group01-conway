@@ -27,9 +27,29 @@ This project simulates _[Conway's Game of Life](https://en.wikipedia.org/wiki/Co
 
 ### Input
 
-There are four button inputs for moving the cursor up, down, left, and right. These buttons increment or decrement two counters in the row and column directions to determine the correct write address. A set button is used to toggle between a cell that is alive or dead. The start/stop button allows the simulation to be started or paused, while the cursor on/off button can be used to show or hide the cursor. All buttons are debounced and synchronized.
+There are four button inputs for moving the cursor up, down, left, and right. These buttons increment or decrement two counters in the row and column directions to determine the correct write address. A set button is used to toggle between a cell that is alive or dead. The start/stop button allows the simulation to be started or paused, while the cursor on/off button can be used to show or hide the cursor. There are also buttons to increase or decrease the speed of the simulation, and a reset button. All buttons are debounced and synchronized.
+
+| Pin       | Button     | Behaviour                              |
+| --------- | ---------- | -------------------------------------- |
+| ui_in[0]  | up         | move cursor  up                        |
+| ui_in[1]  | down       | move cursor down                       |
+| ui_in[2]  | left       | move cursor left                       |
+| ui_in[3]  | right      | move cursor right                      |
+| ui_in[4]  | set        | flip the value of the selected cell    |
+| ui_in[5]  | start/stop | start or pause the simulation          |
+| ui_in[6]  | cursor     | turn the cursor on/off                 |
+| ui_in[7]  | board      | toggle between bounded and torus modes |
+| uio_in[0] | speed up   | let the simulation go faster           |
+| uio_in[1] | speed down | let the simulation go slower           |
+| uio_in[2] | reset      | reset the tile                         |
+| uio_in[7] | testing    | only for virtual simulation            |
+
 
 ### Memory
+
+The main memory which VGA reads from is `board0`, a random access grid of registers. A `0`represents a dead cell, a `1`an alive cell. The second memory,  `board1`, contains the grid of the previous iteration. It is a shift registrer and therefore uses slightly less area. It only exposes the `0`cell, but you can shift the values to get the next one. Both are in the `register_board`module.
+
+The two boards share the ports `data_in`,`write_enable` and `data_out`. `active_board_write`and `active_board_read`decide which board these ports are connected to. `read_address_row`, `read_address_col`, `write_address_row` and `write_address_col`are only for the random access `board_0`. `board_1`has `toggle_read`, which shifts the register, and `neighbour_out`, an eight bit signal of the eight neighbour values of the current cel. Lastly, `manual_reset`resets both boards to all zeros.
 
 ### Logic
 
@@ -39,7 +59,7 @@ In an iteration, there are two phases. `L_controller` keeps track of these. Firs
 In the second phase, the next state of the grid is calculated based on `board1` and written to `board0`. There are two variants of this phase, `TORUS` and `BOUNDED`. These refer to the two different ways to handle the edge of the grid. In `BOUNDED`, cels outside the grid are taken to be dead. In `TORUS`, the grid wraps around like a torus, so that for example above the top of the grid is the bottom of the grid.
 Just like in the `COPY` phase, `L_rowcol_counter` will go over every cell. The `L_decider` module takes in the value of the current cell and its neighbours, and outputs `L_new_cel` based on the rules of Conway's Game of Life: a dead cell with three living neighbours comes alive, an alive cell with two or three alive neighbours stays alive, all other cell die or remain dead.
 
-![Logica Architecture](/docs/architectuur_logica_v4.png)
+![Logica Architecture](/docs/architectuur_logica_v4.jpg)
 
 ### VGA
 
@@ -75,6 +95,16 @@ When testing, sylefeb's _[TinyTapeout VGA trace visualizer](https://github.com/s
 The repository _[cocotb-vga](https://github.com/kul-tt2026/cocotb-vga)_ from kul-tt2026 also proved invaluable when writing test benches for the entire project to visualise the VGA screen.
 
 The VGA playground from Tiny Tapeout was incredible, because it could simulate in seconds what cocotb-vga took minutes. _[Click here for the link](https://vga-playground.com/?repo=https://github.com/kul-tt2026/ttsky-group01-conway&ref=vga-playground)_.
+
+### Connecting it all together
+
+Everything is connected together with the `project_controller` and `project_datapath` modules. `project_controller` has four states: `START`, which can transition to `DISPLAY`, VGA's home territory. During `NEXT_ITER`, logic does its work and calculates the next state of the simulation. `PAUSE` is for when you want to take a closer look at what's happening.
+
+It is important that the board doesn't change when VGA is still rendering the frame. Therefore, `NEXT_ITER` is only entered when VGA gives the `next_iter_allowed` signal. In a similar vein, input's actions only getten written to memory when neither VGA nor logic is using it.
+
+`project_datapath` connects all other modules together, and has some wiring to decide who can access the memory when. It also has the `sim_speed` and `next_iter_countdown` modules, which for given game speed that input can set counts down the time till a new `NEXT_ITER` can be started. The possible speeds are 0.25Hz, 0.5Hz, 1Hz, 2Hz, 4Hz, 8Hz and 20Hz. `project_controller` and `project_datapath` are best understood through the diagram below:
+
+![Project architecture](/docs/architectuur_project_v2.jpg)
 
 ## How to test
 
