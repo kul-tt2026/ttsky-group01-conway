@@ -27,7 +27,7 @@ This project simulates _[Conway's Game of Life](https://en.wikipedia.org/wiki/Co
 
 ### Input
 
-There are four button inputs for moving the cursor up, down, left, and right. These buttons increment or decrement two counters in the row and column directions to determine the correct write address. A set button is used to toggle between a cell that is alive or dead. The start/stop button allows the simulation to be started or paused, while the cursor on/off button can be used to show or hide the cursor. There are also buttons to increase or decrease the speed of the simulation, and a reset button. All buttons are debounced and synchronized.
+There are four button inputs for moving the cursor up, down, left, and right. These buttons increment or decrement two counters in the row and column directions to determine the correct write address. A set button is used to toggle between a cell that is alive or dead. The start/stop button allows the simulation to be started or paused, while the cursor on/off button can be used to show or hide the cursor. There are also buttons to increase or decrease the speed of the simulation, and a reset button. The last button selects bounded board mode wich means that the simulation does or doesn't wrap around. All buttons are debounced and synchronized.
 
 | Pin       | Button     | Behaviour                              |
 | --------- | ---------- | -------------------------------------- |
