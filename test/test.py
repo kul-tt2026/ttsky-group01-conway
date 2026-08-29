@@ -135,13 +135,14 @@ async def test_project(dut):
     await Timer(FRAME, unit="ns")  # Wait one frame
     await print_board(dut)
 
-    print("unset")
-    await move_and_settle_ui_in(dut, clear_bits=[SET], set_bits=[])
-    await move_and_settle_ui_in(dut, clear_bits=[], set_bits=[SET])
+    # Move to (2, 2), set and unset
+    print("set")
+    await move_and_settle_ui_in(dut, clear_bits=[SET], set_bits=[DOWN])
+    await move_and_settle_ui_in(dut, clear_bits=[DOWN], set_bits=[SET])
     await Timer(FRAME, unit="ns")  # Wait one frame
     await print_board(dut)
 
-    print("set")
+    print("unset")
     await move_and_settle_ui_in(dut, clear_bits=[SET], set_bits=[])
     await move_and_settle_ui_in(dut, clear_bits=[], set_bits=[SET])
     await Timer(FRAME, unit="ns")  # Wait one frame
@@ -149,18 +150,18 @@ async def test_project(dut):
 
     # Move to (3, 2) and set
     await move_and_settle_ui_in(dut, clear_bits=[SET], set_bits=[RIGHT])
-    await move_and_settle_ui_in(dut, clear_bits=[RIGHT], set_bits=[DOWN])
-    await move_and_settle_ui_in(dut, clear_bits=[DOWN], set_bits=[SET])
+    await move_and_settle_ui_in(dut, clear_bits=[RIGHT], set_bits=[SET])
 
-    await print_board(dut)
     await Timer(FRAME, unit="ns")  # Wait one frame
+    await print_board(dut)
 
     # Move to (3, 3) and set
     await move_and_settle_ui_in(dut, clear_bits=[SET], set_bits=[DOWN])
     await move_and_settle_ui_in(dut, clear_bits=[DOWN], set_bits=[SET])
 
-    await print_board(dut)
     await Timer(FRAME, unit="ns")  # Wait one frame
+    await print_board(dut)
+
 
     # Move to (2, 3) and set
     await move_and_settle_ui_in(dut, clear_bits=[SET], set_bits=[LEFT])
@@ -173,8 +174,8 @@ async def test_project(dut):
     await move_and_settle_ui_in(dut, clear_bits=[SET], set_bits=[LEFT])
     await move_and_settle_ui_in(dut, clear_bits=[LEFT], set_bits=[SET])
 
-    await print_board(dut)
     await Timer(FRAME, unit="ns")  # Wait one frame
+    await print_board(dut)
 
     await Timer(FRAME, unit="ns")  # Wait one frame
 

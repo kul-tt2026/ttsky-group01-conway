@@ -32,7 +32,7 @@ module tb ();
 `endif
 
 
-tt_um_conwaysgameoflife user_project (
+tt_um_kul_conway user_project (
       // Include power ports for the Gate Level test:
 `ifdef GL_TEST
       .VPWR(VPWR),

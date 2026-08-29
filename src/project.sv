@@ -5,7 +5,7 @@
 
 `default_nettype none
 
-module tt_um_conwaysgameoflife (
+module tt_um_kul_conway (
     input  wire [7:0] ui_in,    // Dedicated inputs
     output wire [7:0] uo_out,   // Dedicated outputs
     input  wire [7:0] uio_in,   // IOs: Input path
@@ -49,7 +49,8 @@ module tt_um_conwaysgameoflife (
   assign button_speed_sim_up = uio_in[0];
   assign button_speed_sim_down = uio_in[1];
   assign button_reset = uio_in[2];
-  assign testing = uio_in[7]; // Als dit laag is gaat logica elke frame updaten (zodat logica ook in de gate-level simulatie getest kan worden)
+  assign testing = uio_in[7]; // Als hoog is gaat logica elke frame updaten (zodat logica ook in de gate-level simulatie getest kan worden)
+                              // én is de debounce onbruikbaar kort → enkel voor virtuele simulatie
                                 
   // Intere wires
   logic next_iter, L_idle, L_reset, nic_reset, reset_speed, running, next_iter_busy, start_stop_rise, manual_reset;
