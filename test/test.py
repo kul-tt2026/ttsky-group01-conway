@@ -117,6 +117,11 @@ async def test_project(dut):
 
     # Testing aanzetten
     await move_and_settle_uio_in(dut, clear_bits=[], set_bits=[TESTING])
+    await Timer(FRAME, unit="ns")  # Wait one frame
+
+    # Test that cursor has to be on to set or unset a tile. This code should not activate a cell because the cursor is not on.
+    await move_and_settle_ui_in(dut, clear_bits=[TESTING], set_bits=[SET])
+    await Timer(FRAME, unit="ns")  # Wait one frame
 
     # Conway's Game of Life glider pattern:
     #   . X .
@@ -125,7 +130,7 @@ async def test_project(dut):
     # Cells (col, row) relative to anchor (1,1): (2,1), (3,2), (1,3), (2,3), (3,3)
 
     # Move to (1, 1)
-    await move_and_settle_ui_in(dut, clear_bits=[], set_bits=[CURSOR])
+    await move_and_settle_ui_in(dut, clear_bits=[SET], set_bits=[CURSOR])
     await move_and_settle_ui_in(dut, clear_bits=[CURSOR], set_bits=[RIGHT, DOWN])
 
     # Move to (2, 1) and set
@@ -161,7 +166,6 @@ async def test_project(dut):
 
     await Timer(FRAME, unit="ns")  # Wait one frame
     await print_board(dut)
-
 
     # Move to (2, 3) and set
     await move_and_settle_ui_in(dut, clear_bits=[SET], set_bits=[LEFT])

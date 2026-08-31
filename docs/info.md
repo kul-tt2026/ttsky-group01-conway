@@ -27,37 +27,39 @@ This project simulates _[Conway's Game of Life](https://en.wikipedia.org/wiki/Co
 
 ### Input
 
-There are four button inputs for moving the cursor up, down, left, and right. These buttons increment or decrement two counters in the row and column directions to determine the correct write address. A set button is used to toggle between a cell that is alive or dead. The start/stop button allows the simulation to be started or paused, while the cursor on/off button can be used to show or hide the cursor. There are also buttons to increase or decrease the speed of the simulation, and a reset button. The last button selects bounded board mode wich means that the simulation does or doesn't wrap around. All buttons are debounced and synchronized.
+There are four button inputs for moving the cursor up, down, left, and right. These buttons increment or decrement two counters in the row and column directions to determine the correct write address. A set button is used to toggle between a cell that is alive or dead. The start/stop button allows the simulation to be started or paused, while the cursor on/off button can be used to show or hide the cursor. The user can only edit the grid when the cursor is on. There are also buttons to increase or decrease the speed of the simulation, and a reset button. The final button toggles bounded board mode, which determines whether the simulation wraps around at the grid edges. All buttons are debounced and synchronized.
 
-| Pin       | Button     | Behaviour                              |
-| --------- | ---------- | -------------------------------------- |
-| ui_in[0]  | up         | move cursor  up                        |
-| ui_in[1]  | down       | move cursor down                       |
-| ui_in[2]  | left       | move cursor left                       |
-| ui_in[3]  | right      | move cursor right                      |
-| ui_in[4]  | set        | flip the value of the selected cell    |
-| ui_in[5]  | start/stop | start or pause the simulation          |
-| ui_in[6]  | cursor     | turn the cursor on/off                 |
-| ui_in[7]  | board      | toggle between bounded and torus modes |
-| uio_in[0] | speed up   | let the simulation go faster           |
-| uio_in[1] | speed down | let the simulation go slower           |
-| uio_in[2] | reset      | reset the tile                         |
-| uio_in[7] | testing    | only for virtual simulation            |
-
+| Pin       | Button     | Behaviour                                                                     |
+| --------- | ---------- | ----------------------------------------------------------------------------- |
+| ui_in[0]  | up         | move cursor up                                                                |
+| ui_in[1]  | down       | move cursor down                                                              |
+| ui_in[2]  | left       | move cursor left                                                              |
+| ui_in[3]  | right      | move cursor right                                                             |
+| ui_in[4]  | set        | toggle the selected cell between alive and dead                               |
+| ui_in[5]  | start/stop | start or pause the simulation                                                 |
+| ui_in[6]  | cursor     | turn the cursor on/off                                                        |
+| ui_in[7]  | board      | toggle between bounded and torus modes                                        |
+| uio_in[0] | speed up   | increase simulation speed                                                     |
+| uio_in[1] | speed down | decrease simulation speed                                                     |
+| uio_in[2] | reset      | reset the grid                                                                |
+| uio_in[7] | testing    | only for virtual simulation -> update grid every frame and disable debouncing |
 
 ### Memory
 
-The main memory which VGA reads from is `board0`, a random access grid of registers. A `0`represents a dead cell, a `1`an alive cell. The second memory,  `board1`, contains the grid of the previous iteration. It is a shift registrer and therefore uses slightly less area. It only exposes the `0`cell, but you can shift the values to get the next one. Both are in the `register_board`module.
+The `register_board` module stores the grid state using two complementary memories. `board0` is a random access grid used by input, VGA, and logic to read and write cell states (0 = dead, 1 = alive). `board1` is a shift register buffer that stores the previous grid iteration for logic computations; it uses a shift register instead of random access to reduce area overhead.
 
-The two boards share the ports `data_in`,`write_enable` and `data_out`. `active_board_write`and `active_board_read`decide which board these ports are connected to. `read_address_row`, `read_address_col`, `write_address_row` and `write_address_col`are only for the random access `board_0`. `board_1`has `toggle_read`, which shifts the register, and `neighbour_out`, an eight bit signal of the eight neighbour values of the current cel. Lastly, `manual_reset`resets both boards to all zeros.
+Both boards share `data_in`, `write_enable`, and `data_out` ports, with `active_board_read` and `active_board_write` multiplexing access. `board0` uses indexed addressing (`read_address_row`, `read_address_col`, `write_address_row`, `write_address_col`) for random access, while `board1` is controlled by `toggle_read` to shift through cells sequentially. When reading from `board1`, the module outputs the current cell via `data_out` and its eight neighbors via `neighbour_out`. `manual_reset` clears both boards to all zeros.
 
 ### Logic
 
-The logic module kicks into gear when vga is in the long vsync period and the `next_iter_countdown` module indicates enough time has passed since the previous iteration. This amount of time depends on the simulation speed.
-In an iteration, there are two phases. `L_controller` keeps track of these. First is the `COPY` phase, where every cell from `register_board`'s `board0`, which is random access, is copied to `board1`, which is a shift register and therefore slightly more area efficient. The current `row` and `col` come from the `L_rowcol_counter` module, which advances every clockcycle.
+The logic module updates the grid during each VGA vertical sync (vsync) period, but only if the `next_iter_countdown` module indicates enough time has elapsed since the previous update. The countdown threshold is determined by the simulation speed setting (0.25Hz to 20Hz); a faster speed requires fewer clock cycles to elapse, while a slower speed requires more.
+
+Each iteration consists of two phases tracked by `L_controller`. In the `COPY` phase, every cell from `board0` is copied to `board1`. The `L_rowcol_counter` module scans through each cell sequentially, advancing to the next cell each clock cycle.
 
 In the second phase, the next state of the grid is calculated based on `board1` and written to `board0`. There are two variants of this phase, `TORUS` and `BOUNDED`. These refer to the two different ways to handle the edge of the grid. In `BOUNDED`, cels outside the grid are taken to be dead. In `TORUS`, the grid wraps around like a torus, so that for example above the top of the grid is the bottom of the grid.
 Just like in the `COPY` phase, `L_rowcol_counter` will go over every cell. The `L_decider` module takes in the value of the current cell and its neighbours, and outputs `L_new_cel` based on the rules of Conway's Game of Life: a dead cell with three living neighbours comes alive, an alive cell with two or three alive neighbours stays alive, all other cell die or remain dead.
+
+The logic architecture is illustrated below:
 
 ![Logica Architecture](/docs/architectuur_logica_v4.jpg)
 
