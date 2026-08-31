@@ -94,10 +94,10 @@ module project_datapath #(
       pending_write <= 1'b0;
       pending_write_row <= '0;
       pending_write_col <= '0;
-    end else if (set_rise) begin
-      pending_write       <= 1'b1;
-      pending_write_row   <= input_write_address_row;
-      pending_write_col   <= input_write_address_col;
+    end else if (set_rise && cursor_on) begin
+      pending_write     <= 1'b1;
+      pending_write_row <= input_write_address_row;
+      pending_write_col <= input_write_address_col;
     end else if (pending_write && next_iter_allowed && !next_iter_busy) begin
       pending_write <= 1'b0;  // applied, clear the pending flag
     end
@@ -133,8 +133,7 @@ module project_datapath #(
   Input #(
       .ROW_COUNT(row_count),
       .COL_COUNT(col_count)
-      ) 
-      u_input (
+  ) u_input (
       .clk(clk),
       .reset_n(reset_n),
       .button_up(button_up),
@@ -183,12 +182,11 @@ module project_datapath #(
 
     end else begin
       if (next_iter_allowed) begin
-          read_address_col = pending_write_col;
-          read_address_row = pending_write_row;
-      end
-      else begin
-          read_address_row = vga_row_idx;
-          read_address_col = vga_col_idx;
+        read_address_col = pending_write_col;
+        read_address_row = pending_write_row;
+      end else begin
+        read_address_row = vga_row_idx;
+        read_address_col = vga_col_idx;
       end
 
       write_enable = pending_write && next_iter_allowed;
