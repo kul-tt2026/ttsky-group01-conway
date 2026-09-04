@@ -31,7 +31,7 @@ There are four button inputs for moving the cursor up, down, left, and right. Th
 
 | Pin       | Button     | Behaviour                                                                     |
 | --------- | ---------- | ----------------------------------------------------------------------------- |
-| ui_in[0]   | up         | move cursor up                                                                |
+| ui_in[0]  | up         | move cursor up                                                                |
 | ui_in[1]  | down       | move cursor down                                                              |
 | ui_in[2]  | left       | move cursor left                                                              |
 | ui_in[3]  | right      | move cursor right                                                             |
@@ -112,14 +112,36 @@ It is important that the board doesn't change when VGA is still rendering the fr
 
 1. Clock speed 25.175 MHz.
 1. Plug in the VGA Pmod connector.
-1. Turn on the cursor (`ui_in[6]`)
-1. Use the buttons to draw your own board.
+1. Connect all 11 buttons (active high), pulled low.
+1. Turn on the cursor (`ui_in[6]`).
+1. Use the buttons to draw your own board. Use the move buttons (`ui_in[0-3]`) to move the cursor, use the set button (`ui_in[4]`) to toggle a cell between dead and alive.
 1. Start with a glider or blinker.
+
+   ```text
+   Glider:
+   -------
+   .O.
+   ..O
+   OOO
+   ```
+
+   ```text
+   Blinker:
+   --------
+   .....
+   ..O..
+   ..O..
+   ..O..
+   .....
+   ```
+
 1. Press play (`ui_in[5]`) to start the simulation and let Conway's Game of Life come to life!
+1. Use the `uio_in[0]` button to increase the simulation speed and `uio_in[1]` to decrease it.
+1. Reset everything by pulling manual reset (`uio_in[2]`) high.
 
 Note: `uio_in[7]` must be low to disable testing mode.
 
 ## External hardware
 
 - _[Tiny Tapeout VGA Pmod connector](https://tinytapeout.com/specs/pinouts/#vga-output)_
-- 11 buttons, active high
+- 11 buttons, active high with pull-down resistors
